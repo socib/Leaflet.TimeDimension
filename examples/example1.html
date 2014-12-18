@@ -1,0 +1,67 @@
+<html>
+    <head>
+        <title>Leaflet TimeDimension</title>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+        <link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.4/styles/default.min.css">
+        <link rel="stylesheet" href="js/vendors/leaflet-0.7.3/leaflet.css" />
+        <link rel="stylesheet" href="js/vendors/leaflet-plugins/Leaflet.Coordinates-0.1.3.css" />
+        <link rel="stylesheet" href="js/vendors/leaflet-plugins/Control.FullScreen.css" />
+        <link rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.11.0/themes/smoothness/jquery-ui.css" />
+        <link rel="stylesheet" href="../dist/leaflet.timedimension.control.min.css" />
+        <link rel="stylesheet" href="css/style.css" />
+    </head>
+    <body>
+        <div class="container">
+            <div id="header">
+                <h1>Leaflet TimeDimension example 1</h1>                
+                <h2>Daily altimetry from satellite (AVISO)</h2>
+            </div>
+            <div id="map" class="map"></div>
+
+            <h2>Code</h2>
+            <pre><code class="javascript" id="code"></code></pre>     
+            <div class="prev-example">
+                <a href="index.html">Index</a>
+            </div>                     
+            <div class="next-example">
+                <a href="example2.html">Example 2: Temperature from IBL Software Engineering</a>
+            </div>            
+        </div>
+
+        <script type="text/javascript" src="js/vendors/jquery-2.0.0.min.js"></script>
+        <script type="text/javascript" src="js/vendors/jquery-ui-1.10.2.min.js"></script>
+        <script type="text/javascript" src="js/vendors/DateFormat.js"></script>
+
+        <script type="text/javascript" src="js/vendors/leaflet-0.7.3/leaflet.js"></script>
+        <script type="text/javascript" src="js/vendors/leaflet-plugins/Leaflet.Coordinates-0.1.3.min.js"></script>
+        <script type="text/javascript" src="js/vendors/leaflet-plugins/Control.FullScreen.js"></script>
+        <script type="text/javascript" src="js/vendors/leaflet-plugins/NonTiledLayer.js"></script>
+        <script type="text/javascript" src="js/vendors/leaflet-plugins/NonTiledLayer.WMS.js"></script>
+        <script type="text/javascript" src="js/vendors/iso8601.js"></script>
+
+        <script type="text/javascript" src="../dist/leaflet.timedimension.min.js"></script>
+        <!-- script type="text/javascript" src="../src/leaflet.timedimension.js"></script>
+        <script type="text/javascript" src="../src/leaflet.timedimension.util.js"></script>
+        <script type="text/javascript" src="../src/leaflet.timedimension.layer.js"></script>
+        <script type="text/javascript" src="../src/leaflet.timedimension.layer.wms.js"></script>
+        <script type="text/javascript" src="../src/leaflet.timedimension.player.js"></script>
+        <script type="text/javascript" src="../src/leaflet.timedimension.control.js"></script -->
+        <script type="text/javascript" src="js/example1.js"></script>
+
+        <script src="http://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.4/highlight.min.js"></script>
+        <script type="text/javascript">
+            $(document).ready(function() {
+                $.ajax('js/example1.js', {dataType: 'script'})
+                    .always(function(response) {                        
+                        $("#code").text(response.responseText);
+                        $('pre code').each(function(i, block) {
+                            hljs.highlightBlock(block);
+                        });
+                    });
+            });
+        </script>
+
+    </body>
+</html>

@@ -1,0 +1,166 @@
+var startDate = new Date();
+startDate.setUTCHours(0, 0, 0, 0);
+
+var map = L.map('map', {
+    zoom: 8,
+    fullscreenControl: true,
+    timeDimensionControl: true,
+    timeDimensionControlOptions: {
+        position: 'bottomleft',
+        playerOptions: {
+            transitionTime: 1000,
+        }
+    },
+    timeDimension: true,
+    timeDimensionOptions: {
+        timeInterval: "2014-12-08/2014-12-11",
+        period: "PT1H",
+        currentTime: Date.parse("2014-12-08T22:00:00Z")
+    },
+    center: [39.3, 2.9]
+});
+
+// Add OSM and emodnet bathymetry to map
+var osmLayer = L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+});
+var bathymetryLayer = L.tileLayer.wms("http://admin.n4m5.eu/geoserver/wms", {
+    layers: 'emodnet:mean_singlecolour',
+    format: 'image/png',
+    transparent: true,
+    attribution: "Emodnet bathymetry",
+    opacity: 0.3
+});
+var bathymetryLayer2 = L.tileLayer.wms("http://admin.n4m5.eu/geoserver/wms", {
+    layers: 'emodnet:mean_singlecolour',
+    format: 'image/png',
+    transparent: true,
+    attribution: "Emodnet bathymetry",
+    opacity: 0.3
+});
+
+var osmBathymetry = L.layerGroup([osmLayer, bathymetryLayer2]);
+osmBathymetry.addTo(map);
+var baseMaps = {
+    "Emodnet bathymetry": bathymetryLayer,
+    "Emodnet bathymetry + OSM": osmBathymetry
+};
+
+var sapoWMS = "http://thredds.socib.es/thredds/wms/operational_models/oceanographical/wave/model_run_aggregation/sapo_ib/sapo_ib_best.ncd";
+var sapoHeightLayer = L.tileLayer.wms(sapoWMS, {
+    layers: 'significant_wave_height',
+    format: 'image/png',
+    transparent: true,
+    colorscalerange: '0,6',
+    abovemaxcolor: "extend",
+    belowmincolor: "extend",
+    numcolorbands: 100,
+    styles: 'areafill/scb_bugnylorrd'
+        // styles: 'areafill/scb_greens'
+});
+
+var sapoMeanDirectionLayer = L.nonTiledLayer.wms(sapoWMS, {
+    layers: 'average_wave_direction',
+    format: 'image/png',
+    transparent: true,
+    colorscalerange: '1,1',
+    abovemaxcolor: "extend",
+    belowmincolor: "extend",
+    markerscale: 15,
+    markerspacing: 20,
+    styles: 'prettyvec/greyscale'
+});
+
+var sapoPeakDirectionLayer = L.nonTiledLayer.wms(sapoWMS, {
+    layers: 'direction_of_the_peak_of_the_spectrum',
+    format: 'image/png',
+    transparent: true,
+    colorscalerange: '0,2',
+    abovemaxcolor: "extend",
+    belowmincolor: "extend",
+    markerscale: 15,
+    markerspacing: 20,
+    styles: 'prettyvec/greyscale'
+});
+
+var proxy = 'server/proxy.php';
+var sapoHeightTimeLayer = L.timeDimension.layer.wms(sapoHeightLayer, {
+    proxy: proxy,
+    updateTimeDimension: false
+});
+var sapoMeanDirectionTimeLayer = L.timeDimension.layer.wms(sapoMeanDirectionLayer, {
+    proxy: proxy
+});
+var sapoPeakDirectionTimeLayer = L.timeDimension.layer.wms(sapoPeakDirectionLayer, {
+    proxy: proxy
+});
+
+var sapoLegend = L.control({
+    position: 'bottomright'
+});
+sapoLegend.onAdd = function(map) {
+    var src = sapoWMS + "?SERVICE=WMS&VERSION=1.1.1&REQUEST=GetLegendGraphic&LAYER=significant_wave_height&colorscalerange=0,6&PALETTE=scb_bugnylorrd&numcolorbands=100&transparent=TRUE";
+    var div = L.DomUtil.create('div', 'info legend');
+    div.innerHTML +=
+        '<img src="' + src + '" alt="legend">';
+    return div;
+};
+
+var sapoMeanDirectionLegend = L.control({
+    position: 'bottomright'
+});
+sapoMeanDirectionLegend.onAdd = function(map) {
+    var div = L.DomUtil.create('div', 'info legend');
+    div.innerHTML += '<img src="img/black-arrow.png" /> mean direction';
+    return div;
+};
+
+var sapoPeakDirectionLegend = L.control({
+    position: 'bottomright'
+});
+sapoPeakDirectionLegend.onAdd = function(map) {
+    var div = L.DomUtil.create('div', 'info legend');
+    div.innerHTML += '<img src="img/grey-arrow.png" /> peak direction';
+    return div;
+};
+
+var overlayMaps = {
+    "SAPO - significant wave height": sapoHeightTimeLayer,
+    "SAPO - average wave direction": sapoMeanDirectionTimeLayer,
+    "SAPO - direction of the peak": sapoPeakDirectionTimeLayer
+};
+
+map.on('overlayadd', function(eventLayer) {
+    if (eventLayer.name == 'SAPO - significant wave height') {
+        sapoLegend.addTo(this);
+    } else if (eventLayer.name == 'SAPO - average wave direction') {
+        sapoMeanDirectionLegend.addTo(this);
+    } else if (eventLayer.name == 'SAPO - direction of the peak') {
+        sapoPeakDirectionLegend.addTo(this);
+    }
+});
+
+map.on('overlayremove', function(eventLayer) {
+    if (eventLayer.name == 'SAPO - significant wave height') {
+        map.removeControl(sapoLegend);
+    } else if (eventLayer.name == 'SAPO - average wave direction') {
+        map.removeControl(sapoMeanDirectionLegend);
+    } else if (eventLayer.name == 'SAPO - direction of the peak') {
+        map.removeControl(sapoPeakDirectionLegend);
+    }
+});
+
+
+L.control.layers(baseMaps, overlayMaps).addTo(map);
+L.control.coordinates({
+    position: "bottomright",
+    decimals: 3,
+    labelTemplateLat: "Latitude: {y}",
+    labelTemplateLng: "Longitude: {x}",
+    useDMS: true,
+    enableUserInput: false
+}).addTo(map);
+
+sapoHeightTimeLayer.addTo(map);
+sapoPeakDirectionTimeLayer.addTo(map);
+sapoMeanDirectionTimeLayer.addTo(map);
