@@ -63,7 +63,7 @@ module.exports = function(grunt) {
                     'src/leaflet.timedimension.player.js',
                     'src/leaflet.timedimension.control.js'
                 ],
-                dest: 'dist/leaflet.timedimension.src.js'
+                dest: 'dist/leaflet.timedimension.src.withlog.js'
             },
             css: {
                 src: 'src/leaflet.timedimension.control.css',
@@ -72,7 +72,7 @@ module.exports = function(grunt) {
         },
         removelogging: {
             dist: {
-                src: "dist/leaflet.timedimension.src.js",
+                src: "dist/leaflet.timedimension.src.withlog.js",
                 dest: "dist/leaflet.timedimension.src.js"
             }
         },

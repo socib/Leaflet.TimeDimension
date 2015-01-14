@@ -214,6 +214,7 @@ L.TimeDimension = L.Class.extend({
     },
 
     setAvailableTimes: function(times, mode) {
+        var currentTime = this.getCurrentTime();
         if (mode == 'extremes') {
             var period = this.options.period || "P1D";
             this._availableTimes = L.TimeDimension.Util.explodeTimeRange(new Date(times[0]), new Date(times[times.length - 1]), period);
@@ -231,6 +232,7 @@ L.TimeDimension = L.Class.extend({
                 throw "Merge available times mode not implemented: " + mode;
             }
         }
+        this.setCurrentTime(currentTime);
         this.fire('availabletimeschanged', {});
         console.log('available times changed');
     }

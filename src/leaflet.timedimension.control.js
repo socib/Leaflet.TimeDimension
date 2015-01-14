@@ -55,8 +55,8 @@ L.Control.TimeDimension = L.Control.extend({
 
 		this._timeDimension.on('timeloading', (function(data){
 			if(data.time == this._timeDimension.getCurrentTime()){
-				if (this._displayDate && this._displayDate.className.indexOf(' loading') == -1){
-					this._displayDate.className += " loading";				
+				if (this._displayDate && this._displayDate.className.indexOf(' timecontrol-loading') == -1){
+					this._displayDate.className += " timecontrol-loading";				
 				}				
 			}
     	}).bind(this));
@@ -98,7 +98,7 @@ L.Control.TimeDimension = L.Control.extend({
 		if (time > 0){
 			var date = new Date(time);
 			if (this._displayDate){
-				this._displayDate.className = this._displayDate.className.replace(' loading', '');
+				this._displayDate.className = this._displayDate.className.replace(' timecontrol-loading', '');
 				this._displayDate.innerHTML = this._dateUTC ? date.toISOString() : date.toLocaleString();				
 			}
 			if (this._slider){
