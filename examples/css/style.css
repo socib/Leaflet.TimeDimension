@@ -105,7 +105,8 @@ ul.examples li a img{
     padding: 20px;
     width: 45%; 
     background-color: #428bca;
-    margin-bottom: 50px;      
+    margin-bottom: 50px;  
+    text-decoration: none;    
 }
 
 .prev-example a{

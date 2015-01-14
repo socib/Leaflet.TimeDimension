@@ -51,11 +51,22 @@ var sapoHeightLayer = L.tileLayer.wms(sapoWMS, {
     layers: 'significant_wave_height',
     format: 'image/png',
     transparent: true,
-    colorscalerange: '0,6',
+    colorscalerange: '0,8',
     abovemaxcolor: "extend",
     belowmincolor: "extend",
-    numcolorbands: 100,
+    numcolorbands: 50,
     styles: 'areafill/scb_bugnylorrd'
+        // styles: 'areafill/scb_greens'
+});
+var sapoHeightCountourLayer = L.tileLayer.wms(sapoWMS, {
+    layers: 'significant_wave_height',
+    format: 'image/png',
+    transparent: true,
+    colorscalerange: '0,10',
+    abovemaxcolor: "extend",
+    belowmincolor: "extend",
+    numcontours: 11,
+    styles: 'contour/scb_bugnylorrd'
         // styles: 'areafill/scb_greens'
 });
 
@@ -67,7 +78,8 @@ var sapoMeanDirectionLayer = L.nonTiledLayer.wms(sapoWMS, {
     abovemaxcolor: "extend",
     belowmincolor: "extend",
     markerscale: 15,
-    markerspacing: 20,
+    markerspacing: 12,
+    markerclipping: true,
     styles: 'prettyvec/greyscale'
 });
 
@@ -79,7 +91,8 @@ var sapoPeakDirectionLayer = L.nonTiledLayer.wms(sapoWMS, {
     abovemaxcolor: "extend",
     belowmincolor: "extend",
     markerscale: 15,
-    markerspacing: 20,
+    markerspacing: 12,
+    markerclipping: true,
     styles: 'prettyvec/greyscale'
 });
 
@@ -88,6 +101,12 @@ var sapoHeightTimeLayer = L.timeDimension.layer.wms(sapoHeightLayer, {
     proxy: proxy,
     updateTimeDimension: false
 });
+
+var sapoHeightCountourTimeLayer = L.timeDimension.layer.wms(sapoHeightCountourLayer, {
+    proxy: proxy,
+    updateTimeDimension: false
+});
+
 var sapoMeanDirectionTimeLayer = L.timeDimension.layer.wms(sapoMeanDirectionLayer, {
     proxy: proxy
 });
@@ -99,7 +118,7 @@ var sapoLegend = L.control({
     position: 'bottomright'
 });
 sapoLegend.onAdd = function(map) {
-    var src = sapoWMS + "?SERVICE=WMS&VERSION=1.1.1&REQUEST=GetLegendGraphic&LAYER=significant_wave_height&colorscalerange=0,6&PALETTE=scb_bugnylorrd&numcolorbands=100&transparent=TRUE";
+    var src = sapoWMS + "?SERVICE=WMS&VERSION=1.1.1&REQUEST=GetLegendGraphic&LAYER=significant_wave_height&colorscalerange=0,8&PALETTE=scb_bugnylorrd&numcolorbands=100&transparent=TRUE";
     var div = L.DomUtil.create('div', 'info legend');
     div.innerHTML +=
         '<img src="' + src + '" alt="legend">';
@@ -126,6 +145,7 @@ sapoPeakDirectionLegend.onAdd = function(map) {
 
 var overlayMaps = {
     "SAPO - significant wave height": sapoHeightTimeLayer,
+    "SAPO - significant wave height (countour)": sapoHeightCountourTimeLayer,
     "SAPO - average wave direction": sapoMeanDirectionTimeLayer,
     "SAPO - direction of the peak": sapoPeakDirectionTimeLayer
 };
@@ -162,5 +182,6 @@ L.control.coordinates({
 }).addTo(map);
 
 sapoHeightTimeLayer.addTo(map);
+sapoHeightCountourTimeLayer.addTo(map);
 sapoPeakDirectionTimeLayer.addTo(map);
 sapoMeanDirectionTimeLayer.addTo(map);

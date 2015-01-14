@@ -9,12 +9,16 @@ var map = L.map('map', {
     center: [45.3, 0.9],
 });
 
-L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
-    attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
-}).addTo(map);
 
 // https://ogcie.iblsoft.com/metocean/wms?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetCapabilities
 var testWMS = "https://ogcie.iblsoft.com/metocean/wms"
+L.tileLayer.wms(testWMS, {
+    layers: 'foreground-lines',
+    format: 'image/png',
+    transparent: true,
+    crs: L.CRS.EPSG4326
+}).addTo(map);
+
 var testLayer = L.tileLayer.wms(testWMS, {
     layers: 'temperature',
     format: 'image/png',

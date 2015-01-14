@@ -1,12 +1,19 @@
-var startDate = new Date();
-startDate.setUTCHours(0, 0, 0, 0);
+var currentTime = new Date();
+currentTime.setUTCHours(0, 0, 0, 0);
+var endDate = new Date(currentTime.getTime());
+L.TimeDimension.Util.addTimeDuration(endDate, "P3D", true);      
 
 var map = L.map('map', {
-    zoom: 6,
+    zoom: 8,
+    center: [39.4, 2.5],
     fullscreenControl: true,
     timeDimensionControl: true,
     timeDimension: true,
-    center: [39.3, 4]
+    timeDimensionOptions: {
+        timeInterval: "P1M/" + endDate.toISOString(),
+        period: "PT6H",
+        currentTime: currentTime.getTime()
+    }
 });
 
 // Add OSM and emodnet bathymetry to map
@@ -39,23 +46,37 @@ var wmopWMS = "http://thredds.socib.es/thredds/wms/operational_models/oceanograp
 var wmopTemperatureLayer = L.tileLayer.wms(wmopWMS, {
     layers: 'temp',
     format: 'image/png',
-    transparent: true,
-    colorscalerange: '15,30',
+    transparent: true,    
     abovemaxcolor: "extend",
     belowmincolor: "extend",
     numcolorbands: 40,
     styles: 'boxfill/sst_36'
 });
 
+var wmopTemperatureContourLayer = L.tileLayer.wms(wmopWMS, {
+    layers: 'temp',
+    format: 'image/png',
+    transparent: true,    
+    numcontours: 11,
+    styles: 'contour/sst_36'
+});
+
 var wmopSalinityLayer = L.tileLayer.wms(wmopWMS, {
     layers: 'salt',
     format: 'image/png',
-    transparent: true,
-    colorscalerange: '35,39',
+    transparent: true,    
     abovemaxcolor: "extend",
     belowmincolor: "extend",
     numcolorbands: 40,
     styles: 'boxfill/mpl_rdbu_r'
+});
+
+var wmopSalinityContourLayer = L.tileLayer.wms(wmopWMS, {
+    layers: 'salt',
+    format: 'image/png',
+    transparent: true,    
+    numcontours: 11,
+    styles: 'contour/sst_36'
 });
 
 var wmopVelocityLayer = L.nonTiledLayer.wms(wmopWMS, {
@@ -65,32 +86,19 @@ var wmopVelocityLayer = L.nonTiledLayer.wms(wmopWMS, {
     colorscalerange: '0,3',
     abovemaxcolor: "extend",
     belowmincolor: "extend",
-    markerscale: 15,
-    markerspacing: 20,
-    styles: 'prettyvec/rainbow'    
+    markerscale: 10,
+    markerspacing: 8,
+    styles: 'prettyvec/greyscale'    
 });
 
 var proxy = 'server/proxy.php';
-var wmopTemperatureTimeLayer = L.timeDimension.layer.wms(wmopTemperatureLayer, {proxy: proxy, updateTimeDimension: true});
-var wmopSalinityTimeLayer = L.timeDimension.layer.wms(wmopSalinityLayer, {proxy: proxy});
-var wmopVelocityTimeLayer = L.timeDimension.layer.wms(wmopVelocityLayer, {proxy: proxy});
-
+var wmopVelocityTimeLayer = L.timeDimension.layer.wms(wmopVelocityLayer, {proxy: proxy, updateTimeDimension: true});
 var overlayMaps = {
-    "WMOP - SST": wmopTemperatureTimeLayer,
-    "WMOP - SSS": wmopSalinityTimeLayer,
     "WMOP - Velocity": wmopVelocityTimeLayer
 };
 
-map.on('overlayadd', function(eventLayer) {
-    console.log('TODO: add legend');
-});
-
-map.on('overlayremove', function(eventLayer) {
-    console.log('TODO: remove legend');
-});
-
-
-L.control.layers(baseMaps, overlayMaps).addTo(map);
+var layersControl = L.control.layers(baseMaps, overlayMaps);
+layersControl.addTo(map);
 L.control.coordinates({
     position: "bottomright",
     decimals: 3,
@@ -100,4 +108,38 @@ L.control.coordinates({
     enableUserInput: false
 }).addTo(map);
 
-wmopTemperatureTimeLayer.addTo(map);
+wmopVelocityTimeLayer.addTo(map);
+
+var getLayerMinMax = function(layer, callback) {
+    var url = wmopWMS + '?service=WMS&version=1.1.1&request=GetMetadata&item=minmax';
+    url = url + '&layers=' + layer.options.layers;    
+    url = url + '&srs=EPSG:4326';    
+    var size = map.getSize();
+    url = url + '&BBox=' + map.getBounds().toBBoxString();
+    url = url + '&height=' + size.y;
+    url = url + '&width=' + size.x;
+    url = proxy + '?url=' + encodeURIComponent(url);
+
+    $.getJSON(url, (function(layer, data) {
+        var range = data.max - data.min;
+        var min = Math.floor(data.min) - 1;
+        var max = Math.floor(data.max + 2);
+        layer.options.colorscalerange = min + "," + max;
+        layer.wmsParams.colorscalerange = min + "," + max;
+        if (callback !== undefined) {
+            callback();
+        }
+    }).bind(this, layer));
+};
+
+var addTimeDimensionLayer = function(layer, name, addToMap){
+    var timeDimensionLayer = L.timeDimension.layer.wms(layer, {proxy: proxy});
+    layersControl.addOverlay(timeDimensionLayer, name);
+    if (addToMap)
+        timeDimensionLayer.addTo(map);
+}
+
+getLayerMinMax(wmopTemperatureLayer, function(){addTimeDimensionLayer(wmopTemperatureLayer, 'WMOP - Temperature', true);});
+getLayerMinMax(wmopTemperatureContourLayer, function(){addTimeDimensionLayer(wmopTemperatureContourLayer, 'WMOP - Temperature (Contour)', true);});
+getLayerMinMax(wmopSalinityLayer, function(){addTimeDimensionLayer(wmopSalinityLayer, 'WMOP - Salinity', false);});
+getLayerMinMax(wmopSalinityContourLayer, function(){addTimeDimensionLayer(wmopSalinityContourLayer, 'WMOP - Salinity (Contour)', false);});

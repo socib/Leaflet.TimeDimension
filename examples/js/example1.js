@@ -44,6 +44,14 @@ var heigthLayer = L.tileLayer.wms(avisoWMS, {
     numcolorbands: 100,    
     styles: 'boxfill/rainbow'
 });
+var heigthContourLayer = L.tileLayer.wms(avisoWMS, {
+    layers: 'adt',
+    format: 'image/png',
+    transparent: true,
+    colorscalerange: '-0.5,0.5',
+    numcontours: 11,    
+    styles: 'contour/rainbow'
+});
 
 var velocityLayer = L.nonTiledLayer.wms(avisoWMS, {
     layers: 'surface_geostrophic_sea_water_velocity',
@@ -63,6 +71,10 @@ var heightTimeLayer = L.timeDimension.layer.wms(heigthLayer, {
     proxy: proxy,
     updateTimeDimension: true,
 });
+var heightContourTimeLayer = L.timeDimension.layer.wms(heigthContourLayer, {
+    proxy: proxy,
+    updateTimeDimension: false,
+});
 var velocityTimeLayer = L.timeDimension.layer.wms(velocityLayer, {
     proxy: proxy,
     updateTimeDimension: false,
@@ -70,6 +82,7 @@ var velocityTimeLayer = L.timeDimension.layer.wms(velocityLayer, {
 
 var overlayMaps = {
     "AVISO - Sea surface height above geoid": heightTimeLayer,
+    "AVISO - Sea surface height above geoid (Contour)": heightContourTimeLayer,
     "AVISO - Surface geostrophic sea water velocity": velocityTimeLayer
 };
 
@@ -123,4 +136,5 @@ L.control.coordinates({
 }).addTo(map);
 
 heightTimeLayer.addTo(map);
+heightContourTimeLayer.addTo(map);
 velocityTimeLayer.addTo(map);
