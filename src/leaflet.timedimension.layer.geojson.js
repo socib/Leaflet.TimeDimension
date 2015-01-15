@@ -57,16 +57,18 @@ L.TimeDimension.Layer.GeoJson = L.TimeDimension.Layer.extend({
             if (feature) {
                 layer.addData(feature);
                 if (this._addlastPoint && feature.geometry.type == "LineString") {
-                    var properties = feature.properties;
-                    properties.last = true;
-                    layer.addData({
-                        type: 'Feature',
-                        properties: properties,
-                        geometry: {
-                            type: 'Point',
-                            coordinates: feature.geometry.coordinates[feature.geometry.coordinates.length - 1]
-                        }
-                    });
+                    if (feature.geometry.coordinates.length > 0) {
+                        var properties = feature.properties;                        
+                        properties.last = true;
+                        layer.addData({
+                            type: 'Feature',
+                            properties: properties,
+                            geometry: {
+                                type: 'Point',
+                                coordinates: feature.geometry.coordinates[feature.geometry.coordinates.length - 1]
+                            }
+                        });
+                    }
                 }
             }
         }

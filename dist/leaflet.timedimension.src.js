@@ -1,5 +1,5 @@
 /* 
- * Leaflet TimeDimension v0.1.0 - 2015-01-14 
+ * Leaflet TimeDimension v0.1.1 - 2015-01-15 
  * 
  * Copyright 2015 Biel Frontera (ICTS SOCIB) 
  * datacenter@socib.es 
@@ -162,6 +162,32 @@ L.TimeDimension = L.Class.extend({
             });
             count--;
         }
+    },
+
+    getNumberNextTimesReady: function(numSteps, howmany) {
+        if (numSteps === undefined) {
+            numSteps = 1;
+        }
+
+        var newIndex = this._currentTimeIndex;
+        if (this._loadingTimeIndex > -1)
+            newIndex = this._loadingTimeIndex;
+        var count = howmany;
+        var ready = 0;
+        while (count > 0) {
+            newIndex = newIndex + numSteps;
+            if (newIndex >= this._availableTimes.length) {
+                count = 0;
+                ready = howmany;
+                break;
+            }            
+            var time = this._availableTimes[newIndex];
+            if (this._checkSyncedLayersReady(time)){
+                ready++;
+            }
+            count--;
+        }
+        return ready;
     },
 
     previousTime: function(numSteps) {
@@ -571,11 +597,11 @@ L.TimeDimension.Layer.WMS = L.TimeDimension.Layer.extend({
     },
 
     _onNewTimeLoading: function(ev) {
-        
+        // 
         var layer = this._getLayerForTime(ev.time);
         if (!this._map.hasLayer(layer)) {
             this._map.addLayer(layer);
-            
+            // 
         }
     },
 
@@ -670,7 +696,7 @@ L.TimeDimension.Layer.WMS = L.TimeDimension.Layer.extend({
             if (this._timeDimension && time == this._timeDimension.getCurrentTime() && !this._timeDimension.isLoading()) {
                 this._showLayer(layer, time);
             }
-            
+            // 
             this.fire('timeload', {
                 time: time
             });
@@ -946,16 +972,18 @@ L.TimeDimension.Layer.GeoJson = L.TimeDimension.Layer.extend({
             if (feature) {
                 layer.addData(feature);
                 if (this._addlastPoint && feature.geometry.type == "LineString") {
-                    var properties = feature.properties;
-                    properties.last = true;
-                    layer.addData({
-                        type: 'Feature',
-                        properties: properties,
-                        geometry: {
-                            type: 'Point',
-                            coordinates: feature.geometry.coordinates[feature.geometry.coordinates.length - 1]
-                        }
-                    });
+                    if (feature.geometry.coordinates.length > 0) {
+                        var properties = feature.properties;                        
+                        properties.last = true;
+                        layer.addData({
+                            type: 'Feature',
+                            properties: properties,
+                            geometry: {
+                                type: 'Point',
+                                coordinates: feature.geometry.coordinates[feature.geometry.coordinates.length - 1]
+                            }
+                        });
+                    }
                 }
             }
         }
@@ -1087,10 +1115,12 @@ L.TimeDimension.Player = L.Class.extend({
         this._timeDimension = timeDimension;
         this._paused = false;
         this._transitionTime = this.options.transitionTime || 1000;
-        this._buffer = this.options.buffer || 10;
+        this._buffer = this.options.buffer || 5;
+        this._minBufferReady = this.options.minBufferReady || 1;
+        this._waitingForBuffer = false;
         this._loop = this.options.loop || false;
         this._steps = 1;
-        this._timeDimension.on('timeload', (function(data){
+        this._timeDimension.on('timeload', (function(data){            
             this.continue();  // free clock
         }).bind(this));        
     },
@@ -1107,16 +1137,43 @@ L.TimeDimension.Player = L.Class.extend({
         if (self._paused) {
             return;
         }
+        var numberNextTimesReady = 0;
+        if (self._minBufferReady > 0){
+            numberNextTimesReady = self._timeDimension.getNumberNextTimesReady(self._steps, self._buffer);            
+            // If the player was waiting, check if all times are loaded
+            if (self._waitingForBuffer){
+                if (numberNextTimesReady < self._buffer){
+                    
+                    self._timeDimension.fire('timeanimationwaiting', {percent: numberNextTimesReady/self._buffer});
+                    return;
+                }else{
+                    // all times loaded
+                    
+                    self._timeDimension.fire('timeanimationrunning');
+                    self._waitingForBuffer = false;
+                }
+            } else{
+                // check if player has to stop to wait and force to full all the buffer
+                if (numberNextTimesReady < self._minBufferReady){
+                    
+                    self._waitingForBuffer = true;
+                    self._timeDimension.fire('timeanimationwaiting', {percent: numberNextTimesReady/self._buffer});
+                    self._timeDimension.prepareNextTimes(self._steps, self._buffer);
+                    return;
+                }
+            }
+        }
         self.pause();
         self._timeDimension.nextTime(self._steps);
         if (self._buffer > 0){
-            self._timeDimension.prepareNextTimes(self._steps, self._buffer);            
+            self._timeDimension.prepareNextTimes(self._steps, self._buffer);
         }
     },
 
     start: function(numSteps) {
         if (this._intervalID) return;
         this._steps = numSteps || 1;
+        this._waitingForBuffer = false;
         this._intervalID = window.setInterval(
             this._tick,
             this._transitionTime,
@@ -1127,7 +1184,7 @@ L.TimeDimension.Player = L.Class.extend({
     stop: function() {
         if (!this._intervalID) return;
         clearInterval(this._intervalID);
-        this._intervalID = null;
+        this._intervalID = null;        
     },
 
     pause: function() {
@@ -1214,6 +1271,25 @@ L.Control.TimeDimension = L.Control.extend({
 				if (this._displayDate && this._displayDate.className.indexOf(' timecontrol-loading') == -1){
 					this._displayDate.className += " timecontrol-loading";				
 				}				
+			}
+    	}).bind(this));
+
+    	this._timeDimension.on('timeanimationwaiting', (function(data){
+			if (this._buttonPlayPause){
+        		this._buttonPlayPause.className = 'leaflet-control-timecontrol timecontrol-play-loading';
+        		this._buttonPlayPause.innerHTML = '<span>' + Math.floor(data.percent*100) + '%</span>';
+			}
+
+    	}).bind(this));
+
+    	this._timeDimension.on('timeanimationrunning', (function(data){
+			if (this._buttonPlayPause){
+				this._buttonPlayPause.innerHTML = '';
+				if (this._player.isPlaying()){			
+					this._buttonPlayPause.className = 'leaflet-control-timecontrol timecontrol-pause';
+				} else {
+					this._buttonPlayPause.className = 'leaflet-control-timecontrol timecontrol-play';
+				}
 			}
     	}).bind(this));
 
@@ -1357,12 +1433,16 @@ L.Control.TimeDimension = L.Control.extend({
 			.addListener(_slider, 'click', L.DomEvent.stopPropagation)
 			.addListener(_slider, 'click', L.DomEvent.preventDefault);
 
-		_slider.innerHTML = '<span class="speed">' +  1000/this.options.playerOptions.transitionTime  + 'fps</span><div class="slider"></div>';
+		var currentSpeed = 1;
+		if (this._player){
+			currentSpeed = 1000/this._playerOptions.getTransitionTime();
+		}
+		_slider.innerHTML = '<span class="speed">' +  currentSpeed  + 'fps</span><div class="slider"></div>';
 		var slider = $(_slider).find('.slider');		
 		slider.slider({
       		min: 0.1,
       		max: 10,
-      		value: 1000/this.options.playerOptions.transitionTime,
+      		value: currentSpeed,
       		step: 0.1,
       		range: "min",
       		stop: (function(sliderContainer, event, ui ) {
@@ -1394,6 +1474,7 @@ L.Control.TimeDimension = L.Control.extend({
 		if (this._player.isPlaying()){			
 			this._buttonPlayPause.className = 'leaflet-control-timecontrol timecontrol-play';
 			this._player.stop();
+			this._buttonPlayPause.innerHTML = '';
 		} else {
 			this._buttonPlayPause.className = 'leaflet-control-timecontrol timecontrol-pause';
 			this._player.start(this._steps);
@@ -1405,11 +1486,9 @@ L.Control.TimeDimension = L.Control.extend({
 	},
 
 	_sliderSpeedValueChanged: function(newValue){
-		this.options.playerOptions.transitionTime = 1000/newValue;
-		if (this._player){
-		    this._player.setTransitionTime(this.options.playerOptions.transitionTime);
+		if (this._player){			
+		    this._player.setTransitionTime(1000/newValue);
 		}
-
 	},
 
 	_toggleDateUTC: function(event){

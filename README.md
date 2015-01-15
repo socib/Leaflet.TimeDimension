@@ -186,7 +186,8 @@ Option                | Default       | Description
 ----------------------|---------------|---------------------------------------------------------
 `timeDimension`       | `null`        | 
 `transitionTime`      | `1000`        | Milliseconds that the player will wait to check and launch the next time in the TimeDimension
-`buffer`              | `10`          | Number of times forward that will be requested in each iteration
+`buffer`              | `5`           | Number of times forward that will be requested in each iteration
+`minBufferReady`      | `1`           | If this option is greater than 0, the player will full the buffer every time the number of next ready times (next layers ready) is bellow this number.
 `loop`                | `false`       | Loop the animation when arrives to the last available time
 
 

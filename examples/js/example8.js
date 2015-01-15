@@ -141,7 +141,7 @@ var map = L.map('map', {
     timeDimensionControlOptions: {
         autoPlay: true,
         playerOptions: {
-            buffer: 0,
+            buffer: 10,            
             transitionTime: 500,
             loop: true,
         }
@@ -160,7 +160,7 @@ var testLayer = L.nonTiledLayer.wms(testWMS, {
     transparent: true,
     styles: 'prettyvec/mpl_reds',
     markerscale: 15,
-    markerspacing: 18,
+    markerspacing: 6,
     numcolorbands: 10,
     abovemaxcolor: "extend",
     belowmincolor: "extend",

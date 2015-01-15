@@ -58,17 +58,6 @@ var sapoHeightLayer = L.tileLayer.wms(sapoWMS, {
     styles: 'areafill/scb_bugnylorrd'
         // styles: 'areafill/scb_greens'
 });
-var sapoHeightCountourLayer = L.tileLayer.wms(sapoWMS, {
-    layers: 'significant_wave_height',
-    format: 'image/png',
-    transparent: true,
-    colorscalerange: '0,10',
-    abovemaxcolor: "extend",
-    belowmincolor: "extend",
-    numcontours: 11,
-    styles: 'contour/scb_bugnylorrd'
-        // styles: 'areafill/scb_greens'
-});
 
 var sapoMeanDirectionLayer = L.nonTiledLayer.wms(sapoWMS, {
     layers: 'average_wave_direction',
@@ -98,11 +87,6 @@ var sapoPeakDirectionLayer = L.nonTiledLayer.wms(sapoWMS, {
 
 var proxy = 'server/proxy.php';
 var sapoHeightTimeLayer = L.timeDimension.layer.wms(sapoHeightLayer, {
-    proxy: proxy,
-    updateTimeDimension: false
-});
-
-var sapoHeightCountourTimeLayer = L.timeDimension.layer.wms(sapoHeightCountourLayer, {
     proxy: proxy,
     updateTimeDimension: false
 });
@@ -145,7 +129,6 @@ sapoPeakDirectionLegend.onAdd = function(map) {
 
 var overlayMaps = {
     "SAPO - significant wave height": sapoHeightTimeLayer,
-    "SAPO - significant wave height (countour)": sapoHeightCountourTimeLayer,
     "SAPO - average wave direction": sapoMeanDirectionTimeLayer,
     "SAPO - direction of the peak": sapoPeakDirectionTimeLayer
 };
@@ -182,6 +165,5 @@ L.control.coordinates({
 }).addTo(map);
 
 sapoHeightTimeLayer.addTo(map);
-sapoHeightCountourTimeLayer.addTo(map);
 sapoPeakDirectionTimeLayer.addTo(map);
 sapoMeanDirectionTimeLayer.addTo(map);

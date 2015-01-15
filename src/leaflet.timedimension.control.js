@@ -61,6 +61,25 @@ L.Control.TimeDimension = L.Control.extend({
 			}
     	}).bind(this));
 
+    	this._timeDimension.on('timeanimationwaiting', (function(data){
+			if (this._buttonPlayPause){
+        		this._buttonPlayPause.className = 'leaflet-control-timecontrol timecontrol-play-loading';
+        		this._buttonPlayPause.innerHTML = '<span>' + Math.floor(data.percent*100) + '%</span>';
+			}
+
+    	}).bind(this));
+
+    	this._timeDimension.on('timeanimationrunning', (function(data){
+			if (this._buttonPlayPause){
+				this._buttonPlayPause.innerHTML = '';
+				if (this._player.isPlaying()){			
+					this._buttonPlayPause.className = 'leaflet-control-timecontrol timecontrol-pause';
+				} else {
+					this._buttonPlayPause.className = 'leaflet-control-timecontrol timecontrol-play';
+				}
+			}
+    	}).bind(this));
+
 		this._timeDimension.on('timeanimationfinished', (function(data){
 			if (this._buttonPlayPause)
         		this._buttonPlayPause.className = 'leaflet-control-timecontrol timecontrol-play';
@@ -201,12 +220,16 @@ L.Control.TimeDimension = L.Control.extend({
 			.addListener(_slider, 'click', L.DomEvent.stopPropagation)
 			.addListener(_slider, 'click', L.DomEvent.preventDefault);
 
-		_slider.innerHTML = '<span class="speed">' +  1000/this.options.playerOptions.transitionTime  + 'fps</span><div class="slider"></div>';
+		var currentSpeed = 1;
+		if (this._player){
+			currentSpeed = 1000/this._playerOptions.getTransitionTime();
+		}
+		_slider.innerHTML = '<span class="speed">' +  currentSpeed  + 'fps</span><div class="slider"></div>';
 		var slider = $(_slider).find('.slider');		
 		slider.slider({
       		min: 0.1,
       		max: 10,
-      		value: 1000/this.options.playerOptions.transitionTime,
+      		value: currentSpeed,
       		step: 0.1,
       		range: "min",
       		stop: (function(sliderContainer, event, ui ) {
@@ -238,6 +261,7 @@ L.Control.TimeDimension = L.Control.extend({
 		if (this._player.isPlaying()){			
 			this._buttonPlayPause.className = 'leaflet-control-timecontrol timecontrol-play';
 			this._player.stop();
+			this._buttonPlayPause.innerHTML = '';
 		} else {
 			this._buttonPlayPause.className = 'leaflet-control-timecontrol timecontrol-pause';
 			this._player.start(this._steps);
@@ -249,11 +273,9 @@ L.Control.TimeDimension = L.Control.extend({
 	},
 
 	_sliderSpeedValueChanged: function(newValue){
-		this.options.playerOptions.transitionTime = 1000/newValue;
-		if (this._player){
-		    this._player.setTransitionTime(this.options.playerOptions.transitionTime);
+		if (this._player){			
+		    this._player.setTransitionTime(1000/newValue);
 		}
-
 	},
 
 	_toggleDateUTC: function(event){

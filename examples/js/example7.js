@@ -13,6 +13,11 @@ var map = L.map('map', {
         timeInterval: "P1M/" + endDate.toISOString(),
         period: "PT6H",
         currentTime: currentTime.getTime()
+    },
+    timeDimensionControlOptions: {    
+        playerOptions: {                        
+            loop: true,
+        }
     }
 });
 
@@ -42,7 +47,7 @@ var baseMaps = {
     "Emodnet bathymetry + OSM": osmBathymetry
 };
 
-var wmopWMS = "http://thredds.socib.es/thredds/wms/operational_models/oceanographical/hydrodynamics/model_run_aggregation/wmop/wmop_best.ncd";
+var wmopWMS = "http://thredds.priv.socib.es/thredds/wms/operational_models/oceanographical/hydrodynamics/model_run_aggregation/wmop/wmop_best.ncd";
 var wmopTemperatureLayer = L.tileLayer.wms(wmopWMS, {
     layers: 'temp',
     format: 'image/png',
@@ -50,7 +55,8 @@ var wmopTemperatureLayer = L.tileLayer.wms(wmopWMS, {
     abovemaxcolor: "extend",
     belowmincolor: "extend",
     numcolorbands: 40,
-    styles: 'boxfill/sst_36'
+    styles: 'boxfill/sst_36',
+    zIndex: 1,
 });
 
 var wmopTemperatureContourLayer = L.tileLayer.wms(wmopWMS, {
@@ -58,7 +64,8 @@ var wmopTemperatureContourLayer = L.tileLayer.wms(wmopWMS, {
     format: 'image/png',
     transparent: true,    
     numcontours: 11,
-    styles: 'contour/sst_36'
+    styles: 'contour/sst_36',
+    zIndex: 10,
 });
 
 var wmopSalinityLayer = L.tileLayer.wms(wmopWMS, {
@@ -139,7 +146,15 @@ var addTimeDimensionLayer = function(layer, name, addToMap){
         timeDimensionLayer.addTo(map);
 }
 
-getLayerMinMax(wmopTemperatureLayer, function(){addTimeDimensionLayer(wmopTemperatureLayer, 'WMOP - Temperature', true);});
-getLayerMinMax(wmopTemperatureContourLayer, function(){addTimeDimensionLayer(wmopTemperatureContourLayer, 'WMOP - Temperature (Contour)', true);});
-getLayerMinMax(wmopSalinityLayer, function(){addTimeDimensionLayer(wmopSalinityLayer, 'WMOP - Salinity', false);});
-getLayerMinMax(wmopSalinityContourLayer, function(){addTimeDimensionLayer(wmopSalinityContourLayer, 'WMOP - Salinity (Contour)', false);});
+getLayerMinMax(wmopTemperatureLayer, function(){
+    addTimeDimensionLayer(wmopTemperatureLayer, 'WMOP - Temperature', true);
+    wmopTemperatureContourLayer.wmsParams.colorscalerange = wmopTemperatureLayer.wmsParams.colorscalerange;
+    wmopTemperatureContourLayer.options.colorscalerange = wmopTemperatureLayer.wmsParams.colorscalerange;
+    addTimeDimensionLayer(wmopTemperatureContourLayer, 'WMOP - Temperature (Contour)', true);    
+});
+getLayerMinMax(wmopSalinityLayer, function(){
+    addTimeDimensionLayer(wmopSalinityLayer, 'WMOP - Salinity', false);
+    wmopSalinityContourLayer.wmsParams.colorscalerange = wmopSalinityLayer.wmsParams.colorscalerange;
+    wmopSalinityContourLayer.options.colorscalerange = wmopSalinityLayer.wmsParams.colorscalerange;    
+    addTimeDimensionLayer(wmopSalinityContourLayer, 'WMOP - Salinity (Contour)', false);
+});

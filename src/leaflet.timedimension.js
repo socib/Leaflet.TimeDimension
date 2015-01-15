@@ -148,6 +148,32 @@ L.TimeDimension = L.Class.extend({
         }
     },
 
+    getNumberNextTimesReady: function(numSteps, howmany) {
+        if (numSteps === undefined) {
+            numSteps = 1;
+        }
+
+        var newIndex = this._currentTimeIndex;
+        if (this._loadingTimeIndex > -1)
+            newIndex = this._loadingTimeIndex;
+        var count = howmany;
+        var ready = 0;
+        while (count > 0) {
+            newIndex = newIndex + numSteps;
+            if (newIndex >= this._availableTimes.length) {
+                count = 0;
+                ready = howmany;
+                break;
+            }            
+            var time = this._availableTimes[newIndex];
+            if (this._checkSyncedLayersReady(time)){
+                ready++;
+            }
+            count--;
+        }
+        return ready;
+    },
+
     previousTime: function(numSteps) {
         if (numSteps === undefined) {
             numSteps = 1;

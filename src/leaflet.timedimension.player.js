@@ -9,10 +9,12 @@ L.TimeDimension.Player = L.Class.extend({
         this._timeDimension = timeDimension;
         this._paused = false;
         this._transitionTime = this.options.transitionTime || 1000;
-        this._buffer = this.options.buffer || 10;
+        this._buffer = this.options.buffer || 5;
+        this._minBufferReady = this.options.minBufferReady || 1;
+        this._waitingForBuffer = false;
         this._loop = this.options.loop || false;
         this._steps = 1;
-        this._timeDimension.on('timeload', (function(data){
+        this._timeDimension.on('timeload', (function(data){            
             this.continue();  // free clock
         }).bind(this));        
     },
@@ -29,16 +31,43 @@ L.TimeDimension.Player = L.Class.extend({
         if (self._paused) {
             return;
         }
+        var numberNextTimesReady = 0;
+        if (self._minBufferReady > 0){
+            numberNextTimesReady = self._timeDimension.getNumberNextTimesReady(self._steps, self._buffer);            
+            // If the player was waiting, check if all times are loaded
+            if (self._waitingForBuffer){
+                if (numberNextTimesReady < self._buffer){
+                    console.log('Waiting until buffer is loaded. ' + numberNextTimesReady + ' of ' + self._buffer + ' loaded');
+                    self._timeDimension.fire('timeanimationwaiting', {percent: numberNextTimesReady/self._buffer});
+                    return;
+                }else{
+                    // all times loaded
+                    console.log('Buffer is fully loaded!');
+                    self._timeDimension.fire('timeanimationrunning');
+                    self._waitingForBuffer = false;
+                }
+            } else{
+                // check if player has to stop to wait and force to full all the buffer
+                if (numberNextTimesReady < self._minBufferReady){
+                    console.log('Force wait for load buffer. ' + numberNextTimesReady + ' of ' + self._buffer + ' loaded');
+                    self._waitingForBuffer = true;
+                    self._timeDimension.fire('timeanimationwaiting', {percent: numberNextTimesReady/self._buffer});
+                    self._timeDimension.prepareNextTimes(self._steps, self._buffer);
+                    return;
+                }
+            }
+        }
         self.pause();
         self._timeDimension.nextTime(self._steps);
         if (self._buffer > 0){
-            self._timeDimension.prepareNextTimes(self._steps, self._buffer);            
+            self._timeDimension.prepareNextTimes(self._steps, self._buffer);
         }
     },
 
     start: function(numSteps) {
         if (this._intervalID) return;
         this._steps = numSteps || 1;
+        this._waitingForBuffer = false;
         this._intervalID = window.setInterval(
             this._tick,
             this._transitionTime,
@@ -49,7 +78,7 @@ L.TimeDimension.Player = L.Class.extend({
     stop: function() {
         if (!this._intervalID) return;
         clearInterval(this._intervalID);
-        this._intervalID = null;
+        this._intervalID = null;        
     },
 
     pause: function() {
