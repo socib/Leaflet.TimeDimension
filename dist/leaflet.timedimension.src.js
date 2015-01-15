@@ -1436,6 +1436,8 @@ L.Control.TimeDimension = L.Control.extend({
 		var currentSpeed = 1;
 		if (this._player){
 			currentSpeed = 1000/this._playerOptions.getTransitionTime();
+		}else{
+			currentSpeed = Math.round(10000/(this.options.playerOptions.transitionTime||1000))/10;
 		}
 		_slider.innerHTML = '<span class="speed">' +  currentSpeed  + 'fps</span><div class="slider"></div>';
 		var slider = $(_slider).find('.slider');		

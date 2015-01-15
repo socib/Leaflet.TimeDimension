@@ -17,6 +17,8 @@ var map = L.map('map', {
     timeDimensionControlOptions: {    
         playerOptions: {                        
             loop: true,
+            transitionTime: 1500,
+            buffer: 10
         }
     }
 });
@@ -47,7 +49,7 @@ var baseMaps = {
     "Emodnet bathymetry + OSM": osmBathymetry
 };
 
-var wmopWMS = "http://thredds.priv.socib.es/thredds/wms/operational_models/oceanographical/hydrodynamics/model_run_aggregation/wmop/wmop_best.ncd";
+var wmopWMS = "http://thredds.socib.es/thredds/wms/operational_models/oceanographical/hydrodynamics/model_run_aggregation/wmop/wmop_best.ncd";
 var wmopTemperatureLayer = L.tileLayer.wms(wmopWMS, {
     layers: 'temp',
     format: 'image/png',
