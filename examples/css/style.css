@@ -6,9 +6,58 @@
     position: relative;
 }
 #header{
-    background-position: top left;
+    background-image: url(../img/logo-leaflettimedimension.png);
+    background-position: top right;
     background-repeat: no-repeat;
     padding-bottom: 20px;
+    min-height: 80px;
+}
+
+#header a{
+    text-decoration: none;
+    color: #80bf43;
+}
+
+#footer {
+    clear: both;
+    border-top: #D8D8D8 1px solid;
+    padding: 10px 0;
+}
+
+#footer a{
+    color: #999;;
+    font-family: Georgia, serif;
+    text-decoration: none;
+}
+
+#footer a.leaflet-timedimension{
+    background-image: url(../img/logo-leaflettimedimension-32.png);
+    background-position: top left;
+    background-repeat: no-repeat; 
+    display: block;
+    float: left;
+    padding-left: 55px;
+    min-height: 32px;
+    line-height: 32px;    
+}
+
+#footer a.github {
+    padding-right: 40px;
+    display: block;
+    float: right;
+    min-height: 32px;
+    line-height: 32px;
+    background-image: url(../img/GitHub-Mark-32px.png);
+    background-position: top right;
+    background-repeat: no-repeat; 
+}
+
+a.github span{
+    display: none;
+}
+
+a.github:hover span{
+    display: inline;
 }
 
 .leaflet-container .legend{
@@ -51,8 +100,8 @@ ul.examples li {
 
 ul.examples li a{
     display: block;
-    color: #FFF;
-    background-color: #428bca;
+    color: #444;
+    background-color: #80bf43;
     width: 350px;
     min-height: 200px;
     text-align: center;
@@ -62,7 +111,7 @@ ul.examples li a{
 }
 ul.examples li a:hover{
     text-decoration: none;
-    background-color: #0070D0;  
+    background-color: #bae568;  
 }
 
 ul.examples li a img{
@@ -99,12 +148,17 @@ ul.examples li a img{
     height: 700px;   
 }
 
+.map.sirena{
+    width: 100%;
+    height: 597px;   
+}
+
 .prev-example a, .next-example a{
-    color: #FFF;
+    color: #222;
     display: block;
     padding: 20px;
     width: 45%; 
-    background-color: #428bca;
+    background-color: #80bf43;
     margin-bottom: 50px;  
     text-decoration: none;    
 }
@@ -133,5 +187,6 @@ ul.examples li a img{
 
 .prev-example a:hover, .next-example a:hover{
     text-decoration: none;
-    background-color: #0070D0;
+    background-color: #bae568;
+    color: #444;
 }
