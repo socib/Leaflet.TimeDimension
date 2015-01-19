@@ -152,12 +152,7 @@ a.timecontrol-pause:before {
 
 a.timecontrol-play-loading{
     background-color: #ffefa4;
-    width: 12px;
-    overflow: hidden;
     position: relative;
-}
-a.timecontrol-play-loading:hover{
-    width: 12px;
 }
 
 a.timecontrol-play-loading span{
@@ -172,8 +167,7 @@ a.timecontrol-play-loading span{
 a.timecontrol-play-loading:before {
   font-family: "Glyphicons Halflings";
   content: "\e031";
-  opacity: 0.2;
-  font-size: 18px;  
+  opacity: 0.2;    
   -webkit-animation: rotation 12s infinite linear;
 }
 a.timecontrol-stop:before {

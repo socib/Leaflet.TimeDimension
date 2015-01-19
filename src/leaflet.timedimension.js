@@ -213,7 +213,8 @@ L.TimeDimension = L.Class.extend({
         } else if (this.options.timeInterval) {
             var tiArray = L.TimeDimension.Util.parseTimeInterval(this.options.timeInterval);
             var period = this.options.period || "P1D";
-            return L.TimeDimension.Util.explodeTimeRange(tiArray[0], tiArray[1], period);
+            var validTimeRange = this.options.validTimeRange || undefined; 
+            return L.TimeDimension.Util.explodeTimeRange(tiArray[0], tiArray[1], period, validTimeRange);
         } else {
             return [];
         }

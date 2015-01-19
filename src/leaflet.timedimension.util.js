@@ -65,12 +65,30 @@ L.TimeDimension.Util = {
         return this.explodeTimeRange(startTime, endTime, duration);
     },
 
-    explodeTimeRange: function(startTime, endTime, ISODuration) {
+    explodeTimeRange: function(startTime, endTime, ISODuration, validTimeRange) {
         var duration = this.getTimeDuration(ISODuration);
         var result = [];
         var currentTime = new Date(startTime.getTime());
+        var minHour = null,
+            minMinutes = null,
+            maxHour = null,
+            maxMinutes = null;
+        if (validTimeRange !== undefined) {
+            var validTimeRangeArray = validTimeRange.split('/');
+            minHour = validTimeRangeArray[0].split(':')[0];
+            minMinutes = validTimeRangeArray[0].split(':')[1];
+            maxHour = validTimeRangeArray[1].split(':')[0];
+            maxMinutes = validTimeRangeArray[1].split(':')[1];
+        }
         while (currentTime <= endTime) {
-            result.push(currentTime.getTime());
+            if (validTimeRange === undefined ||
+                (currentTime.getUTCHours() >= minHour && currentTime.getUTCHours() <= maxHour)
+            ) {
+                if ((currentTime.getUTCHours() != minHour || currentTime.getUTCMinutes() >= minMinutes) &&
+                    (currentTime.getUTCHours() != maxHour || currentTime.getUTCMinutes() <= maxMinutes)) {
+                    result.push(currentTime.getTime());
+                }
+            }
             this.addTimeDuration(currentTime, duration);
         }
         return result;
@@ -151,7 +169,7 @@ L.TimeDimension.Util = {
 
     union_arrays: function(arrayA, arrayB) {
         var a = arrayA.slice(0);
-        var b = arrayB.slice(0);        
+        var b = arrayB.slice(0);
         var result = [];
         while (a.length > 0 && b.length > 0) {
             if (a[0] < b[0]) {
@@ -163,9 +181,9 @@ L.TimeDimension.Util = {
                 b.shift();
             }
         }
-        if (a.length > 0){
+        if (a.length > 0) {
             result = result.concat(a);
-        }else if (b.length > 0){
+        } else if (b.length > 0) {
             result = result.concat(b);
         }
         return result;
