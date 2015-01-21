@@ -1,5 +1,5 @@
 /* 
- * Leaflet TimeDimension v0.1.2 - 2015-01-19 
+ * Leaflet TimeDimension v0.1.2 - 2015-01-21 
  * 
  * Copyright 2015 Biel Frontera (ICTS SOCIB) 
  * datacenter@socib.es 
@@ -1036,7 +1036,7 @@ L.TimeDimension.Layer.GeoJson = L.TimeDimension.Layer.extend({
             }
             this._availableTimes.push(time);
         }
-        if (this._updateTimeDimension || (this._timeDimension && this._timeDimension.getAvailableTimes().length == 0)) {
+        if (this._timeDimension && (this._updateTimeDimension || this._timeDimension.getAvailableTimes().length == 0)) {
             this._timeDimension.setAvailableTimes(this._availableTimes, this._updateTimeDimensionMode);
             this._timeDimension.setCurrentTime(this._availableTimes[0]);
         }
@@ -1045,6 +1045,9 @@ L.TimeDimension.Layer.GeoJson = L.TimeDimension.Layer.extend({
     _getFeatureTimes: function(feature) {
         if (!feature.properties) {
             return [];
+        }
+        if (feature.properties.hasOwnProperty('coordTimes')) {
+            return feature.properties.coordTimes;
         }
         if (feature.properties.hasOwnProperty('times')) {
             return feature.properties.times;
@@ -1220,6 +1223,10 @@ L.TimeDimension.Player = L.Class.extend({
 
     isPlaying: function() {
         return this._intervalID ? true : false;
+    },
+
+    isWaiting: function() {
+        return this._waitingForBuffer;
     },
 
     setTransitionTime: function(transitionTime) {
@@ -1492,10 +1499,19 @@ L.Control.TimeDimension = L.Control.extend({
 		if (!this._player){
 		    this._player = new L.TimeDimension.Player(this.options.playerOptions, this._timeDimension);
 		}
-		if (this._player.isPlaying()){			
-			this._buttonPlayPause.className = 'leaflet-control-timecontrol timecontrol-play';
-			this._player.stop();
-			this._buttonPlayPause.innerHTML = '';
+		if (this._player.isPlaying()){
+			if (this._player.isWaiting()){
+				// force start
+				this._buttonPlayPause.className = 'leaflet-control-timecontrol timecontrol-pause';
+				this._buttonPlayPause.innerHTML = '';
+				this._player.stop();
+				this._player.start(this._steps);
+
+			} else {
+				this._buttonPlayPause.className = 'leaflet-control-timecontrol timecontrol-play';
+				this._player.stop();
+				this._buttonPlayPause.innerHTML = '';				
+			}
 		} else {
 			this._buttonPlayPause.className = 'leaflet-control-timecontrol timecontrol-pause';
 			this._player.start(this._steps);

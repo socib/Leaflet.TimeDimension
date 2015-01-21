@@ -55,7 +55,6 @@ L.control.coordinates({
     enableUserInput: false
 }).addTo(map);
 
-var gpxLayer = omnivore.gpx('data/run.gpx');
 var gpxLayer = omnivore.gpx('data/running_mallorca.gpx').on('ready', function() {
     map.fitBounds(gpxLayer.getBounds(), {
         paddingBottomRight: [40, 40]

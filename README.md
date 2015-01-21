@@ -67,6 +67,7 @@ Option                | Default       | Description
 `times`               | `null`        | It can be: a) An array of times (in milliseconds). b) String of dates separated by commas. c) String formed by `start date`/`end date`/`period`. If null, it will be constructed according to `timeInterval` and `period`
 `timeInterval`        | `"P1M/" + today` | String to construct the first available time and the last available time. Format: [ISO8601 Time inverval](http://en.wikipedia.org/wiki/ISO_8601#Time_intervals)
 `period`              | `"P1D"`       | Used to construct the array of available times starting from the first available time. Format: [ISO8601 Duration](http://en.wikipedia.org/wiki/ISO_8601#Durations)
+`validTimeRange`      | `undefined`   | Filter the array of available times by start hour and end hour (for any date). Format "HH:MM/HH:MM"
 `currentTime`         | Closest available time | Current time to be loaded. Time in ms.
 `loadingTimeout`      | `3000`        | Maximum time in milliseconds that the component will wait to apply a new time if synced layers are not ready
 
@@ -138,8 +139,8 @@ Option                | Default       | Description
 ### L.TimeDimension.Layer.GeoJSON
 
 Manages a GeoJSON layer with a TimeDimension. According to GeoJSON specification, geometry coordinates can have only three dimensions: latitude, longitude and elevation. There isn't an standard way to add time dimension information. This plugin will search for some attributes inside properties: 
-- times or linestringTimestamps: array of times that can be associated with a geometry (datestrings or ms). In the case of a LineString, it must have as many items as coordinates in the LineString.
-- time: time of the feature
+- `coordTimes`, `times` or `linestringTimestamps`: array of times that can be associated with a geometry (datestrings or ms). In the case of a LineString, it must have as many items as coordinates in the LineString. (Note: `coordTimes` is the name of the property [recently](https://github.com/mapbox/togeojson/blob/master/CHANGELOG.md#0100) included at [Mapbox toGeoJSON library](http://mapbox.github.io/togeojson/))
+- `time`: time of the feature
 
 This component will modify the GeoJSON layer in order to show only that features (or part of them) that are active for the time of the TimeDimension (according to a duration option).
 

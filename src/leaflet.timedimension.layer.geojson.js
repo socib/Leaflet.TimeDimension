@@ -102,7 +102,7 @@ L.TimeDimension.Layer.GeoJson = L.TimeDimension.Layer.extend({
             }
             this._availableTimes.push(time);
         }
-        if (this._updateTimeDimension || (this._timeDimension && this._timeDimension.getAvailableTimes().length == 0)) {
+        if (this._timeDimension && (this._updateTimeDimension || this._timeDimension.getAvailableTimes().length == 0)) {
             this._timeDimension.setAvailableTimes(this._availableTimes, this._updateTimeDimensionMode);
             this._timeDimension.setCurrentTime(this._availableTimes[0]);
         }
@@ -111,6 +111,9 @@ L.TimeDimension.Layer.GeoJson = L.TimeDimension.Layer.extend({
     _getFeatureTimes: function(feature) {
         if (!feature.properties) {
             return [];
+        }
+        if (feature.properties.hasOwnProperty('coordTimes')) {
+            return feature.properties.coordTimes;
         }
         if (feature.properties.hasOwnProperty('times')) {
             return feature.properties.times;
