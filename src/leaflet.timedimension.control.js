@@ -260,10 +260,19 @@ L.Control.TimeDimension = L.Control.extend({
 		if (!this._player){
 		    this._player = new L.TimeDimension.Player(this.options.playerOptions, this._timeDimension);
 		}
-		if (this._player.isPlaying()){			
-			this._buttonPlayPause.className = 'leaflet-control-timecontrol timecontrol-play';
-			this._player.stop();
-			this._buttonPlayPause.innerHTML = '';
+		if (this._player.isPlaying()){
+			if (this._player.isWaiting()){
+				// force start
+				this._buttonPlayPause.className = 'leaflet-control-timecontrol timecontrol-pause';
+				this._buttonPlayPause.innerHTML = '';
+				this._player.stop();
+				this._player.start(this._steps);
+
+			} else {
+				this._buttonPlayPause.className = 'leaflet-control-timecontrol timecontrol-play';
+				this._player.stop();
+				this._buttonPlayPause.innerHTML = '';				
+			}
 		} else {
 			this._buttonPlayPause.className = 'leaflet-control-timecontrol timecontrol-pause';
 			this._player.start(this._steps);

@@ -97,6 +97,10 @@ L.TimeDimension.Player = L.Class.extend({
         return this._intervalID ? true : false;
     },
 
+    isWaiting: function() {
+        return this._waitingForBuffer;
+    },
+
     setTransitionTime: function(transitionTime) {
         this._transitionTime = transitionTime;
         if (this._intervalID) {
