@@ -28,6 +28,13 @@ L.TimeDimension.Layer.GeoJson = L.TimeDimension.Layer.extend({
         }
     },
 
+    eachLayer: function(method, context) {
+        if (this._currentLayer) {
+            method.call(context, this._currentLayer);
+        }
+        return L.TimeDimension.Layer.prototype.eachLayer.call(this, method, context);
+    },      
+
     isReady: function(time) {
         return this._loaded;
     },

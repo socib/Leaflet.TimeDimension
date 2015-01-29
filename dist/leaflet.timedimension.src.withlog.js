@@ -1,5 +1,5 @@
 /* 
- * Leaflet TimeDimension v0.1.2 - 2015-01-21 
+ * Leaflet TimeDimension v0.1.2 - 2015-01-29 
  * 
  * Copyright 2015 Biel Frontera (ICTS SOCIB) 
  * datacenter@socib.es 
@@ -961,6 +961,13 @@ L.TimeDimension.Layer.GeoJson = L.TimeDimension.Layer.extend({
             this._setAvailableTimes();
         }
     },
+
+    eachLayer: function(method, context) {
+        if (this._currentLayer) {
+            method.call(context, this._currentLayer);
+        }
+        return L.TimeDimension.Layer.prototype.eachLayer.call(this, method, context);
+    },      
 
     isReady: function(time) {
         return this._loaded;
