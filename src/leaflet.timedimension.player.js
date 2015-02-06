@@ -58,7 +58,7 @@ L.TimeDimension.Player = L.Class.extend({
             }
         }
         self.pause();
-        self._timeDimension.nextTime(self._steps);
+        self._timeDimension.nextTime(self._steps, self._loop);
         if (self._buffer > 0){
             self._timeDimension.prepareNextTimes(self._steps, self._buffer);
         }

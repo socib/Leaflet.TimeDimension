@@ -111,17 +111,25 @@ L.TimeDimension = L.Class.extend({
         return this._availableTimes[index];
     },    
 
-    nextTime: function(numSteps) {
+    nextTime: function(numSteps, loop) {
         if (numSteps === undefined) {
             numSteps = 1;
+        }
+        if (loop === undefined) {
+            loop = false;
         }
 
         var newIndex = this._currentTimeIndex;
         if (this._loadingTimeIndex > -1)
             newIndex = this._loadingTimeIndex;
         newIndex = newIndex + numSteps;
-        if (newIndex >= this._availableTimes.length) {
-            newIndex = 0;
+        if (newIndex >= this._availableTimes.length) {            
+            if (loop){
+                newIndex = 0;
+            }else{
+                // nextTime out of range
+                return;                
+            }
         }
         this.setCurrentTimeIndex(newIndex);
     },

@@ -1,5 +1,5 @@
 /* 
- * Leaflet TimeDimension v0.1.2 - 2015-01-29 
+ * Leaflet TimeDimension v0.1.2 - 2015-02-06 
  * 
  * Copyright 2015 Biel Frontera (ICTS SOCIB) 
  * datacenter@socib.es 
@@ -122,17 +122,30 @@ L.TimeDimension = L.Class.extend({
         this.setCurrentTimeIndex(newIndex);
     },
 
-    nextTime: function(numSteps) {
+    seekNearestTime: function(time) {
+        var index = this._seekNearestTimeIndex(time);
+        return this._availableTimes[index];
+    },    
+
+    nextTime: function(numSteps, loop) {
         if (numSteps === undefined) {
             numSteps = 1;
+        }
+        if (loop === undefined) {
+            loop = false;
         }
 
         var newIndex = this._currentTimeIndex;
         if (this._loadingTimeIndex > -1)
             newIndex = this._loadingTimeIndex;
         newIndex = newIndex + numSteps;
-        if (newIndex >= this._availableTimes.length) {
-            newIndex = 0;
+        if (newIndex >= this._availableTimes.length) {            
+            if (loop){
+                newIndex = 0;
+            }else{
+                // nextTime out of range
+                return;                
+            }
         }
         this.setCurrentTimeIndex(newIndex);
     },
@@ -1193,7 +1206,7 @@ L.TimeDimension.Player = L.Class.extend({
             }
         }
         self.pause();
-        self._timeDimension.nextTime(self._steps);
+        self._timeDimension.nextTime(self._steps, self._loop);
         if (self._buffer > 0){
             self._timeDimension.prepareNextTimes(self._steps, self._buffer);
         }
