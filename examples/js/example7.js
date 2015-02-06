@@ -23,32 +23,6 @@ var map = L.map('map', {
     }
 });
 
-// Add OSM and emodnet bathymetry to map
-var osmLayer = L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
-    attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
-});
-var bathymetryLayer = L.tileLayer.wms("http://admin.n4m5.eu/geoserver/wms", {
-    layers: 'emodnet:mean_singlecolour',
-    format: 'image/png',
-    transparent: true,
-    attribution: "Emodnet bathymetry",
-    opacity: 0.3
-});
-var bathymetryLayer2 = L.tileLayer.wms("http://admin.n4m5.eu/geoserver/wms", {
-    layers: 'emodnet:mean_singlecolour',
-    format: 'image/png',
-    transparent: true,
-    attribution: "Emodnet bathymetry",
-    opacity: 0.3
-});
-
-var osmBathymetry = L.layerGroup([osmLayer, bathymetryLayer2]);
-osmBathymetry.addTo(map);
-var baseMaps = {
-    "Emodnet bathymetry": bathymetryLayer,
-    "Emodnet bathymetry + OSM": osmBathymetry
-};
-
 var wmopWMS = "http://thredds.socib.es/thredds/wms/operational_models/oceanographical/hydrodynamics/model_run_aggregation/wmop/wmop_best.ncd";
 var wmopTemperatureLayer = L.tileLayer.wms(wmopWMS, {
     layers: 'temp',
@@ -106,7 +80,8 @@ var overlayMaps = {
     "WMOP - Velocity": wmopVelocityTimeLayer
 };
 
-var layersControl = L.control.layers(baseMaps, overlayMaps);
+var baseLayers = getCommonBaseLayers(map); // see baselayers.js
+var layersControl = L.control.layers(baseLayers, overlayMaps);
 layersControl.addTo(map);
 L.control.coordinates({
     position: "bottomright",

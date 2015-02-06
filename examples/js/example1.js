@@ -6,32 +6,6 @@ var map = L.map('map', {
     center: [38.0, 15.0]
 });
 
-// Add OSM and emodnet bathymetry to map
-var osmLayer = L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
-    attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
-});
-var bathymetryLayer = L.tileLayer.wms("http://admin.n4m5.eu/geoserver/wms", {
-    layers: 'emodnet:mean_singlecolour',
-    format: 'image/png',
-    transparent: true,
-    attribution: "Emodnet bathymetry",
-    opacity: 0.3
-});
-var bathymetryLayer2 = L.tileLayer.wms("http://admin.n4m5.eu/geoserver/wms", {
-    layers: 'emodnet:mean_singlecolour',
-    format: 'image/png',
-    transparent: true,
-    attribution: "Emodnet bathymetry",
-    opacity: 0.3
-});
-
-var osmBathymetry = L.layerGroup([osmLayer, bathymetryLayer2]);
-osmBathymetry.addTo(map);
-var baseMaps = {
-    "Emodnet bathymetry": bathymetryLayer,
-    "Emodnet bathymetry + OSM": osmBathymetry
-};
-
 var avisoWMS = "http://thredds.socib.es/thredds/wms/observational/satellite/altimetry/aviso/madt/altimetry_aviso_madt_L4_agg/altimetry_aviso_madt_L4_agg_best.ncd";
 
 var heigthLayer = L.tileLayer.wms(avisoWMS, {
@@ -124,8 +98,8 @@ map.on('overlayremove', function(eventLayer) {
     }     
 });
 
-
-L.control.layers(baseMaps, overlayMaps).addTo(map);
+var baseLayers = getCommonBaseLayers(map); // see baselayers.js
+L.control.layers(baseLayers, overlayMaps).addTo(map);
 L.control.coordinates({
     position: "bottomright",
     decimals: 3,

@@ -1,16 +1,11 @@
-var endDate = new Date();
-endDate.setUTCMinutes(0, 0, 0);
-var startTime = new Date(endDate.getTime());
-L.TimeDimension.Util.subtractTimeDuration(startTime, "P1D", true);
-
 var map = L.map('map', {
     zoom: 10,
     fullscreenControl: true,
     timeDimension: true,
     timeDimensionOptions: {
-        timeInterval: "P3D/" + endDate.toISOString(),
+        timeInterval: "2014-09-30/2014-10-30",
         period: "PT1H",
-        currentTime: startTime.getTime()
+        currentTime: Date.parse("2014-09-30T09:00:00Z")
     },
     timeDimensionControl: true,
     timeDimensionControlOptions: {
@@ -35,7 +30,7 @@ var testLayer = L.nonTiledLayer.wms(testWMS, {
     transparent: true,
     styles: 'prettyvec/rainbow',
     markerscale: 15,
-    markerspacing: 20,
+    markerspacing: 10,
     abovemaxcolor: "extend",
     belowmincolor: "extend",
     colorscalerange: "0,0.4",
