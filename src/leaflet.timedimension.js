@@ -106,6 +106,11 @@ L.TimeDimension = L.Class.extend({
         this.setCurrentTimeIndex(newIndex);
     },
 
+    seekNearestTime: function(time) {
+        var index = this._seekNearestTimeIndex(time);
+        return this._availableTimes[index];
+    },    
+
     nextTime: function(numSteps) {
         if (numSteps === undefined) {
             numSteps = 1;
