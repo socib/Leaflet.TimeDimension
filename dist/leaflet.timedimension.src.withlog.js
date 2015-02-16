@@ -1,5 +1,5 @@
 /* 
- * Leaflet TimeDimension v0.1.2 - 2015-02-06 
+ * Leaflet TimeDimension v0.1.2 - 2015-02-16 
  * 
  * Copyright 2015 Biel Frontera (ICTS SOCIB) 
  * datacenter@socib.es 
@@ -607,6 +607,7 @@ L.TimeDimension.Layer.WMS = L.TimeDimension.Layer.extend({
         this._layers = {};
         this._defaultTime = 0;
         this._availableTimes = [];
+        this._capabilitiesRequested = false;
         if (this._updateTimeDimension || this.options.requestTimeFromCapabilities) {
             this._requestTimeDimensionFromCapabilities();
         }
@@ -767,6 +768,10 @@ L.TimeDimension.Layer.WMS = L.TimeDimension.Layer.extend({
     },
 
     _requestTimeDimensionFromCapabilities: function() {
+        if (this._capabilitiesRequested){
+            return;
+        }
+        this._capabilitiesRequested = true;
         var wms = this._baseLayer.getURL();
         var url = wms + "?service=WMS&version=" +
             this._wmsVersion + "&request=GetCapabilities";
@@ -787,8 +792,8 @@ L.TimeDimension.Layer.WMS = L.TimeDimension.Layer.extend({
 
     _parseTimeDimensionFromCapabilities: function(xml) {
         var layers = $(xml).find('Layer[queryable="1"]');
-        var layerName = this._baseLayer.wmsParams.layers;
-        var layerNameElement = layers.find("Name:contains('" + layerName + "')");
+        var layerName = this._baseLayer.wmsParams.layers;        
+        var layerNameElement = layers.find("Name").filter(function(index) { return $(this).text() === layerName; });
         var times = null;
         if (layerNameElement) {
             var layer = layerNameElement.parent();
@@ -808,7 +813,7 @@ L.TimeDimension.Layer.WMS = L.TimeDimension.Layer.extend({
     _getDefaultTimeFromCapabilities: function(xml) {
         var layers = $(xml).find('Layer[queryable="1"]');
         var layerName = this._baseLayer.wmsParams.layers;
-        var layerNameElement = layers.find("Name:contains('" + layerName + "')");
+        var layerNameElement = layers.find("Name").filter(function(index) { return $(this).text() === layerName; });
         var defaultTime = 0;
         if (layerNameElement) {
             var layer = layerNameElement.parent();
