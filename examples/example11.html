@@ -16,43 +16,25 @@
     <body>
         <div class="container">
             <div id="header">
-                <h1>Leaflet TimeDimension example 10</h1>                
-                <h2>ImageOverlay and custom control</h2>
+                <h1>Leaflet TimeDimension example 11</h1>                
+                <h2>Sea Surface Temperature from <a href="http://www.ncdc.noaa.gov/cdr/operationalcdrs.html">NOAA Operational Climate Data Records</a></h2>
             </div>
-            <div id="map-wrapper"> 
-                <div id="map" class="map sirena"></div>
-                <div id="mapcontrol" class="sidecontrol">                    
-                    <span class="title"><a href="http://socib.es/?seccion=observingFacilities&facility=mooring&id=36" title="Mobims Cala Millor">Beach Monitoring at Cala Millor</a></span>
-                    <span class="date">&nbsp;</span>
-                    <span class="time">&nbsp;</span>
-                    <div class="button-wrapper">
-                        <button class="btn btn-prev">Prev</button>
-                        <button class="btn btn-play">Play</button>
-                        <button class="btn btn-next">Next</button>
-                    </div>
-                </div>
-                <div class="sidecontrol">
-                    <p>This is a <i>proof-of-concept</i>. We have implemented a new L.TimeDimension.Layer class to manage ImageOverlays and a basic custom control to manage the TimeDimension.</p>
-                    <p>The chart below shows the daily wind average observed at the weather station installed in Cala Millor by SOCIB. If you click in any point of the chart, it will show the image of the selected date at 12:00h.</p>
-                </div>
-                <div class="clearfix"></div>
-            </div>
+            <div id="map" class="map"></div>
 
-            <div id="chart" style="height: 300px; min-width: 310px"></div>
 
             <h2>Code</h2>
             <pre><code class="javascript" id="code"></code></pre>            
 
             <div class="prev-example">
-                <a href="example9.html">Example 9: GeoJSON layers with times property</a>
-            </div>   
+                <a href="example10.html">Example 10: ImageOverlay and custom control</a>
+            </div>                 
             <div class="next-example">
-                <a href="example11.html">Example 11: NOAA Operational Climate Data Records (SST)</a>
+                <a href="index.html">Index</a>
             </div>
             <div id="footer">
                 <a class="leaflet-timedimension" href="index.html">Leaflet.TimeDimension examples</a>
                 <a class="github" href="https://github.com/socib/Leaflet.TimeDimension" title="Fork Leaflet.TimeDimension at GitHub!"><span>Fork Leaflet.TimeDimension at GitHub</span></a>
-            </div>            
+            </div>                          
         </div>
 
         <script type="text/javascript" src="js/vendors/jquery-2.0.0.min.js"></script>
@@ -60,10 +42,10 @@
 
         <script type="text/javascript" src="js/vendors/leaflet-0.7.3/leaflet.js"></script>
         <script type="text/javascript" src="js/vendors/leaflet-plugins/Leaflet.Coordinates-0.1.3.min.js"></script>
-        <script type="text/javascript" src="js/vendors/leaflet-plugins/Control.FullScreen.js"></script>        
+        <script type="text/javascript" src="js/vendors/leaflet-plugins/Control.FullScreen.js"></script>
+        <script type="text/javascript" src="js/vendors/leaflet-plugins/NonTiledLayer.js"></script>
+        <script type="text/javascript" src="js/vendors/leaflet-plugins/NonTiledLayer.WMS.js"></script>
         <script type="text/javascript" src="js/vendors/iso8601.js"></script>
-        <script type="text/javascript" src="js/vendors/DateFormat.js"></script>
-        <script src="http://code.highcharts.com/stock/highstock.js"></script>
 
         <script type="text/javascript" src="../src/leaflet.timedimension.js"></script>
         <script type="text/javascript" src="../src/leaflet.timedimension.util.js"></script>
@@ -72,12 +54,12 @@
         <script type="text/javascript" src="../src/leaflet.timedimension.layer.geojson.js"></script>
         <script type="text/javascript" src="../src/leaflet.timedimension.player.js"></script>
         <script type="text/javascript" src="../src/leaflet.timedimension.control.js"></script>
-
-        <script type="text/javascript" src="js/example10.js"></script>
+        <script type="text/javascript" src="js/baselayers.js"></script>
+        <script type="text/javascript" src="js/example11.js"></script>
         <script src="http://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.4/highlight.min.js"></script>
         <script type="text/javascript">
             $(document).ready(function() {
-                $.ajax('js/example10.js', {dataType: 'script'})
+                $.ajax('js/example11.js', {dataType: 'script'})
                     .always(function(response) {                        
                         $("#code").text(response.responseText);
                         $('pre code').each(function(i, block) {
