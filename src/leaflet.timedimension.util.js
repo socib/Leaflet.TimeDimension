@@ -147,7 +147,9 @@ L.TimeDimension.Util = {
         } else {
             result = times;
         }
-        return result.sort();
+        return result.sort(function(a, b) {
+            return a - b;
+        });
     },
 
     intersect_arrays: function(arrayA, arrayB) {

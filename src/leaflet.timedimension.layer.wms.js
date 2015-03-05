@@ -160,7 +160,9 @@ L.TimeDimension.Layer.WMS = L.TimeDimension.Layer.extend({
                 result.push(prop);
             }
         }
-        return result.sort();
+        return result.sort(function(a, b) {
+            return a - b;
+        });
     },
 
     _removeLayers: function(times) {
@@ -177,7 +179,7 @@ L.TimeDimension.Layer.WMS = L.TimeDimension.Layer.extend({
     },
 
     _requestTimeDimensionFromCapabilities: function() {
-        if (this._capabilitiesRequested){
+        if (this._capabilitiesRequested) {
             return;
         }
         this._capabilitiesRequested = true;
@@ -201,8 +203,10 @@ L.TimeDimension.Layer.WMS = L.TimeDimension.Layer.extend({
 
     _parseTimeDimensionFromCapabilities: function(xml) {
         var layers = $(xml).find('Layer[queryable="1"]');
-        var layerName = this._baseLayer.wmsParams.layers;        
-        var layerNameElement = layers.find("Name").filter(function(index) { return $(this).text() === layerName; });
+        var layerName = this._baseLayer.wmsParams.layers;
+        var layerNameElement = layers.find("Name").filter(function(index) {
+            return $(this).text() === layerName;
+        });
         var times = null;
         if (layerNameElement) {
             var layer = layerNameElement.parent();
@@ -222,7 +226,9 @@ L.TimeDimension.Layer.WMS = L.TimeDimension.Layer.extend({
     _getDefaultTimeFromCapabilities: function(xml) {
         var layers = $(xml).find('Layer[queryable="1"]');
         var layerName = this._baseLayer.wmsParams.layers;
-        var layerNameElement = layers.find("Name").filter(function(index) { return $(this).text() === layerName; });
+        var layerNameElement = layers.find("Name").filter(function(index) {
+            return $(this).text() === layerName;
+        });
         var defaultTime = 0;
         if (layerNameElement) {
             var layer = layerNameElement.parent();
