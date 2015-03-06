@@ -118,7 +118,7 @@ L.Control.TimeDimension = L.Control.extend({
 			var date = new Date(time);
 			if (this._displayDate){
 				this._displayDate.className = this._displayDate.className.replace(' timecontrol-loading', '');
-				this._displayDate.innerHTML = this._dateUTC ? date.toISOString() : date.toLocaleString();				
+				this._displayDate.innerHTML = this._getDisplayDateFormat(date);
 			}
 			if (this._slider){
 	        	this._slider.slider( "value", this._timeDimension.getCurrentTimeIndex());			
@@ -206,7 +206,7 @@ L.Control.TimeDimension = L.Control.extend({
         	}).bind(this),
         	slide: (function( event, ui ) {        		
 				var date = new Date(this._timeDimension.getAvailableTimes()[ui.value]);
-				this._displayDate.innerHTML = this._dateUTC ? date.toISOString() : date.toLocaleString();
+				this._displayDate.innerHTML = this._getDisplayDateFormat(date);
         	}).bind(this),
 
       	});
@@ -298,6 +298,10 @@ L.Control.TimeDimension = L.Control.extend({
 		this._dateUTC = !this._dateUTC;
 		this._update();
 	},
+
+	_getDisplayDateFormat: function(date){
+		return this._dateUTC ? date.toISOString() : date.toLocaleString();
+	}
 
 });
 
