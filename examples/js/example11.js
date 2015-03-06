@@ -1,9 +1,16 @@
 
+var currentMonth = new Date();
+currentMonth.setUTCDate(1, 0, 0, 0, 0);
+
 var map = L.map('map', {
     zoom: 2,
     fullscreenControl: true,
     timeDimension: true,
-    timeDimensionControl: true,
+    timeDimensionOptions:{
+        timeInterval: "1981-09/" + currentMonth.format("yyyy-mm"),
+        period: "P1M",
+        currentTime: Date.parse("1981-09-01T00:00:00Z")
+    },    
     center: [20.0, 0.0],
 });
 
@@ -25,7 +32,7 @@ var testLayer = L.tileLayer.wms(testWMS, {
 });
 var testTimeLayer = L.timeDimension.layer.wms(testLayer, {
     proxy: proxy,
-    updateTimeDimension: true,
+    updateTimeDimension: false,
 });
 testTimeLayer.addTo(map);
 
@@ -41,11 +48,15 @@ testLegend.onAdd = function(map) {
 };
 testLegend.addTo(map);
 
-L.control.coordinates({
-    position: "bottomright",
-    decimals: 3,
-    labelTemplateLat: "Latitude: {y}",
-    labelTemplateLng: "Longitude: {x}",
-    useDMS: true,
-    enableUserInput: false
-}).addTo(map);
+L.Control.TimeDimensionCustom = L.Control.TimeDimension.extend({
+    _getDisplayDateFormat: function(date){
+        return date.format("dS mmmm yyyy");
+    }    
+});
+var timeDimensionControl = new L.Control.TimeDimensionCustom({
+    playerOptions: {
+        buffer: 1,
+        minBufferReady: -1
+    }
+});
+map.addControl(this.timeDimensionControl);
