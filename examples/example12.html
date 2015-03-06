@@ -12,12 +12,19 @@
         <link rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.11.0/themes/smoothness/jquery-ui.css" />
         <link rel="stylesheet" href="../src/leaflet.timedimension.control.css" />
         <link rel="stylesheet" href="css/style.css" />
+        <style>
+        a.leaflet-control-timecontrol.timecontrol-date {
+            width: 120px;
+            padding-left: 30px !important;
+            font-weight: bold;
+        }
+        </style>
     </head>
     <body>
         <div class="container">
             <div id="header">
-                <h1>Leaflet TimeDimension example 11</h1>                
-                <h2>Sea Surface Temperature from <a href="http://www.ncdc.noaa.gov/cdr/operationalcdrs.html">NOAA Operational Climate Data Records</a></h2>
+                <h1>Leaflet TimeDimension example 12</h1>                
+                <h2>Noise-Commercial complaints from <a href="https://nycopendata.socrata.com/Social-Services/311-Service-Requests-from-2010-to-Present/erm2-nwe9">NYC OpenData</a></h2>
             </div>
             <div id="map" class="map"></div>
 
@@ -26,10 +33,10 @@
             <pre><code class="javascript" id="code"></code></pre>            
 
             <div class="prev-example">
-                <a href="example10.html">Example 10: ImageOverlay and custom control</a>
+                <a href="example11.html">Example 11: NOAA Operational Climate Data Records (SST)</a>
             </div>                 
             <div class="next-example">
-                <a href="example12.html">Example 11: Noise-Commercial complaints from NYC OpenData</a>
+                <a href="index.html">Index</a>
             </div>
             <div id="footer">
                 <a class="leaflet-timedimension" href="index.html">Leaflet.TimeDimension examples</a>
@@ -45,6 +52,10 @@
         <script type="text/javascript" src="js/vendors/leaflet-plugins/Control.FullScreen.js"></script>
         <script type="text/javascript" src="js/vendors/leaflet-plugins/NonTiledLayer.js"></script>
         <script type="text/javascript" src="js/vendors/leaflet-plugins/NonTiledLayer.WMS.js"></script>
+        <script type="text/javascript" src="js/vendors/leaflet-plugins/heatmap.min.js"></script>
+        <script type="text/javascript" src="js/vendors/leaflet-plugins/leaflet-heatmap.js"></script>
+        <script type="text/javascript" src="http://maps.stamen.com/js/tile.stamen.js?v1.3.0"></script>
+        <script type="text/javascript" src="js/vendors/DateFormat.js"></script>
         <script type="text/javascript" src="js/vendors/iso8601.js"></script>
 
         <script type="text/javascript" src="../src/leaflet.timedimension.js"></script>
@@ -53,13 +64,13 @@
         <script type="text/javascript" src="../src/leaflet.timedimension.layer.wms.js"></script>
         <script type="text/javascript" src="../src/leaflet.timedimension.layer.geojson.js"></script>
         <script type="text/javascript" src="../src/leaflet.timedimension.player.js"></script>
-        <script type="text/javascript" src="../src/leaflet.timedimension.control.js"></script>
+        <script type="text/javascript" src="../src/leaflet.timedimension.control.js"></script>        
         <script type="text/javascript" src="js/baselayers.js"></script>
-        <script type="text/javascript" src="js/example11.js"></script>
+        <script type="text/javascript" src="js/example12.js"></script>
         <script src="http://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.4/highlight.min.js"></script>
         <script type="text/javascript">
             $(document).ready(function() {
-                $.ajax('js/example11.js', {dataType: 'script'})
+                $.ajax('js/example12.js', {dataType: 'script'})
                     .always(function(response) {                        
                         $("#code").text(response.responseText);
                         $('pre code').each(function(i, block) {
