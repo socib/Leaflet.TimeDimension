@@ -1,3 +1,6 @@
+
+// Attibution: SODA API requests based on this example: https://github.com/chriswhong/soda-leaflet
+
 L.TimeDimension.Layer.SODAHeatMap = L.TimeDimension.Layer.extend({
 
     initialize: function(options) {
