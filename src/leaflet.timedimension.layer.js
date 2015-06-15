@@ -85,6 +85,10 @@ L.TimeDimension.Layer = L.Class.extend({
     _update: function() {
         // to be implemented for each type of layer
         return true;
+    },
+
+    getBaseLayer: function(){
+        return this._baseLayer;
     }
 
 });

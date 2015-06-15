@@ -1,5 +1,5 @@
 /* 
- * Leaflet TimeDimension v0.1.2 - 2015-03-06 
+ * Leaflet TimeDimension v0.1.3 - 2015-06-15 
  * 
  * Copyright 2015 Biel Frontera (ICTS SOCIB) 
  * datacenter@socib.es 
@@ -584,6 +584,10 @@ L.TimeDimension.Layer = L.Class.extend({
     _update: function() {
         // to be implemented for each type of layer
         return true;
+    },
+
+    getBaseLayer: function(){
+        return this._baseLayer;
     }
 
 });
@@ -647,8 +651,10 @@ L.TimeDimension.Layer.WMS = L.TimeDimension.Layer.extend({
 
     onAdd: function(map) {
         L.TimeDimension.Layer.prototype.onAdd.call(this, map);
-        if (this._timeDimension && this._timeDimension.getAvailableTimes().length == 0) {
+        if (this._availableTimes.length == 0) {
             this._requestTimeDimensionFromCapabilities();
+        } else {
+            this._updateTimeDimensionAvailableTimes();
         }
     },
 
@@ -783,13 +789,11 @@ L.TimeDimension.Layer.WMS = L.TimeDimension.Layer.extend({
             url = this._proxy + '?url=' + encodeURIComponent(url);
         }
         $.get(url, (function(data) {
+            this._defaultTime = Date.parse(this._getDefaultTimeFromCapabilities(data));
             this._setDefaultTime = this._setDefaultTime || (this._timeDimension && this._timeDimension.getAvailableTimes().length == 0);
             this.setAvailableTimes(this._parseTimeDimensionFromCapabilities(data));
-            if (this._setDefaultTime) {
-                this._defaultTime = Date.parse(this._getDefaultTimeFromCapabilities(data));
-                if (this._timeDimension) {
-                    this._timeDimension.setCurrentTime(this._defaultTime);
-                }
+            if (this._setDefaultTime && this._timeDimension) {
+                this._timeDimension.setCurrentTime(this._defaultTime);                
             }
         }).bind(this));
     },
@@ -840,9 +844,16 @@ L.TimeDimension.Layer.WMS = L.TimeDimension.Layer.extend({
 
     setAvailableTimes: function(times) {
         this._availableTimes = L.TimeDimension.Util.parseTimesExpression(times);
+        this._updateTimeDimensionAvailableTimes();
+    },
+
+    _updateTimeDimensionAvailableTimes: function(){
         if ((this._timeDimension && this._updateTimeDimension) ||
             (this._timeDimension && this._timeDimension.getAvailableTimes().length == 0)) {
             this._timeDimension.setAvailableTimes(this._availableTimes, this._updateTimeDimensionMode);
+            if (this._defaultTime > 0) {
+                this._timeDimension.setCurrentTime(this._defaultTime);
+            }
         }
     },
 
