@@ -326,3 +326,40 @@ ul.examples li a img{
   content: "\e071";
   padding-right: 5px;
 }
+
+.animation-progress-bar{
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 5px;
+    width: 0;
+    background-color: #fbd448;
+    z-index: 10000;
+}
+
+.chart, .chart-wrapper{
+    width: 100%;
+    margin-bottom: 20px;
+}
+
+.legend-wrapper {    
+    margin-bottom: 45px !important;
+}
+
+.legend-wrapper .legend-div {    
+    margin-left: 10px;
+    background-color:#D8D8D8;
+    background-color:rgba(255,255,255,.8);
+    -webkit-border-radius:5px;-moz-border-radius:5px;border-radius:5px;
+    padding: 5px;
+    color:black;    
+}
+
+.information{
+    margin: 0 20px;
+    color: #333;
+}
+
+.information a{
+    color: #80bf43;
+}

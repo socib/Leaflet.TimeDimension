@@ -26,6 +26,7 @@ L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
 var testWMS = "http://thredds.socib.es/thredds/wms/observational/hf_radar/hf_radar_ibiza-scb_codarssproc001_aggregation/dep0001_hf-radar-ibiza_scb-codarssproc001_L1_agg.nc"
 var testLayer = L.nonTiledLayer.wms(testWMS, {
     layers: 'sea_water_velocity',
+    version: '1.3.0',
     format: 'image/png',
     transparent: true,
     styles: 'prettyvec/rainbow',

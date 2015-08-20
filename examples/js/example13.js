@@ -12,11 +12,6 @@ var map = L.map('map', {
         }
     },
     timeDimension: true,
-    timeDimensionOptions: {
-        timeInterval: "2015-07-07/2015-07-12",
-        period: "PT1H",
-        currentTime: Date.parse("2015-07-09T04:00:00Z")
-    },
     center: [39.3, 2.9]
 });
 
@@ -30,7 +25,6 @@ var sapoHeightLayer = L.tileLayer.wms(sapoWMS, {
     belowmincolor: "extend",
     numcolorbands: 100,
     styles: 'areafill/scb_bugnylorrd'
-        // styles: 'areafill/scb_greens'
 });
 
 var sapoMeanDirectionLayer = L.nonTiledLayer.wms(sapoWMS, {
@@ -59,10 +53,43 @@ var sapoPeakDirectionLayer = L.nonTiledLayer.wms(sapoWMS, {
     styles: 'prettyvec/greyscale'
 });
 
+var markers = [{
+    name: 'Sa Dragonera',
+    position: [39.555, 2.102],
+    platformName: 'Buoy at Sa Dragonera',
+    platform: 18,
+    instrument: 68,
+    variable: 17
+}, {
+    name: 'Alcúdia',
+    position: [39.8, 3.216]
+}, {
+    name: 'Palma',
+    position: [39.492847, 2.700405],
+    platformName: 'Buoy at Palma Bay',
+    platform: 143,
+    instrument: 296,
+    variable: 90047
+}, {
+    name: 'Ciutadella',
+    position: [39.976, 3.761]
+}, {
+    name: 'Ibiza Channel',
+    platformName: 'Buoy at Ibiza Channel',
+    position: [38.82445, 0.783667],
+    platform: 146,
+    instrument: 314,
+    variable: 90047
+}];
+
 var proxy = 'server/proxy.php';
-var sapoHeightTimeLayer = L.timeDimension.layer.wms(sapoHeightLayer, {
+var sapoHeightTimeLayer = L.timeDimension.layer.wms.timeseries(sapoHeightLayer, {
     proxy: proxy,
-    updateTimeDimension: false
+    updateTimeDimension: true,
+    markers: markers,
+    name: "Significant wave height",
+    units: "m",
+    enableNewMarkers: true
 });
 
 var sapoMeanDirectionTimeLayer = L.timeDimension.layer.wms(sapoMeanDirectionLayer, {
