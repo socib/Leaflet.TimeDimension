@@ -1,0 +1,96 @@
+<html>
+    <head>
+        <title>Leaflet TimeDimension</title>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+        <link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.4/styles/default.min.css">
+        <link rel="stylesheet" href="js/vendors/leaflet-0.7.3/leaflet.css" />
+        <link rel="stylesheet" href="js/vendors/leaflet-plugins/Leaflet.Coordinates-0.1.3.css" />
+        <link rel="stylesheet" href="js/vendors/leaflet-plugins/Control.FullScreen.css" />
+        <link rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.11.0/themes/smoothness/jquery-ui.css" />
+        <link rel="stylesheet" href="../src/leaflet.timedimension.control.css" />
+        <link rel="stylesheet" href="css/style.css" />      
+    </head>
+    <body>
+        <div class="container">
+            <div id="header">
+                <h1>Leaflet TimeDimension example 13</h1>                
+                <h2>TimeSeries in a point (for WMS layers provided through a THREDDS Data Server)</h2>
+            </div>
+            <div id="map" class="map"></div>
+            <div id="chart" class="chart-wrapper"></div>
+
+            <h2>Information</h2>
+            <div class="information">
+            This example use two extra Leaflet.TimeDimension classes:
+                <ul>
+                    <li><a href="js/extras/leaflet.timedimension.circlelabelmarker.js">L.TimeDimension.Layer.CircleLabelMarker</a></li>
+                    <li><a href="js/extras/leaflet.timedimension.layer.wms.timeseries.js">L.TimeDimension.Layer.WMS.TimeSeries</a></li>
+                </ul>
+
+            <p>These two classes are specific for WMS layers provided by a <a href="http://www.unidata.ucar.edu/software/thredds/current/tds/">THREDDS Data Server</a>, as they use getFeatureInfo method to get an XML with the values of the layer along time (see <a href="http://www.resc.rdg.ac.uk/trac/ncWMS/wiki/WmsExtensions">ncWMS documentation</a>). We recommend to use at least version 4.6.1 of TDS, which includes a significant improvement in the response time of GetFeatureInfo requests (see <a href="https://github.com/Unidata/thredds/pull/96">the issue at github</a>).</p>
+            <p>By default, only 7 days of data are requested for each marker. When visible time range in the chart is changed, additional data is requested to the THREDDS Server.</p>
+            <p>The vertical red line represents current selected time on the map. You can change the current time by clicking on the chart (so, the chart can be used as time control as well).</p>
+            <p>You can add more timeseries to the chart double clicking on any point on the map.</p>
+            </div>
+
+
+            <h2>Code</h2>
+            <pre><code class="javascript" id="code"></code></pre>            
+
+            <div class="prev-example">
+                <a href="example12.html">Example 12: Noise-Commercial complaints from NYC OpenData</a>
+            </div>                 
+            <div class="next-example">
+                <a href="index.html">Index</a>
+            </div>
+            <div id="footer">
+                <a class="leaflet-timedimension" href="index.html">Leaflet.TimeDimension examples</a>
+                <a class="github" href="https://github.com/socib/Leaflet.TimeDimension" title="Fork Leaflet.TimeDimension at GitHub!"><span>Fork Leaflet.TimeDimension at GitHub</span></a>
+            </div>                          
+        </div>
+
+        <script type="text/javascript" src="js/vendors/jquery-2.0.0.min.js"></script>
+        <script type="text/javascript" src="js/vendors/jquery-ui-1.10.2.min.js"></script>
+        
+        <script src="http://code.highcharts.com/stock/highstock.js"></script>
+
+
+        <script type="text/javascript" src="js/vendors/leaflet-0.7.3/leaflet.js"></script>
+        <script type="text/javascript" src="js/vendors/leaflet-plugins/Leaflet.Coordinates-0.1.3.min.js"></script>
+        <script type="text/javascript" src="js/vendors/leaflet-plugins/Control.FullScreen.js"></script>
+        <script type="text/javascript" src="js/vendors/leaflet-plugins/NonTiledLayer.js"></script>
+        <script type="text/javascript" src="js/vendors/leaflet-plugins/NonTiledLayer.WMS.js"></script>
+        <script type="text/javascript" src="js/vendors/leaflet-plugins/heatmap.min.js"></script>
+        <script type="text/javascript" src="js/vendors/leaflet-plugins/leaflet-heatmap.js"></script>
+        <script type="text/javascript" src="js/vendors/DateFormat.js"></script>
+        <script type="text/javascript" src="js/vendors/iso8601.js"></script>
+
+        <script type="text/javascript" src="../src/leaflet.timedimension.js"></script>
+        <script type="text/javascript" src="../src/leaflet.timedimension.util.js"></script>
+        <script type="text/javascript" src="../src/leaflet.timedimension.layer.js"></script>
+        <script type="text/javascript" src="../src/leaflet.timedimension.layer.wms.js"></script>
+        <script type="text/javascript" src="../src/leaflet.timedimension.layer.geojson.js"></script>
+        <script type="text/javascript" src="../src/leaflet.timedimension.player.js"></script>
+        <script type="text/javascript" src="../src/leaflet.timedimension.control.js"></script>        
+        <script type="text/javascript" src="js/extras/leaflet.timedimension.circlelabelmarker.js"></script>        
+        <script type="text/javascript" src="js/extras/leaflet.timedimension.layer.wms.timeseries.js"></script>        
+
+        <script type="text/javascript" src="js/baselayers.js"></script>
+        <script type="text/javascript" src="js/example13.js"></script>
+        <script src="http://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.4/highlight.min.js"></script>
+        <script type="text/javascript">
+            $(document).ready(function() {
+                $.ajax('js/example13.js', {dataType: 'script'})
+                    .always(function(response) {                        
+                        $("#code").text(response.responseText);
+                        $('pre code').each(function(i, block) {
+                            hljs.highlightBlock(block);
+                        });
+                    });
+            });
+        </script>        
+    </body>
+</html>
