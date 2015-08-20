@@ -91,6 +91,9 @@ L.TimeDimension.Util = {
             }
             this.addTimeDuration(currentTime, duration);
         }
+        if (currentTime > endTime){
+            result.push(endTime.getTime());
+        }
         return result;
     },
 

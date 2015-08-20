@@ -79,6 +79,15 @@ L.TimeDimension.Layer.WMS = L.TimeDimension.Layer.extend({
         }
     },
 
+    setParams: function (params, noRedraw) {
+        L.extend(this._baseLayer.options, params);
+        this._baseLayer.setParams(params, noRedraw);
+        if (this._currentLayer) {
+            this._currentLayer.setParams(params, noRedraw);
+        }
+        return this;
+    },
+
     _showLayer: function(layer, time) {
         if (this._currentLayer && this._currentLayer !== layer) {
             this._currentLayer.hide();
