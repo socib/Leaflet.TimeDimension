@@ -170,7 +170,7 @@ L.TimeDimension.Layer.GeoJson = L.TimeDimension.Layer.extend({
             index_min = 0;
         }
         if (index_max === null) {
-            index_max = l - 1;
+            index_max = l;
         }
         var new_coordinates = [];
         if (feature.geometry.coordinates[0].length) {
