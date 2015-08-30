@@ -2,26 +2,34 @@ var endDate = new Date();
 endDate.setUTCMinutes(0, 0, 0);
 
 var map = L.map('map', {
-    zoom: 7,
+    zoom: 4,
     fullscreenControl: true,
-    center: [52.0, 3.50],
+    center: [38.0, -90.50],
     timeDimension: true,
     timeDimensionControl: true,
+    timeDimensionControlOptions: {
+            autoPlay: true,
+            playerOptions: {
+                buffer: 10,
+                transitionTime: 500,
+                loop: true
+            }
+        },
+//    updateTimeDimension: true
     timeDimensionOptions: {
-        timeInterval: "P2W/" + endDate.toISOString(),
+        timeInterval: "PT2H/" + endDate.toISOString(),
         period: "PT5M"
-    }
+    },
+    loop: true
 });
 
 L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
     attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
 }).addTo(map);
 
-
-// http://geoservices.knmi.nl/adaguc_portal/?srs=EPSG%3A28992&bbox=-47780.898876404506,300000,342780.8988764045,630000&service=http%253A%252F%252Fgeoservices.knmi.nl%252Fcgi-bin%252FRADNL_OPER_R___25PCPRR_L3.cgi%253F&layer=RADNL_OPER_R___25PCPRR_L3_COLOR%2524image%252Fpng%2524true%2524default%25241%25240&selected=0&dims=time$current&baselayers=world_raster$nl_world_line
-var testWMS = "http://geoservices.knmi.nl/cgi-bin/RADNL_OPER_R___25PCPRR_L3.cgi"
+var testWMS = "http://new.nowcoast.noaa.gov/arcgis/services/nowcoast/radar_meteo_imagery_nexrad_time/MapServer/WMSServer"
 var testLayer = L.nonTiledLayer.wms(testWMS, {
-    layers: 'RADNL_OPER_R___25PCPRR_L3_COLOR',
+    layers: '1',
     format: 'image/png',
     transparent: true, 
     attribution: 'KNMI'
@@ -32,13 +40,19 @@ testTimeLayer.addTo(map);
 var testLegend = L.control({
     position: 'topright'
 });
+var firstLoad = true;
 testLegend.onAdd = function(map) {
-    var src = testWMS + "?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetLegendGraphic&LAYER=RADNL_OPER_R___25PCPRR_L3_COLOR&format=image/png&STYLE=default";
+testLegend.onAdd = function(map) {
+   if(firstLoad){
+    var src = "http://new.nowcoast.noaa.gov/images/legends/radar.png";
     var div = L.DomUtil.create('div', 'info legend');
-    div.style.width = '65px';
+    div.style.width = '265px';
     div.style.height = '280px';
     div.style['background-image'] = 'url(' + src + ')';
+    firstLoad = false;
     return div;
+    }else{
+    }
 };
 testLegend.addTo(map);
 
@@ -48,5 +62,5 @@ L.control.coordinates({
     labelTemplateLat: "Latitude: {y}",
     labelTemplateLng: "Longitude: {x}",
     useDMS: true,
-    enableUserInput: false
+    enableUserInput: true
 }).addTo(map);
