@@ -4,13 +4,14 @@
 
 L.TimeDimension.Layer.WMS.TimeSeries = L.TimeDimension.Layer.WMS.extend({
 
-    initialize: function(layer, options) {        
+    initialize: function(layer, options) {
         this._markers = options.markers || [];
         this._markerColors = options.markerColors || ["#2f7ed8", "#0d233a", "#8bbc21", "#910000", "#1aadce", "#492970", "#f28f43", "#77a1e5", "#c42525", "#a6c96a"];
         this._name = options.name || "";
         this._defaultRangeSelector = options.defaultRangeSelector || 1;
         this._enableNewMarkers = options.enableNewMarkers || false;
-        
+        this._chartOptions = options.chartOptions || {};
+
         this._currentMarkerColor = 0;
 
         L.TimeDimension.Layer.WMS.prototype.initialize.call(this, layer, options);
@@ -19,13 +20,16 @@ L.TimeDimension.Layer.WMS.TimeSeries = L.TimeDimension.Layer.WMS.extend({
         } else {
             this._loadUnits();
         }
+        this._circleLabelMarkers = [];        
     },
 
     addTo: function(map) {
         L.TimeDimension.Layer.WMS.prototype.addTo.call(this, map);
-        if (this._enableNewMarkers){            
-            this._map.doubleClickZoom.disable();
+        if (this._enableNewMarkers && this._enabledNewMarkers === undefined) {
+            this._enabledNewMarkers = true;
+            this._map.doubleClickZoom.disable();            
             this._map.on('dblclick', (function(e) {
+                // e.originalEvent.preventDefault();
                 this.addPositionMarker({
                     position: [e.latlng.lat, e.latlng.lng]
                 });
@@ -35,6 +39,22 @@ L.TimeDimension.Layer.WMS.TimeSeries = L.TimeDimension.Layer.WMS.extend({
         return this;
     },
 
+    eachLayer: function(method, context) {
+        for (var i = 0, l = this._circleLabelMarkers.length; i < l; i++) {
+            method.call(context, this._circleLabelMarkers[i]);
+        }
+        return L.TimeDimension.Layer.WMS.prototype.eachLayer.call(this, method, context);
+    },
+
+    onRemove: function(map){
+        if (this._chart){
+            this._chart.destroy();
+            delete this._chart;
+        }
+        return L.TimeDimension.Layer.WMS.prototype.onRemove.call(this, map);
+    },
+
+
     // we need to overwrite this function, which is called when the layer has availabletimes loaded, 
     // in order to initialize dates ranges (current min-max and layer min-max date ranges) and after that
     // add the default markers to the map
@@ -43,7 +63,7 @@ L.TimeDimension.Layer.WMS.TimeSeries = L.TimeDimension.Layer.WMS.extend({
         if (this._dateRange === undefined) {
             this._setDateRanges();
             this._addMarkers();
-        }
+        }        
     },
 
     _getNextMarkerColor: function() {
@@ -57,6 +77,9 @@ L.TimeDimension.Layer.WMS.TimeSeries = L.TimeDimension.Layer.WMS.extend({
     },
 
     addPositionMarker: function(point) {
+        if (!this._map) {
+            return;
+        }
         var color = this._getNextMarkerColor();
         var circle = L.circleMarker([point.position[0], point.position[1]], {
             color: '#FFFFFF',
@@ -68,11 +91,13 @@ L.TimeDimension.Layer.WMS.TimeSeries = L.TimeDimension.Layer.WMS.extend({
 
         var afterLoadData = function(color, data) {
             var serie = this._showData(color, data, point.name);
-            L.timeDimension.layer.circleLabelMarker(circle, {
+            var marker = L.timeDimension.layer.circleLabelMarker(circle, {
                 serieId: serie,
                 dataLayer: this._currentLayer,
                 proxy: this._proxy
-            }).addTo(this._map);
+            })
+            this._circleLabelMarkers.push(marker);
+            marker.addTo(this._map);
             if (this._chart) {
                 this._chart.hideLoading();
             }
@@ -80,13 +105,14 @@ L.TimeDimension.Layer.WMS.TimeSeries = L.TimeDimension.Layer.WMS.extend({
         if (this._chart) {
             this._chart.showLoading();
         }
-        this._loadData(circle._point, afterLoadData.bind(this, color));
+        this._loadData(circle.getLatLng(), afterLoadData.bind(this, color));
     },
 
-    _loadData: function(point, callback) {
+    _loadData: function(latlng, callback) {
         var min = new Date(this._getNearestTime(this._currentDateRange.min.getTime()));
         var max = new Date(this._getNearestTime(this._currentDateRange.max.getTime()));
 
+        var point = this._map.latLngToContainerPoint(latlng);
         var url = this._baseLayer.getURL() + '?SERVICE=WMS&VERSION=1.1.1&REQUEST=GetFeatureInfo&SRS=EPSG:4326';
         url = url + '&LAYER=' + this._baseLayer.options.layers;
         url = url + '&QUERY_LAYERS=' + this._baseLayer.options.layers;
@@ -178,6 +204,9 @@ L.TimeDimension.Layer.WMS.TimeSeries = L.TimeDimension.Layer.WMS.extend({
     },
 
     _setDateRanges: function() {
+        if (!this._timeDimension) {
+            return;
+        }
         var times = this._timeDimension.getAvailableTimes();
         this._dateRange = {
             min: new Date(times[0]),
@@ -403,13 +432,16 @@ L.TimeDimension.Layer.WMS.TimeSeries = L.TimeDimension.Layer.WMS.extend({
                 }
             };
             // options['chart']['type'] = 'heatmap';
-        }
-
+        };
+        options = $.extend({}, options, this._chartOptions);
         chart_container.highcharts('StockChart', options);
-        var chart = chart_container.highcharts();
+        this._chart = chart_container.highcharts();
         this._timeDimension.on('timeload', (function(data) {
-            chart.xAxis[0].removePlotBand("pbCurrentTime");
-            chart.xAxis[0].addPlotLine({
+            if (!this._chart){
+                return;
+            }
+            this._chart.xAxis[0].removePlotBand("pbCurrentTime");
+            this._chart.xAxis[0].addPlotLine({
                 color: 'red',
                 dashStyle: 'solid',
                 value: new Date(this._timeDimension.getCurrentTime()),
@@ -417,7 +449,8 @@ L.TimeDimension.Layer.WMS.TimeSeries = L.TimeDimension.Layer.WMS.extend({
                 id: 'pbCurrentTime'
             });
         }).bind(this));
-        return chart;
+
+        return this._chart;
     },
 
     _showData: function(color, data, positionName) {
@@ -430,8 +463,9 @@ L.TimeDimension.Layer.WMS.TimeSeries = L.TimeDimension.Layer.WMS.extend({
 
     _addSerie: function(time, variableData, position, url, color) {
         var serie = this._createSerie(time, variableData, position, url, color);
-        if (!this._chart)
-            this._chart = this._createChart();
+        if (!this._chart){
+            this._createChart();
+        }
         this._chart.addSeries(serie);
         return serie.id;
     },
