@@ -1,5 +1,5 @@
 /* 
- * Leaflet TimeDimension v0.1.3 - 2015-08-25 
+ * Leaflet TimeDimension v0.1.4 - 2015-09-01 
  * 
  * Copyright 2015 Biel Frontera (ICTS SOCIB) 
  * datacenter@socib.es 
@@ -679,7 +679,7 @@ L.TimeDimension.Layer.WMS = L.TimeDimension.Layer.extend({
         }
     },
 
-    setParams: function (params, noRedraw) {
+    setParams: function(params, noRedraw) {
         L.extend(this._baseLayer.options, params);
         this._baseLayer.setParams(params, noRedraw);
         if (this._currentLayer) {
@@ -805,7 +805,7 @@ L.TimeDimension.Layer.WMS = L.TimeDimension.Layer.extend({
             this._setDefaultTime = this._setDefaultTime || (this._timeDimension && this._timeDimension.getAvailableTimes().length == 0);
             this.setAvailableTimes(this._parseTimeDimensionFromCapabilities(data));
             if (this._setDefaultTime && this._timeDimension) {
-                this._timeDimension.setCurrentTime(this._defaultTime);                
+                this._timeDimension.setCurrentTime(this._defaultTime);
             }
         }).bind(this));
     },
@@ -819,14 +819,23 @@ L.TimeDimension.Layer.WMS = L.TimeDimension.Layer.extend({
         var times = null;
         if (layerNameElement) {
             var layer = layerNameElement.parent();
-            var dimension = layer.find("Dimension[name='time']");
-            if (dimension && dimension.text().length) {
-                times = dimension.text().trim();
-            } else {
-                var extent = layer.find("Extent[name='time']");
-                if (extent && extent.text().length) {
-                    times = extent.text().trim();
-                }
+            times = this._getTimesFromLayerCapabilities(layer);
+            if (!times) {
+                times = this._getTimesFromLayerCapabilities(layer.parent());
+            }
+        }
+        return times;
+    },
+
+    _getTimesFromLayerCapabilities: function(layer) {
+        var times = null;
+        var dimension = layer.find("Dimension[name='time']");
+        if (dimension && dimension.length && dimension[0].textContent.length) {
+            times = dimension[0].textContent.trim();
+        } else {
+            var extent = layer.find("Extent[name='time']");
+            if (extent && extent.length && extent[0].textContent.length) {
+                times = extent[0].textContent.trim();
             }
         }
         return times;
@@ -841,25 +850,35 @@ L.TimeDimension.Layer.WMS = L.TimeDimension.Layer.extend({
         var defaultTime = 0;
         if (layerNameElement) {
             var layer = layerNameElement.parent();
-            var dimension = layer.find("Dimension[name='time']");
-            if (dimension && dimension.attr("default")) {
-                defaultTime = dimension.attr("default");
-            } else {
-                var extent = layer.find("Extent[name='time']");
-                if (extent && extent.attr("default")) {
-                    defaultTime = extent.attr("default");
-                }
+            defaultTime = this._getDefaultTimeFromLayerCapabilities(layer);
+            if (defaultTime == 0) {
+                defaultTime = this._getDefaultTimeFromLayerCapabilities(layer.parent());
             }
         }
         return defaultTime;
     },
+
+    _getDefaultTimeFromLayerCapabilities: function(layer) {
+        var defaultTime = 0;
+        var dimension = layer.find("Dimension[name='time']");
+        if (dimension && dimension.attr("default")) {
+            defaultTime = dimension.attr("default");
+        } else {
+            var extent = layer.find("Extent[name='time']");
+            if (extent && extent.attr("default")) {
+                defaultTime = extent.attr("default");
+            }
+        }
+        return defaultTime;
+    },
+
 
     setAvailableTimes: function(times) {
         this._availableTimes = L.TimeDimension.Util.parseTimesExpression(times);
         this._updateTimeDimensionAvailableTimes();
     },
 
-    _updateTimeDimensionAvailableTimes: function(){
+    _updateTimeDimensionAvailableTimes: function() {
         if ((this._timeDimension && this._updateTimeDimension) ||
             (this._timeDimension && this._timeDimension.getAvailableTimes().length == 0)) {
             this._timeDimension.setAvailableTimes(this._availableTimes, this._updateTimeDimensionMode);
