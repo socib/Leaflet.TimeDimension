@@ -16,24 +16,16 @@
     <body>
         <div class="container">
             <div id="header">
-                <h1>Leaflet TimeDimension example 13</h1>                
-                <h2>TimeSeries in a point (for WMS layers provided through a THREDDS Data Server)</h2>
+                <h1>Leaflet TimeDimension example 14</h1>                
+                <h2>NOAA's nowCOAST weather radar</h2>
             </div>
             <div id="map" class="map"></div>
             <div id="chart" class="chart-wrapper"></div>
 
             <h2>Information</h2>
             <div class="information">
-            This example use two extra Leaflet.TimeDimension classes:
-                <ul>
-                    <li><a href="js/extras/leaflet.timedimension.circlelabelmarker.js">L.TimeDimension.Layer.CircleLabelMarker</a></li>
-                    <li><a href="js/extras/leaflet.timedimension.layer.wms.timeseries.js">L.TimeDimension.Layer.WMS.TimeSeries</a></li>
-                </ul>
-
-            <p>These two classes are specific for WMS layers provided by a <a href="http://www.unidata.ucar.edu/software/thredds/current/tds/">THREDDS Data Server</a>, as they use getFeatureInfo method to get an XML with the values of the layer along time (see <a href="http://www.resc.rdg.ac.uk/trac/ncWMS/wiki/WmsExtensions">ncWMS documentation</a>). We recommend to use at least version 4.6.1 of TDS, which includes a significant improvement in the response time of GetFeatureInfo requests (see <a href="https://github.com/Unidata/thredds/pull/96">the issue at github</a>).</p>
-            <p>By default, only 7 days of data are requested for each marker. When visible time range in the chart is changed, additional data is requested to the THREDDS Server.</p>
-            <p>The vertical red line represents current selected time on the map. You can change the current time by clicking on the chart (so, the chart can be used as time control as well).</p>
-            <p>You can add more timeseries to the chart double clicking on any point on the map.</p>
+            <p>Example using NOAA's <a href="http://nowcoast.noaa.gov/">nowCOAST</a> radar layer, used by <a href="https://github.com/eflowbeach">@eflowbeach</a> in his project <a href="https://github.com/eflowbeach/MobileWeather">MobileWeather</a>.
+            </p>
             </div>
 
 
@@ -41,10 +33,10 @@
             <pre><code class="javascript" id="code"></code></pre>            
 
             <div class="prev-example">
-                <a href="example12.html">Example 12: Noise-Commercial complaints from NYC OpenData</a>
+                <a href="example13.html">Example 13: Demo of L.TimeDimension.WMS.timeseries Layer</a>
             </div>                 
             <div class="next-example">
-                <a href="example14.html">Example 14: NOAA's nowCOAST weather radar</a>
+                <a href="index.html">Index</a>
             </div>
             <div id="footer">
                 <a class="leaflet-timedimension" href="index.html">Leaflet.TimeDimension examples</a>
@@ -79,11 +71,11 @@
         <script type="text/javascript" src="js/extras/leaflet.timedimension.layer.wms.timeseries.js"></script>        
 
         <script type="text/javascript" src="js/baselayers.js"></script>
-        <script type="text/javascript" src="js/example13.js"></script>
+        <script type="text/javascript" src="js/example14.js"></script>
         <script src="http://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.4/highlight.min.js"></script>
         <script type="text/javascript">
             $(document).ready(function() {
-                $.ajax('js/example13.js', {dataType: 'script'})
+                $.ajax('js/example14.js', {dataType: 'script'})
                     .always(function(response) {                        
                         $("#code").text(response.responseText);
                         $('pre code').each(function(i, block) {
