@@ -1,5 +1,5 @@
 /* 
- * Leaflet TimeDimension v0.1.4 - 2015-09-01 
+ * Leaflet TimeDimension v0.1.5 - 2015-09-06 
  * 
  * Copyright 2015 Biel Frontera (ICTS SOCIB) 
  * datacenter@socib.es 
@@ -507,7 +507,7 @@ L.TimeDimension.Util = {
  * to react to time changes.
  */
 
-L.TimeDimension.Layer = L.Class.extend({
+L.TimeDimension.Layer = (L.Layer || L.Class).extend({
 
     includes: L.Mixin.Events,
 
@@ -542,7 +542,7 @@ L.TimeDimension.Layer = L.Class.extend({
         this.eachLayer(map.removeLayer, map);
         this._map = null;
     },
-
+    
     eachLayer: function(method, context) {
         method.call(context, this._baseLayer);
         return this;

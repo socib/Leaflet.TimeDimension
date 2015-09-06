@@ -5,7 +5,7 @@
  * to react to time changes.
  */
 
-L.TimeDimension.Layer = L.Class.extend({
+L.TimeDimension.Layer = (L.Layer || L.Class).extend({
 
     includes: L.Mixin.Events,
 
