@@ -80,7 +80,7 @@ L.TimeDimension.Util = {
             maxHour = validTimeRangeArray[1].split(':')[0];
             maxMinutes = validTimeRangeArray[1].split(':')[1];
         }
-        while (currentTime <= endTime) {
+        while (currentTime < endTime) {
             if (validTimeRange === undefined ||
                 (currentTime.getUTCHours() >= minHour && currentTime.getUTCHours() <= maxHour)
             ) {
@@ -91,7 +91,7 @@ L.TimeDimension.Util = {
             }
             this.addTimeDuration(currentTime, duration);
         }
-        if (currentTime > endTime){
+        if (currentTime >= endTime){
             result.push(endTime.getTime());
         }
         return result;

@@ -1,5 +1,5 @@
 /* 
- * Leaflet TimeDimension v0.1.5 - 2015-09-06 
+ * Leaflet TimeDimension v0.1.5 - 2015-09-08 
  * 
  * Copyright 2015 Biel Frontera (ICTS SOCIB) 
  * datacenter@socib.es 
@@ -385,7 +385,7 @@ L.TimeDimension.Util = {
             maxHour = validTimeRangeArray[1].split(':')[0];
             maxMinutes = validTimeRangeArray[1].split(':')[1];
         }
-        while (currentTime <= endTime) {
+        while (currentTime < endTime) {
             if (validTimeRange === undefined ||
                 (currentTime.getUTCHours() >= minHour && currentTime.getUTCHours() <= maxHour)
             ) {
@@ -396,7 +396,7 @@ L.TimeDimension.Util = {
             }
             this.addTimeDuration(currentTime, duration);
         }
-        if (currentTime > endTime){
+        if (currentTime >= endTime){
             result.push(endTime.getTime());
         }
         return result;
@@ -542,7 +542,7 @@ L.TimeDimension.Layer = (L.Layer || L.Class).extend({
         this.eachLayer(map.removeLayer, map);
         this._map = null;
     },
-    
+
     eachLayer: function(method, context) {
         method.call(context, this._baseLayer);
         return this;
