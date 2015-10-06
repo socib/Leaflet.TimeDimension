@@ -20,7 +20,7 @@ L.tileLayer.wms(testWMS, {
 }).addTo(map);
 
 var testLayer = L.tileLayer.wms(testWMS, {
-    layers: 'temperature-isbl', // isobaric levels, or -agl for above ground levels
+    layers: 'gfs-temperature-isbl', // isobaric levels, or -agl for above ground levels
     format: 'image/png',
     transparent: true,
     opacity: 0.3,
@@ -38,7 +38,7 @@ var testLegend = L.control({
     position: 'topright'
 });
 testLegend.onAdd = function(map) {
-    var src = testWMS + "?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetLegendGraphic&LAYER=temperature&STYLE=default";
+    var src = testWMS + "?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetLegendGraphic&LAYER=gfs-temperature-isbl&STYLE=default";
     var div = L.DomUtil.create('div', 'info legend');
     div.innerHTML +=
         '<img src="' + src + '" alt="legend">';
