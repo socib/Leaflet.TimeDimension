@@ -20,7 +20,7 @@ L.tileLayer.wms(testWMS, {
 }).addTo(map);
 
 var testLayer = L.tileLayer.wms(testWMS, {
-    layers: 'temperature',
+    layers: 'temperature-isbl', // isobaric levels, or -agl for above ground levels
     format: 'image/png',
     transparent: true,
     opacity: 0.3,
