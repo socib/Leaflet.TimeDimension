@@ -11,32 +11,51 @@
         <link rel="stylesheet" href="js/vendors/leaflet-plugins/Control.FullScreen.css" />
         <link rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.11.0/themes/smoothness/jquery-ui.css" />
         <link rel="stylesheet" href="../src/leaflet.timedimension.control.css" />
-        <link rel="stylesheet" href="css/style.css" />      
+        <link rel="stylesheet" href="css/style.css" />
+        <style>
+            .legend ul{
+                padding: 0; list-style: none;
+            }
+            .legend li{
+                padding: 5px;                
+            }
+            .legend li.p05{
+                background-color: #00FF00;
+                background-color: rgba(0, 255, 0, 0.3);
+            }
+            .legend li.p075{
+                background-color: #FFFF00;
+                background-color: rgba(255, 255, 0, 0.3);
+            }
+            .legend li.p09{
+                background-color: #FF0000;
+                background-color: rgba(255, 0, 0, 0.3);
+            }
+        </style>
     </head>
     <body>
         <div class="container">
             <div id="header">
-                <h1>Leaflet TimeDimension example 14</h1>                
-                <h2>NOAA's nowCOAST weather radar</h2>
+                <h1>Leaflet TimeDimension example Oil Spill</h1>                
+                <h2>Oil Spill simulation</h2>
             </div>
-            <div id="map" class="map"></div>
-            <div id="chart" class="chart-wrapper"></div>
-
+            <div id="map" class="map">
+                <div class="animation-progress-bar"></div>                
+            </div>
             <h2>Information</h2>
             <div class="information">
-            <p>Example using NOAA's <a href="http://nowcoast.noaa.gov/">nowCOAST</a> radar layer, used by <a href="https://github.com/eflowbeach">@eflowbeach</a> in his project <a href="https://github.com/eflowbeach/MobileWeather">MobileWeather</a>.
-            </p>
+            <p>Simulation of the trajectory of a hypothetical oil spill. The contours correspond to the cumulative probability of all particles (50% green, yellow 75% and red 90%).</p>
+            <p>This simulation was made with a tool developed by SOCIB and IMEDEA.</p>
             </div>
-
 
             <h2>Code</h2>
             <pre><code class="javascript" id="code"></code></pre>            
 
             <div class="prev-example">
-                <a href="example13.html">Example 13: Demo of L.TimeDimension.WMS.timeseries Layer</a>
+                <a href="example14.html">Example 14: NOAA's nowCOAST weather radar</a>
             </div>                 
             <div class="next-example">
-                <a href="example15.html">Example 15: Oil Spill simulation</a>
+                <a href="index.html">Index</a>
             </div>
             <div id="footer">
                 <a class="leaflet-timedimension" href="index.html">Leaflet.TimeDimension examples</a>
@@ -46,18 +65,13 @@
 
         <script type="text/javascript" src="js/vendors/jquery-2.0.0.min.js"></script>
         <script type="text/javascript" src="js/vendors/jquery-ui-1.10.2.min.js"></script>
-        
-        <script src="http://code.highcharts.com/stock/highstock.js"></script>
-
 
         <script type="text/javascript" src="js/vendors/leaflet-0.7.3/leaflet.js"></script>
         <script type="text/javascript" src="js/vendors/leaflet-plugins/Leaflet.Coordinates-0.1.3.min.js"></script>
         <script type="text/javascript" src="js/vendors/leaflet-plugins/Control.FullScreen.js"></script>
         <script type="text/javascript" src="js/vendors/leaflet-plugins/NonTiledLayer.js"></script>
         <script type="text/javascript" src="js/vendors/leaflet-plugins/NonTiledLayer.WMS.js"></script>
-        <script type="text/javascript" src="js/vendors/leaflet-plugins/heatmap.min.js"></script>
-        <script type="text/javascript" src="js/vendors/leaflet-plugins/leaflet-heatmap.js"></script>
-        <script type="text/javascript" src="js/vendors/DateFormat.js"></script>
+        <script type="text/javascript" src="js/vendors/leaflet-plugins/leaflet-omnivore.js"></script>>
         <script type="text/javascript" src="js/vendors/iso8601.js"></script>
 
         <script type="text/javascript" src="../src/leaflet.timedimension.js"></script>
@@ -66,16 +80,13 @@
         <script type="text/javascript" src="../src/leaflet.timedimension.layer.wms.js"></script>
         <script type="text/javascript" src="../src/leaflet.timedimension.layer.geojson.js"></script>
         <script type="text/javascript" src="../src/leaflet.timedimension.player.js"></script>
-        <script type="text/javascript" src="../src/leaflet.timedimension.control.js"></script>        
-        <script type="text/javascript" src="js/extras/leaflet.timedimension.circlelabelmarker.js"></script>        
-        <script type="text/javascript" src="js/extras/leaflet.timedimension.layer.wms.timeseries.js"></script>        
-
+        <script type="text/javascript" src="../src/leaflet.timedimension.control.js"></script>
         <script type="text/javascript" src="js/baselayers.js"></script>
-        <script type="text/javascript" src="js/example14.js"></script>
+        <script type="text/javascript" src="js/example15.js"></script>
         <script src="http://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.4/highlight.min.js"></script>
         <script type="text/javascript">
             $(document).ready(function() {
-                $.ajax('js/example14.js', {dataType: 'script'})
+                $.ajax('js/example15.js', {dataType: 'script'})
                     .always(function(response) {                        
                         $("#code").text(response.responseText);
                         $('pre code').each(function(i, block) {
