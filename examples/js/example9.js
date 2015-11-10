@@ -34,14 +34,18 @@ var gpxLayer = omnivore.gpx('data/running_mallorca.gpx').on('ready', function() 
         paddingBottomRight: [40, 40]
     });
 });
+
 var gpxTimeLayer = L.timeDimension.layer.geoJson(gpxLayer, {
     updateTimeDimension: true,
-    addlastPoint: true
+    addlastPoint: true,
+    waitForReady: true
 });
+
 var kmlLayer = omnivore.kml('data/easy_currents_track.kml');
 var kmlTimeLayer = L.timeDimension.layer.geoJson(kmlLayer, {
     updateTimeDimension: true,
-    addlastPoint: true
+    addlastPoint: true,
+    waitForReady: true
 });
 
 
