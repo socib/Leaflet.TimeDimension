@@ -10,11 +10,16 @@ L.TimeDimension.Layer.GeoJson = L.TimeDimension.Layer.extend({
         this._updateTimeDimensionMode = this.options.updateTimeDimensionMode || 'extremes'; // 'union', 'replace' or extremes
         this._duration = this.options.duration || null;
         this._addlastPoint = this.options.addlastPoint || false;
+        this._waitForReady = this.options.waitForReady || false;
         this._defaultTime = 0;
         this._availableTimes = [];
         this._loaded = false;
         if (this._baseLayer.getLayers().length == 0) {
-            this._baseLayer.on("ready", this._onReadyBaseLayer, this);
+            if (this._waitForReady){
+                this._baseLayer.on("ready", this._onReadyBaseLayer, this);                
+            }else{
+                this._loaded = true;                
+            }
         } else {
             this._loaded = true;
             this._setAvailableTimes();

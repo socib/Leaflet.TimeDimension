@@ -152,6 +152,7 @@ Option                | Default       | Description
 `timeDimension`       | `null`        | 
 `duration`            | `null`        | Period of time which the features will be shown on the map after their time has passed. If null, all previous times will be shown. Format: [ISO8601 Duration](http://en.wikipedia.org/wiki/ISO_8601#Durations)
 `addlastPoint`        | `false`       | Add a Point at the last valid coordinate of a LineString.
+`waitForReady`        | `false`       | If `true`, it will wait until the baseLayer is loaded to mark itself as ready. You can use it with layers created using [leaflet-omnivore](https://github.com/mapbox/leaflet-omnivore).
 `updateTimeDimension` | `false`       | Update the list of available times of the attached TimeDimension with the available times of this GeoJSON
 `updateTimeDimensionMode` | `extremes` | Operation to merge the available times of the TimeDimension and the layer (intersect, union, replace or extremes)
 
