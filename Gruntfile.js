@@ -50,10 +50,12 @@ module.exports = function(grunt) {
             files: ['src/*.js']
         },
         concat: {
-            options: {
-                banner: '<%= meta.banner %>'
-            },
             js: {
+                options: {
+                    banner: '<%= meta.banner %>' + 
+                        '(function($){',
+                    footer: '})(jQuery);'
+                },
                 src: [
                     'src/leaflet.timedimension.js',
                     'src/leaflet.timedimension.util.js',
@@ -66,6 +68,9 @@ module.exports = function(grunt) {
                 dest: 'dist/leaflet.timedimension.src.withlog.js'
             },
             css: {
+                options: {
+                    banner: '<%= meta.banner %>'
+                },
                 src: 'src/leaflet.timedimension.control.css',
                 dest: 'dist/leaflet.timedimension.control.css'
             },

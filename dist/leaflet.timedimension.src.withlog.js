@@ -1,5 +1,5 @@
 /* 
- * Leaflet TimeDimension v0.1.6 - 2015-11-10 
+ * Leaflet TimeDimension v0.1.6 - 2015-11-12 
  * 
  * Copyright 2015 Biel Frontera (ICTS SOCIB) 
  * datacenter@socib.es 
@@ -14,7 +14,7 @@
  * git@github.com:socib/Leaflet.TimeDimension.git 
  * 
  */
-/*
+(function($){/*
  * L.TimeDimension: TimeDimension object manages the time component of a layer.
  * It can be shared among different layers and it can be added to a map, and become
  * the default timedimension component for any layer added to the map.
@@ -1634,3 +1634,4 @@ L.Map.addInitHook(function() {
 L.control.timeDimension = function(options) {
 	return new L.Control.TimeDimension(options);
 };
+})(jQuery);
