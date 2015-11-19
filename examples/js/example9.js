@@ -29,7 +29,24 @@ L.control.coordinates({
     enableUserInput: false
 }).addTo(map);
 
-var gpxLayer = omnivore.gpx('data/running_mallorca.gpx').on('ready', function() {
+var icon = L.icon({
+    iconUrl: 'img/running.png',
+    iconSize: [22, 22],
+    iconAnchor: [5, 25]
+});
+
+var customLayer = L.geoJson(null, {
+    pointToLayer: function (feature, latLng) {
+        if (feature.properties.hasOwnProperty('last')) {
+            return new L.Marker(latLng, {
+                icon: icon
+            });
+        }
+        return L.circleMarker(latLng);
+    }
+});
+
+var gpxLayer = omnivore.gpx('data/running_mallorca.gpx', null, customLayer).on('ready', function() {
     map.fitBounds(gpxLayer.getBounds(), {
         paddingBottomRight: [40, 40]
     });

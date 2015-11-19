@@ -363,3 +363,11 @@ ul.examples li a img{
 .information a{
     color: #80bf43;
 }
+
+.disclaimer{
+    margin: 20px 0;
+    color: #333;
+    background-color: #f0f0f0;
+    font-size: 0.75em;
+    padding: 5px;
+}
