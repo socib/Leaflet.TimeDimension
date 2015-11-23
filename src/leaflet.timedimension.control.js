@@ -15,20 +15,42 @@ L.Control.TimeDimension = L.Control.extend({
 		timeSteps: 1,
 		autoPlay: false,
 		playerOptions:{
-			transitionTime: 1000			
+			transitionTime: 1000
 		}
 	},
 
 	initialize: function (options) {
 		L.Control.prototype.initialize.call(this, options);
+		clog("L.Control.TimeDimension, line 1375:");clog(options);
 		this._dateUTC = true;
-		this._timeDimension = this.options.timeDimension || null;				
-	},	
+		this._timeDimension = this.options.timeDimension || null;
+	},
+
+	// TODO: This enabling/disabling functionality should be activated by the user.
+	_DisableMapInteraction: function(map){
+		map.dragging.disable();
+		map.touchZoom.disable();
+		map.doubleClickZoom.disable();
+		map.scrollWheelZoom.disable();
+		map.boxZoom.disable();
+		map.keyboard.disable();
+		if (map.tap) map.tap.disable();
+	},
+
+	_EnableMapInteraction: function(map){
+		map.dragging.enable();
+		map.touchZoom.enable();
+		map.doubleClickZoom.enable();
+		map.scrollWheelZoom.enable();
+		map.boxZoom.enable();
+		map.keyboard.enable();
+		if (map.tap) map.tap.enable();
+	},
 
 	onAdd: function(map) {
-        if (!this._timeDimension && map.timeDimension){
-            this._timeDimension = map.timeDimension;
-        }
+		if (!this._timeDimension && map.timeDimension){
+			this._timeDimension = map.timeDimension;
+		}
 		var className = 'leaflet-control-timecontrol',
 			container;
 
@@ -49,58 +71,61 @@ L.Control.TimeDimension = L.Control.extend({
 
 		this._steps = this.options.timeSteps || 1;
 
-		this._timeDimension.on('timeload', (function(data){						
-        	this._update();
-    	}).bind(this));
+		this._timeDimension.on('timeload', (function(data){
+			this._update();
+		}).bind(this));
 
 		this._timeDimension.on('timeloading', (function(data){
 			if(data.time == this._timeDimension.getCurrentTime()){
 				if (this._displayDate && this._displayDate.className.indexOf(' timecontrol-loading') == -1){
-					this._displayDate.className += " timecontrol-loading";				
-				}				
+					this._displayDate.className += " timecontrol-loading";
+				}
 			}
-    	}).bind(this));
+		}).bind(this));
 
-    	this._timeDimension.on('timeanimationwaiting', (function(data){
+		this._timeDimension.on('timeanimationwaiting', (function(data){
+			this._EnableMapInteraction(map);
 			if (this._buttonPlayPause){
-        		this._buttonPlayPause.className = 'leaflet-control-timecontrol timecontrol-play-loading';
-        		this._buttonPlayPause.innerHTML = '<span>' + Math.floor(data.percent*100) + '%</span>';
+				this._buttonPlayPause.className = 'leaflet-control-timecontrol timecontrol-play-loading';
+				this._buttonPlayPause.innerHTML = '<span>' + Math.floor(data.percent*100) + '%</span>';
 			}
 
-    	}).bind(this));
+		}).bind(this));
 
-    	this._timeDimension.on('timeanimationrunning', (function(data){
+		this._timeDimension.on('timeanimationrunning', (function(data){
 			if (this._buttonPlayPause){
+				this._DisableMapInteraction(map);
 				this._buttonPlayPause.innerHTML = '';
-				if (this._player.isPlaying()){			
+				if (this._player.isPlaying()){
 					this._buttonPlayPause.className = 'leaflet-control-timecontrol timecontrol-pause';
 				} else {
 					this._buttonPlayPause.className = 'leaflet-control-timecontrol timecontrol-play';
 				}
 			}
-    	}).bind(this));
+		}).bind(this));
 
 		this._timeDimension.on('timeanimationfinished', (function(data){
+			this._EnableMapInteraction(map);
 			if (this._buttonPlayPause)
-        		this._buttonPlayPause.className = 'leaflet-control-timecontrol timecontrol-play';
-    	}).bind(this));
+				this._buttonPlayPause.className = 'leaflet-control-timecontrol timecontrol-play';
+		}).bind(this));
 
 		this._timeDimension.on('availabletimeschanged', (function(data){
 			if (this._slider)
-        		this._slider.slider("option", "max", this._timeDimension.getAvailableTimes().length - 1);
-    	}).bind(this));
+				this._slider.slider("option", "max", this._timeDimension.getAvailableTimes().length - 1);
+		}).bind(this));
 
 		// Disable dragging and zoom when user's cursor enters the element
 		container.addEventListener('mouseover', function() {
 			map.dragging.disable();
 			map.doubleClickZoom.disable();
-			// map.off('mousemove'); 
+			// map.off('mousemove');
 		});
 
 		// Re-enable dragging and zoom when user's cursor leaves the element
 		container.addEventListener('mouseout', function() {
 			map.dragging.enable();
-			map.doubleClickZoom.enable();			
+			map.doubleClickZoom.enable();
 		});
 		this._update();
 		if (this.options.autoPlay && this._buttonPlayPause){
@@ -110,6 +135,7 @@ L.Control.TimeDimension = L.Control.extend({
 	},
 
 	_update: function () {
+		clog("L.Control.TimeDimension._update, line 1465:");clog(this._timeDimension);
 		if (!this._timeDimension){
 			return;
 		}
@@ -121,15 +147,15 @@ L.Control.TimeDimension = L.Control.extend({
 				this._displayDate.innerHTML = this._getDisplayDateFormat(date);
 			}
 			if (this._slider){
-	        	this._slider.slider( "value", this._timeDimension.getCurrentTimeIndex());			
+				this._slider.slider( "value", this._timeDimension.getCurrentTimeIndex());
 			}
 		}else{
 			if (this._displayDate){
 				this._displayDate.innerHTML = "Time not available";
 			}
 			if (this._slider){
-	        	this._slider.slider( "value", 0);
-	        }
+				this._slider.slider( "value", 0);
+			}
 		}
 	},
 
@@ -176,7 +202,7 @@ L.Control.TimeDimension = L.Control.extend({
 	},
 
 	_createDisplayDate: function(className, container) {
-		var link = L.DomUtil.create('a', className, container);		
+		var link = L.DomUtil.create('a', className, container);
 		link.href = '#';
 		link.title = 'UTC Time';
 		L.DomEvent
@@ -198,18 +224,18 @@ L.Control.TimeDimension = L.Control.extend({
 		var slider = $(_slider).find('.slider');
 		var max = this._timeDimension.getAvailableTimes().length - 1;
 		slider.slider({
-      		min: 0,
-      		max: max,
-      		range: "min",
-      		stop: (function( event, ui ) {
-        		this._sliderValueChanged(ui.value);
-        	}).bind(this),
-        	slide: (function( event, ui ) {        		
+			min: 0,
+			max: max,
+			range: "min",
+			stop: (function( event, ui ) {
+				this._sliderValueChanged(ui.value);
+			}).bind(this),
+			slide: (function( event, ui ) {
 				var date = new Date(this._timeDimension.getAvailableTimes()[ui.value]);
 				this._displayDate.innerHTML = this._getDisplayDateFormat(date);
-        	}).bind(this),
+			}).bind(this),
 
-      	});
+		});
 		return slider;
 	},
 
@@ -227,24 +253,24 @@ L.Control.TimeDimension = L.Control.extend({
 			currentSpeed = Math.round(10000/(this.options.playerOptions.transitionTime||1000))/10;
 		}
 		_slider.innerHTML = '<span class="speed">' +  currentSpeed  + 'fps</span><div class="slider"></div>';
-		var slider = $(_slider).find('.slider');		
+		var slider = $(_slider).find('.slider');
 		slider.slider({
-      		min: 0.1,
-      		max: 10,
-      		value: currentSpeed,
-      		step: 0.1,
-      		range: "min",
-      		stop: (function(sliderContainer, event, ui ) {
-        		var speed = $(sliderContainer).find('.speed')[0];
-				speed.innerHTML = ui.value + "fps";      			
-        		this._sliderSpeedValueChanged(ui.value);
-        	}).bind(this, _slider),
-        	slide: (function(sliderContainer, event, ui ) {        		
-        		var speed = $(sliderContainer).find('.speed')[0];
+			min: 0.1,
+			max: 10,
+			value: currentSpeed,
+			step: 0.1,
+			range: "min",
+			stop: (function(sliderContainer, event, ui ) {
+				var speed = $(sliderContainer).find('.speed')[0];
 				speed.innerHTML = ui.value + "fps";
-        	}).bind(this, _slider),
+				this._sliderSpeedValueChanged(ui.value);
+			}).bind(this, _slider),
+			slide: (function(sliderContainer, event, ui ) {
+				var speed = $(sliderContainer).find('.speed')[0];
+				speed.innerHTML = ui.value + "fps";
+			}).bind(this, _slider),
 
-      	});
+		});
 		return slider;
 	},
 
@@ -258,7 +284,7 @@ L.Control.TimeDimension = L.Control.extend({
 
 	_buttonPlayPauseClicked: function(event) {
 		if (!this._player){
-		    this._player = new L.TimeDimension.Player(this.options.playerOptions, this._timeDimension);
+			this._player = new L.TimeDimension.Player(this.options.playerOptions, this._timeDimension);
 		}
 		if (this._player.isPlaying()){
 			if (this._player.isWaiting()){
@@ -271,21 +297,21 @@ L.Control.TimeDimension = L.Control.extend({
 			} else {
 				this._buttonPlayPause.className = 'leaflet-control-timecontrol timecontrol-play';
 				this._player.stop();
-				this._buttonPlayPause.innerHTML = '';				
+				this._buttonPlayPause.innerHTML = '';
 			}
 		} else {
 			this._buttonPlayPause.className = 'leaflet-control-timecontrol timecontrol-pause';
 			this._player.start(this._steps);
 		}
-	},	
+	},
 
 	_sliderValueChanged: function(newValue) {
 		this._timeDimension.setCurrentTimeIndex(newValue);
 	},
 
 	_sliderSpeedValueChanged: function(newValue){
-		if (this._player){			
-		    this._player.setTransitionTime(1000/newValue);
+		if (this._player){
+			this._player.setTransitionTime(1000/newValue);
 		}
 	},
 
