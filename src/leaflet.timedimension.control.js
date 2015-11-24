@@ -43,7 +43,7 @@ L.Control.TimeDimension = L.Control.extend({
 		if (this.options.displayDate)
 			this._displayDate = this._createDisplayDate(className + " timecontrol-date", container);
 		if (this.options.timeSlider)
-			this._slider = this._createSlider(className + " timecontrol-slider", container);
+			this._slider = this._createSlider(className + " timecontrol-slider timecontrol-dateslider", container);
 		if (this.options.speedSlider)
 			this._sliderSpeed = this._createSliderSpeed(className + " timecontrol-slider timecontrol-speed", container);
 
