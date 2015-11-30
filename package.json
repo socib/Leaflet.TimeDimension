@@ -1,34 +1,35 @@
 {
   "name": "leaflet-timedimension",
   "version": "0.1.6",
-  "description": "Add time dimension capabilities on a Leaflet map. ",
-  "repository": {
-    "type": "git",
-    "url": "git@github.com:socib/Leaflet.TimeDimension.git"
-  },
-  "homepage": "http://apps.socib.es/Leaflet.TimeDimension/",
-  "author": {
-    "name": "Biel Frontera (ICTS SOCIB)",
-    "email": "datacenter@socib.es",
-    "url": "http://www.socib.es/"
-  },
-  "license": "MIT",
+  "description": "Add time dimension capabilities on a Leaflet map",
   "keywords": [
     "gis",
     "map",
     "timedimension",
     "leaflet"
   ],
-  "dependencies": {    
+  "homepage": "http://apps.socib.es/Leaflet.TimeDimension/",
+  "bugs": {
+    "url": "https://github.com/socib/Leaflet.TimeDimension/issues"
+  },
+  "license": "MIT",
+  "author": {
+    "name": "Biel Frontera (ICTS SOCIB)",
+    "email": "datacenter@socib.es",
+    "url": "http://www.socib.es/"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/socib/Leaflet.TimeDimension.git"
   },
   "devDependencies": {
-    "grunt": "~0.4.2",
-    "grunt-contrib-uglify": "~0.2.7",
-    "grunt-contrib-concat": "~0.3.0",
-    "grunt-contrib-clean": "~0.5.0",
-    "grunt-contrib-cssmin": "~0.7.0",
-    "grunt-contrib-jshint": "~0.7.2",
-    "grunt-contrib-watch": "~0.5.3",
+    "grunt": "~0.4.5",
+    "grunt-contrib-clean": "~0.7.0",
+    "grunt-contrib-concat": "~0.5.1",
+    "grunt-contrib-cssmin": "~0.14.0",
+    "grunt-contrib-jshint": "~0.11.3",
+    "grunt-contrib-uglify": "~0.11.0",
+    "grunt-contrib-watch": "~0.6.1",
     "grunt-remove-logging": "~0.2.0"
   }
 }
