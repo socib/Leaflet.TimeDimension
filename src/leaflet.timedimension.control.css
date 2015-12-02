@@ -17,17 +17,17 @@
   border-bottom-width: 0px;
   text-decoration: none;
 }
- 
+
 .leaflet-bar-horizontal a:hover {
   border-bottom-width: 0px;
 }
- 
+
 .leaflet-bar-horizontal a:first-child {
   border-top-left-radius: 4px;
   border-bottom-left-radius: 4px;
   border-top-right-radius: 0px;
 }
- 
+
 .leaflet-bar-horizontal a:last-child {
   border-top-right-radius: 4px;
   border-bottom-right-radius: 4px;
@@ -40,7 +40,7 @@ a.leaflet-control-timecontrol{
   width: auto;
   padding: 4px 15px;
   font-size: 12px;
-  line-height: 26px;  
+  line-height: 26px;
 }
 
 a.leaflet-control-timecontrol:hover{
@@ -70,7 +70,7 @@ a.timecontrol-date.timecontrol-loading:before{
 a.timecontrol-slider{
   height: auto;
   width: 300px;
-  padding: 4px 15px;   
+  padding: 4px 15px;
 }
 
 a.timecontrol-slider:hover{
@@ -89,8 +89,8 @@ a.timecontrol-slider .ui-slider-handle{
   height: 17px;
   border-width: 1px;
   border-color: #a5a5a5;
-  border-radius: 4px; 
-  padding: 0 2px; 
+  border-radius: 4px;
+  padding: 0 2px;
 }
 
 a.timecontrol-speed, a.timecontrol-speed:hover{
@@ -141,17 +141,17 @@ a.timecontrol-play-loading{
 
 a.timecontrol-play-loading span{
   display: inline-block;
-  width: 0;  
+  width: 0;
   position: absolute;
   top: 5px;
   left: 10px;
-  font-weight: bold;  
+  font-weight: bold;
 }
 
 a.timecontrol-play-loading:before {
   font-family: "Glyphicons Halflings";
   content: "\e031";
-  opacity: 0.2;    
+  opacity: 0.2;
   -webkit-animation: rotation 12s infinite linear;
 }
 a.timecontrol-stop:before {

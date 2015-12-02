@@ -1,7 +1,7 @@
 /*
- * L.TimeDimension.Layer:  an abstract Layer that can be managed/synchronized with a TimeDimension. 
+ * L.TimeDimension.Layer:  an abstract Layer that can be managed/synchronized with a TimeDimension.
  * The constructor recieves a layer (of any kind) and options.
- * Any children class should implement `_onNewTimeLoading`, `isReady` and `_update` functions 
+ * Any children class should implement `_onNewTimeLoading`, `isReady` and `_update` functions
  * to react to time changes.
  */
 

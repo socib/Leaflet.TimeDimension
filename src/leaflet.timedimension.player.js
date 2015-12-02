@@ -1,8 +1,8 @@
 /*
- * L.TimeDimension.Player 
+ * L.TimeDimension.Player
  */
 
-L.TimeDimension.Player = L.Class.extend({
+L.TimeDimension.Player = (L.Layer || L.Class).extend({
 
     initialize: function(options, timeDimension) {
         L.setOptions(this, options);
@@ -14,9 +14,9 @@ L.TimeDimension.Player = L.Class.extend({
         this._waitingForBuffer = false;
         this._loop = this.options.loop || false;
         this._steps = 1;
-        this._timeDimension.on('timeload', (function(data){            
+        this._timeDimension.on('timeload', (function(data){
             this.continue();  // free clock
-        }).bind(this));        
+        }).bind(this));
     },
 
 
@@ -24,7 +24,7 @@ L.TimeDimension.Player = L.Class.extend({
         if (self._timeDimension.getCurrentTimeIndex() >= self._timeDimension.getAvailableTimes().length - 1) {
             if (!self._loop){
                 clearInterval(self._intervalID);
-                self._timeDimension.fire('timeanimationfinished');                
+                self._timeDimension.fire('timeanimationfinished');
                 return;
             }
         }
@@ -33,7 +33,7 @@ L.TimeDimension.Player = L.Class.extend({
         }
         var numberNextTimesReady = 0;
         if (self._minBufferReady > 0){
-            numberNextTimesReady = self._timeDimension.getNumberNextTimesReady(self._steps, self._buffer);            
+            numberNextTimesReady = self._timeDimension.getNumberNextTimesReady(self._steps, self._buffer);
             // If the player was waiting, check if all times are loaded
             if (self._waitingForBuffer){
                 if (numberNextTimesReady < self._buffer){
@@ -78,7 +78,7 @@ L.TimeDimension.Player = L.Class.extend({
     stop: function() {
         if (!this._intervalID) return;
         clearInterval(this._intervalID);
-        this._intervalID = null;        
+        this._intervalID = null;
     },
 
     pause: function() {
@@ -107,5 +107,5 @@ L.TimeDimension.Player = L.Class.extend({
             this.stop();
             this.start();
         }
-    }    
+    }
 });
