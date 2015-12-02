@@ -16,9 +16,9 @@ L.TimeDimension.Layer.GeoJson = L.TimeDimension.Layer.extend({
         this._loaded = false;
         if (this._baseLayer.getLayers().length == 0) {
             if (this._waitForReady){
-                this._baseLayer.on("ready", this._onReadyBaseLayer, this);                
+                this._baseLayer.on("ready", this._onReadyBaseLayer, this);
             }else{
-                this._loaded = true;                
+                this._loaded = true;
             }
         } else {
             this._loaded = true;
@@ -38,7 +38,7 @@ L.TimeDimension.Layer.GeoJson = L.TimeDimension.Layer.extend({
             method.call(context, this._currentLayer);
         }
         return L.TimeDimension.Layer.prototype.eachLayer.call(this, method, context);
-    },      
+    },
 
     isReady: function(time) {
         return this._loaded;
@@ -70,7 +70,7 @@ L.TimeDimension.Layer.GeoJson = L.TimeDimension.Layer.extend({
                 layer.addData(feature);
                 if (this._addlastPoint && feature.geometry.type == "LineString") {
                     if (feature.geometry.coordinates.length > 0) {
-                        var properties = feature.properties;                        
+                        var properties = feature.properties;
                         properties.last = true;
                         layer.addData({
                             type: 'Feature',

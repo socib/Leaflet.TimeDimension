@@ -4,7 +4,7 @@
  * the default timedimension component for any layer added to the map.
  */
 
-L.TimeDimension = L.Class.extend({
+L.TimeDimension = (L.Layer || L.Class).extend({
 
     includes: L.Mixin.Events,
 
@@ -109,7 +109,7 @@ L.TimeDimension = L.Class.extend({
     seekNearestTime: function(time) {
         var index = this._seekNearestTimeIndex(time);
         return this._availableTimes[index];
-    },    
+    },
 
     nextTime: function(numSteps, loop) {
         if (numSteps === undefined) {
@@ -123,12 +123,12 @@ L.TimeDimension = L.Class.extend({
         if (this._loadingTimeIndex > -1)
             newIndex = this._loadingTimeIndex;
         newIndex = newIndex + numSteps;
-        if (newIndex >= this._availableTimes.length) {            
+        if (newIndex >= this._availableTimes.length) {
             if (loop){
                 newIndex = 0;
             }else{
                 // nextTime out of range
-                return;                
+                return;
             }
         }
         this.setCurrentTimeIndex(newIndex);
@@ -177,7 +177,7 @@ L.TimeDimension = L.Class.extend({
                 count = 0;
                 ready = howmany;
                 break;
-            }            
+            }
             var time = this._availableTimes[newIndex];
             if (this._checkSyncedLayersReady(time)){
                 ready++;
@@ -226,7 +226,7 @@ L.TimeDimension = L.Class.extend({
         } else if (this.options.timeInterval) {
             var tiArray = L.TimeDimension.Util.parseTimeInterval(this.options.timeInterval);
             var period = this.options.period || "P1D";
-            var validTimeRange = this.options.validTimeRange || undefined; 
+            var validTimeRange = this.options.validTimeRange || undefined;
             return L.TimeDimension.Util.explodeTimeRange(tiArray[0], tiArray[1], period, validTimeRange);
         } else {
             return [];
