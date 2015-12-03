@@ -98,7 +98,7 @@ L.TimeDimension.Layer.WMS = L.TimeDimension.Layer.extend({
         }
         this._currentLayer = layer;
         console.log('Show layer ' + layer.wmsParams.layers + ' with time: ' + new Date(time).toISOString());
-        // Cache management        
+        // Cache management
         var times = this._getLoadedTimes();
         var strTime = String(time);
         var index = times.indexOf(strTime);
@@ -316,7 +316,7 @@ L.TimeDimension.Layer.WMS = L.TimeDimension.Layer.extend({
 });
 
 if (!L.NonTiledLayer) {
-    L.NonTiledLayer = L.Class.extend({});
+    L.NonTiledLayer = (L.Layer || L.Class).extend({});
 }
 
 L.NonTiledLayer.include({

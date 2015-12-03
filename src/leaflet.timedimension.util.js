@@ -115,7 +115,7 @@ L.TimeDimension.Util = {
         } else {
             endTime = Date.parse(parts[1]);
             if (isNaN(endTime)) {
-                // -> format startTime/duration                
+                // -> format startTime/duration
                 duration = this.getTimeDuration(parts[1]);
                 endTime = new Date(startTime);
                 this.addTimeDuration(endTime, duration, true);

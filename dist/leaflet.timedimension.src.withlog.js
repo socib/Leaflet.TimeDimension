@@ -1,5 +1,5 @@
 /* 
- * Leaflet TimeDimension v0.1.6 - 2015-11-24 
+ * Leaflet TimeDimension v0.1.7 - 2015-12-03 
  * 
  * Copyright 2015 Biel Frontera (ICTS SOCIB) 
  * datacenter@socib.es 
@@ -11,7 +11,7 @@
  * http://apps.socib.es/Leaflet.TimeDimension/ 
  * 
  * Source: 
- * git@github.com:socib/Leaflet.TimeDimension.git 
+ * git://github.com/socib/Leaflet.TimeDimension.git 
  * 
  */
 (function($){/*
@@ -20,7 +20,7 @@
  * the default timedimension component for any layer added to the map.
  */
 
-L.TimeDimension = L.Class.extend({
+L.TimeDimension = (L.Layer || L.Class).extend({
 
     includes: L.Mixin.Events,
 
@@ -125,7 +125,7 @@ L.TimeDimension = L.Class.extend({
     seekNearestTime: function(time) {
         var index = this._seekNearestTimeIndex(time);
         return this._availableTimes[index];
-    },    
+    },
 
     nextTime: function(numSteps, loop) {
         if (numSteps === undefined) {
@@ -139,12 +139,12 @@ L.TimeDimension = L.Class.extend({
         if (this._loadingTimeIndex > -1)
             newIndex = this._loadingTimeIndex;
         newIndex = newIndex + numSteps;
-        if (newIndex >= this._availableTimes.length) {            
+        if (newIndex >= this._availableTimes.length) {
             if (loop){
                 newIndex = 0;
             }else{
                 // nextTime out of range
-                return;                
+                return;
             }
         }
         this.setCurrentTimeIndex(newIndex);
@@ -193,7 +193,7 @@ L.TimeDimension = L.Class.extend({
                 count = 0;
                 ready = howmany;
                 break;
-            }            
+            }
             var time = this._availableTimes[newIndex];
             if (this._checkSyncedLayersReady(time)){
                 ready++;
@@ -242,7 +242,7 @@ L.TimeDimension = L.Class.extend({
         } else if (this.options.timeInterval) {
             var tiArray = L.TimeDimension.Util.parseTimeInterval(this.options.timeInterval);
             var period = this.options.period || "P1D";
-            var validTimeRange = this.options.validTimeRange || undefined; 
+            var validTimeRange = this.options.validTimeRange || undefined;
             return L.TimeDimension.Util.explodeTimeRange(tiArray[0], tiArray[1], period, validTimeRange);
         } else {
             return [];
@@ -303,6 +303,7 @@ L.Map.addInitHook(function() {
 L.timeDimension = function(options) {
     return new L.TimeDimension(options);
 };
+
 /*
  * L.TimeDimension.Util
  */
@@ -420,7 +421,7 @@ L.TimeDimension.Util = {
         } else {
             endTime = Date.parse(parts[1]);
             if (isNaN(endTime)) {
-                // -> format startTime/duration                
+                // -> format startTime/duration
                 duration = this.getTimeDuration(parts[1]);
                 endTime = new Date(startTime);
                 this.addTimeDuration(endTime, duration, true);
@@ -500,10 +501,11 @@ L.TimeDimension.Util = {
     }
 
 };
+
 /*
- * L.TimeDimension.Layer:  an abstract Layer that can be managed/synchronized with a TimeDimension. 
+ * L.TimeDimension.Layer:  an abstract Layer that can be managed/synchronized with a TimeDimension.
  * The constructor recieves a layer (of any kind) and options.
- * Any children class should implement `_onNewTimeLoading`, `isReady` and `_update` functions 
+ * Any children class should implement `_onNewTimeLoading`, `isReady` and `_update` functions
  * to react to time changes.
  */
 
@@ -598,6 +600,7 @@ L.TimeDimension.Layer = (L.Layer || L.Class).extend({
 L.timeDimension.layer = function(layer, options) {
     return new L.TimeDimension.Layer(layer, options);
 };
+
 /*
  * L.TimeDimension.Layer.WMS: wms Layer associated to a TimeDimension
  */
@@ -698,7 +701,7 @@ L.TimeDimension.Layer.WMS = L.TimeDimension.Layer.extend({
         }
         this._currentLayer = layer;
         console.log('Show layer ' + layer.wmsParams.layers + ' with time: ' + new Date(time).toISOString());
-        // Cache management        
+        // Cache management
         var times = this._getLoadedTimes();
         var strTime = String(time);
         var index = times.indexOf(strTime);
@@ -916,7 +919,7 @@ L.TimeDimension.Layer.WMS = L.TimeDimension.Layer.extend({
 });
 
 if (!L.NonTiledLayer) {
-    L.NonTiledLayer = L.Class.extend({});
+    L.NonTiledLayer = (L.Layer || L.Class).extend({});
 }
 
 L.NonTiledLayer.include({
@@ -1000,6 +1003,7 @@ L.TileLayer.include({
 L.timeDimension.layer.wms = function(layer, options) {
     return new L.TimeDimension.Layer.WMS(layer, options);
 };
+
 /*
  * L.TimeDimension.Layer.GeoJson:
  */
@@ -1018,9 +1022,9 @@ L.TimeDimension.Layer.GeoJson = L.TimeDimension.Layer.extend({
         this._loaded = false;
         if (this._baseLayer.getLayers().length == 0) {
             if (this._waitForReady){
-                this._baseLayer.on("ready", this._onReadyBaseLayer, this);                
+                this._baseLayer.on("ready", this._onReadyBaseLayer, this);
             }else{
-                this._loaded = true;                
+                this._loaded = true;
             }
         } else {
             this._loaded = true;
@@ -1040,7 +1044,7 @@ L.TimeDimension.Layer.GeoJson = L.TimeDimension.Layer.extend({
             method.call(context, this._currentLayer);
         }
         return L.TimeDimension.Layer.prototype.eachLayer.call(this, method, context);
-    },      
+    },
 
     isReady: function(time) {
         return this._loaded;
@@ -1072,7 +1076,7 @@ L.TimeDimension.Layer.GeoJson = L.TimeDimension.Layer.extend({
                 layer.addData(feature);
                 if (this._addlastPoint && feature.geometry.type == "LineString") {
                     if (feature.geometry.coordinates.length > 0) {
-                        var properties = feature.properties;                        
+                        var properties = feature.properties;
                         properties.last = true;
                         layer.addData({
                             type: 'Feature',
@@ -1206,11 +1210,12 @@ L.TimeDimension.Layer.GeoJson = L.TimeDimension.Layer.extend({
 L.timeDimension.layer.geoJson = function(layer, options) {
     return new L.TimeDimension.Layer.GeoJson(layer, options);
 };
+
 /*
- * L.TimeDimension.Player 
+ * L.TimeDimension.Player
  */
 
-L.TimeDimension.Player = L.Class.extend({
+L.TimeDimension.Player = (L.Layer || L.Class).extend({
 
     initialize: function(options, timeDimension) {
         L.setOptions(this, options);
@@ -1222,9 +1227,9 @@ L.TimeDimension.Player = L.Class.extend({
         this._waitingForBuffer = false;
         this._loop = this.options.loop || false;
         this._steps = 1;
-        this._timeDimension.on('timeload', (function(data){            
+        this._timeDimension.on('timeload', (function(data){
             this.continue();  // free clock
-        }).bind(this));        
+        }).bind(this));
     },
 
 
@@ -1232,7 +1237,7 @@ L.TimeDimension.Player = L.Class.extend({
         if (self._timeDimension.getCurrentTimeIndex() >= self._timeDimension.getAvailableTimes().length - 1) {
             if (!self._loop){
                 clearInterval(self._intervalID);
-                self._timeDimension.fire('timeanimationfinished');                
+                self._timeDimension.fire('timeanimationfinished');
                 return;
             }
         }
@@ -1241,7 +1246,7 @@ L.TimeDimension.Player = L.Class.extend({
         }
         var numberNextTimesReady = 0;
         if (self._minBufferReady > 0){
-            numberNextTimesReady = self._timeDimension.getNumberNextTimesReady(self._steps, self._buffer);            
+            numberNextTimesReady = self._timeDimension.getNumberNextTimesReady(self._steps, self._buffer);
             // If the player was waiting, check if all times are loaded
             if (self._waitingForBuffer){
                 if (numberNextTimesReady < self._buffer){
@@ -1286,7 +1291,7 @@ L.TimeDimension.Player = L.Class.extend({
     stop: function() {
         if (!this._intervalID) return;
         clearInterval(this._intervalID);
-        this._intervalID = null;        
+        this._intervalID = null;
     },
 
     pause: function() {
@@ -1315,8 +1320,9 @@ L.TimeDimension.Player = L.Class.extend({
             this.stop();
             this.start();
         }
-    }    
+    }
 });
+
 /*
  * L.Control.TimeDimension: Leaflet control to manage a timeDimension
  */
@@ -1334,15 +1340,15 @@ L.Control.TimeDimension = L.Control.extend({
 		timeSteps: 1,
 		autoPlay: false,
 		playerOptions:{
-			transitionTime: 1000			
+			transitionTime: 1000
 		}
 	},
 
 	initialize: function (options) {
 		L.Control.prototype.initialize.call(this, options);
 		this._dateUTC = true;
-		this._timeDimension = this.options.timeDimension || null;				
-	},	
+		this._timeDimension = this.options.timeDimension || null;
+	},
 
 	onAdd: function(map) {
         if (!this._timeDimension && map.timeDimension){
@@ -1368,15 +1374,15 @@ L.Control.TimeDimension = L.Control.extend({
 
 		this._steps = this.options.timeSteps || 1;
 
-		this._timeDimension.on('timeload', (function(data){						
+		this._timeDimension.on('timeload', (function(data){
         	this._update();
     	}).bind(this));
 
 		this._timeDimension.on('timeloading', (function(data){
 			if(data.time == this._timeDimension.getCurrentTime()){
 				if (this._displayDate && this._displayDate.className.indexOf(' timecontrol-loading') == -1){
-					this._displayDate.className += " timecontrol-loading";				
-				}				
+					this._displayDate.className += " timecontrol-loading";
+				}
 			}
     	}).bind(this));
 
@@ -1391,7 +1397,7 @@ L.Control.TimeDimension = L.Control.extend({
     	this._timeDimension.on('timeanimationrunning', (function(data){
 			if (this._buttonPlayPause){
 				this._buttonPlayPause.innerHTML = '';
-				if (this._player.isPlaying()){			
+				if (this._player.isPlaying()){
 					this._buttonPlayPause.className = 'leaflet-control-timecontrol timecontrol-pause';
 				} else {
 					this._buttonPlayPause.className = 'leaflet-control-timecontrol timecontrol-play';
@@ -1413,13 +1419,13 @@ L.Control.TimeDimension = L.Control.extend({
 		container.addEventListener('mouseover', function() {
 			map.dragging.disable();
 			map.doubleClickZoom.disable();
-			// map.off('mousemove'); 
+			// map.off('mousemove');
 		});
 
 		// Re-enable dragging and zoom when user's cursor leaves the element
 		container.addEventListener('mouseout', function() {
 			map.dragging.enable();
-			map.doubleClickZoom.enable();			
+			map.doubleClickZoom.enable();
 		});
 		this._update();
 		if (this.options.autoPlay && this._buttonPlayPause){
@@ -1440,7 +1446,7 @@ L.Control.TimeDimension = L.Control.extend({
 				this._displayDate.innerHTML = this._getDisplayDateFormat(date);
 			}
 			if (this._slider){
-	        	this._slider.slider( "value", this._timeDimension.getCurrentTimeIndex());			
+	        	this._slider.slider( "value", this._timeDimension.getCurrentTimeIndex());
 			}
 		}else{
 			if (this._displayDate){
@@ -1495,7 +1501,7 @@ L.Control.TimeDimension = L.Control.extend({
 	},
 
 	_createDisplayDate: function(className, container) {
-		var link = L.DomUtil.create('a', className, container);		
+		var link = L.DomUtil.create('a', className, container);
 		link.href = '#';
 		link.title = 'UTC Time';
 		L.DomEvent
@@ -1523,7 +1529,7 @@ L.Control.TimeDimension = L.Control.extend({
       		stop: (function( event, ui ) {
         		this._sliderValueChanged(ui.value);
         	}).bind(this),
-        	slide: (function( event, ui ) {        		
+        	slide: (function( event, ui ) {
 				var date = new Date(this._timeDimension.getAvailableTimes()[ui.value]);
 				this._displayDate.innerHTML = this._getDisplayDateFormat(date);
         	}).bind(this),
@@ -1546,7 +1552,7 @@ L.Control.TimeDimension = L.Control.extend({
 			currentSpeed = Math.round(10000/(this.options.playerOptions.transitionTime||1000))/10;
 		}
 		_slider.innerHTML = '<span class="speed">' +  currentSpeed  + 'fps</span><div class="slider"></div>';
-		var slider = $(_slider).find('.slider');		
+		var slider = $(_slider).find('.slider');
 		slider.slider({
       		min: 0.1,
       		max: 10,
@@ -1555,10 +1561,10 @@ L.Control.TimeDimension = L.Control.extend({
       		range: "min",
       		stop: (function(sliderContainer, event, ui ) {
         		var speed = $(sliderContainer).find('.speed')[0];
-				speed.innerHTML = ui.value + "fps";      			
+				speed.innerHTML = ui.value + "fps";
         		this._sliderSpeedValueChanged(ui.value);
         	}).bind(this, _slider),
-        	slide: (function(sliderContainer, event, ui ) {        		
+        	slide: (function(sliderContainer, event, ui ) {
         		var speed = $(sliderContainer).find('.speed')[0];
 				speed.innerHTML = ui.value + "fps";
         	}).bind(this, _slider),
@@ -1590,20 +1596,20 @@ L.Control.TimeDimension = L.Control.extend({
 			} else {
 				this._buttonPlayPause.className = 'leaflet-control-timecontrol timecontrol-play';
 				this._player.stop();
-				this._buttonPlayPause.innerHTML = '';				
+				this._buttonPlayPause.innerHTML = '';
 			}
 		} else {
 			this._buttonPlayPause.className = 'leaflet-control-timecontrol timecontrol-pause';
 			this._player.start(this._steps);
 		}
-	},	
+	},
 
 	_sliderValueChanged: function(newValue) {
 		this._timeDimension.setCurrentTimeIndex(newValue);
 	},
 
 	_sliderSpeedValueChanged: function(newValue){
-		if (this._player){			
+		if (this._player){
 		    this._player.setTransitionTime(1000/newValue);
 		}
 	},
