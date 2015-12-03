@@ -2,8 +2,8 @@
   "name": "leaflet-timedimension",
   "description": "Add time dimension capabilities on a Leaflet map",
   "main": [
-    "src/leaflet.timedimension.js",
-    "src/leaflet.timedimension.control.css"
+    "dist/leaflet.timedimension.src.js",
+    "dist/leaflet.timedimension.control.css"
   ],
   "license": "MIT",
   "ignore": [
@@ -12,7 +12,6 @@
     "bower_components",
     "test",
     "tests",
-    "src",
     "examples",
     "Gruntfile.js",
     "package.json"
@@ -36,9 +35,9 @@
     "url": "git://github.com/socib/Leaflet.TimeDimension.git"
   },
   "dependencies": {
-    "leaflet": "~0.7.0",
     "iso8601-js-period": "*",
-    "jquery": "~2.1.4",
-    "jquery-ui": "~1.11.4"
+    "leaflet": "~0.7.4 || ~1.0.0",
+    "jquery": "1.x || 2.x",
+    "jquery-ui": ">=1.10"
   }
 }
