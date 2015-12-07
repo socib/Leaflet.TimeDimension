@@ -129,24 +129,26 @@ L.TimeDimension.Util = {
     },
 
     parseTimesExpression: function(times) {
+        var this_obj = this;
         var result = [];
         if (!times) {
             return result;
         }
         if (typeof times == 'string' || times instanceof String) {
-            var testTimeRange = times.split("/");
-            if (testTimeRange.length == 3) {
-                result = this.parseAndExplodeTimeRange(times);
-            } else {
-                var dates = times.split(",");
-                var time;
-                for (var i = 0, l = dates.length; i < l; i++) {
-                    time = Date.parse(dates[i]);
+            var full_testTimeRange = times.split(",");
+            full_testTimeRange.forEach(function(_testTimeRange) {
+                if (_testTimeRange.split("/").length == 3) {
+                    var temp_result = this_obj.parseAndExplodeTimeRange(_testTimeRange);
+                    result = result.concat(temp_result);
+                } else {
+                    var date = _testTimeRange;
+                    var time;
+                    time = Date.parse(date);
                     if (!isNaN(time)) {
                         result.push(time);
                     }
                 }
-            }
+            });
         } else {
             result = times;
         }
