@@ -134,16 +134,17 @@ L.TimeDimension.Util = {
             return result;
         }
         if (typeof times == 'string' || times instanceof String) {
-            var testTimeRange = times.split("/");
-            if (testTimeRange.length == 3) {
-                result = this.parseAndExplodeTimeRange(times);
-            } else {
-                var dates = times.split(",");
-                var time;
-                for (var i = 0, l = dates.length; i < l; i++) {
-                    time = Date.parse(dates[i]);
-                    if (!isNaN(time)) {
-                        result.push(time);
+            var timeRanges = times.split(",");
+            var timeRange;
+            var timeValue;
+            for (var i=0, l=timeRanges.length; i<l; i++){
+                timeRange = timeRanges[i];
+                if (timeRange.split("/").length == 3) {                
+                    result = result.concat(this.parseAndExplodeTimeRange(timeRange));
+                } else {
+                    timeValue = Date.parse(timeRange);
+                    if (!isNaN(timeValue)) {
+                        result.push(timeValue);
                     }
                 }
             }
