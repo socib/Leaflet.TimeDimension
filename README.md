@@ -142,7 +142,7 @@ Manages a GeoJSON layer with a TimeDimension. According to GeoJSON specification
 - `coordTimes`, `times` or `linestringTimestamps`: array of times that can be associated with a geometry (datestrings or ms). In the case of a LineString, it must have as many items as coordinates in the LineString. (Note: `coordTimes` is the name of the property [recently](https://github.com/mapbox/togeojson/blob/master/CHANGELOG.md#0100) included at [Mapbox toGeoJSON library](http://mapbox.github.io/togeojson/))
 - `time`: time of the feature
 
-This component will modify the GeoJSON layer in order to show only that features (or part of them) that are active for the time of the TimeDimension (according to a duration option).
+This component will create and show new GeoJSON layers which include only that features (or part of them) that are active for the time of the TimeDimension (according to a duration option). These new layers will inherit the baseLayer options. In the case of LineStrings, if `addlastPoint` option is enabled, a Point feature will be added with the property `last` (that can be used to customize the marker of this special Point).
 
 
 #### <a name="timeDimensionLayerGeoJSONOptions"></a> Options
