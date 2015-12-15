@@ -54,6 +54,15 @@ L.TimeDimension.Layer = (L.Layer || L.Class).extend({
             this._currentLayer.setZIndex(zIndex);
         }
     },
+	
+	setOpacity: function(opacity) {
+        if (this._baseLayer.setOpacity) {
+            this._baseLayer.setOpacity(opacity);
+        }
+        if (this._currentLayer && this._currentLayer.setOpacity) {
+            this._currentLayer.setOpacity(opacity);
+        }
+    },
 
     bringToBack: function() {
         if (!this._currentLayer) {
