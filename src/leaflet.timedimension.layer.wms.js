@@ -78,6 +78,16 @@ L.TimeDimension.Layer.WMS = L.TimeDimension.Layer.extend({
             this._showLayer(layer, time);
         }
     },
+	
+	setOpacity: function(opacity){
+		L.TimeDimension.Layer.prototype.setOpacity.apply(this, arguments);
+		//apply to all preloaded caches
+		for (var prop in this._layers) {
+            if (this._layers.hasOwnProperty(prop) && this._layers[prop].setOpacity) {
+                this._layers[prop].setOpacity(opacity);
+            }
+        }
+	},
 
     setParams: function(params, noRedraw) {
         L.extend(this._baseLayer.options, params);
@@ -85,9 +95,35 @@ L.TimeDimension.Layer.WMS = L.TimeDimension.Layer.extend({
         if (this._currentLayer) {
             this._currentLayer.setParams(params, noRedraw);
         }
+		if(!noRedraw){
+			this._evictCachedTimes(0, 0); //clear cached layers
+		}
         return this;
     },
 
+	_evictCachedTimes : function(keepforward, keepbackward){
+		 // Cache management
+        var times = this._getLoadedTimes();
+        var strTime = String(this._currentTime);
+        var index = times.indexOf(strTime);
+        var remove = [];
+        // remove times before current time
+        if (keepbackward > -1) {
+            var objectsToRemove = index - keepbackward;
+            if (objectsToRemove > 0) {
+                remove = times.splice(0, objectsToRemove);
+                this._removeLayers(remove);
+            }
+        }
+        if (keepforward > -1) {
+            index = times.indexOf(strTime);
+            var objectsToRemove = times.length - index - keepforward - 1;
+            if (objectsToRemove > 0) {
+                remove = times.splice(index + keepforward + 1, objectsToRemove);
+                this._removeLayers(remove);
+            }
+        }
+	},
     _showLayer: function(layer, time) {
         if (this._currentLayer && this._currentLayer !== layer) {
             this._currentLayer.hide();
@@ -97,28 +133,11 @@ L.TimeDimension.Layer.WMS = L.TimeDimension.Layer.extend({
             return;
         }
         this._currentLayer = layer;
+		this._currentTime = time;
         console.log('Show layer ' + layer.wmsParams.layers + ' with time: ' + new Date(time).toISOString());
-        // Cache management
-        var times = this._getLoadedTimes();
-        var strTime = String(time);
-        var index = times.indexOf(strTime);
-        var remove = [];
-        // remove times before current time
-        if (this._timeCacheBackward > -1) {
-            var objectsToRemove = index - this._timeCacheBackward;
-            if (objectsToRemove > 0) {
-                remove = times.splice(0, objectsToRemove);
-                this._removeLayers(remove);
-            }
-        }
-        if (this._timeCacheForward > -1) {
-            index = times.indexOf(strTime);
-            var objectsToRemove = times.length - index - this._timeCacheForward - 1;
-            if (objectsToRemove > 0) {
-                remove = times.splice(index + this._timeCacheForward + 1, objectsToRemove);
-                this._removeLayers(remove);
-            }
-        }
+        
+		this._evictCachedTimes(this._timeCacheBackward, this._timeCacheForward);
+		
     },
 
     _getLayerForTime: function(time) {
