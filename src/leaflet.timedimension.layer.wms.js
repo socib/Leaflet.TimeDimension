@@ -28,6 +28,14 @@ L.TimeDimension.Layer.WMS = L.TimeDimension.Layer.extend({
             });
         }).bind(this));
     },
+	
+	getEvents : function(){
+		var clearCache = L.bind(this._evictCachedTimes, this, 0, 0);
+		return {
+			moveend: clearCache,
+			zoomend: clearCache
+		}
+	},
 
     eachLayer: function(method, context) {
         for (var prop in this._layers) {
@@ -197,7 +205,8 @@ L.TimeDimension.Layer.WMS = L.TimeDimension.Layer.extend({
 
     _removeLayers: function(times) {
         for (var i = 0, l = times.length; i < l; i++) {
-            this._map.removeLayer(this._layers[times[i]]);
+			if(this.map)
+				this._map.removeLayer(this._layers[times[i]]);
             delete this._layers[times[i]];
         }
     },
