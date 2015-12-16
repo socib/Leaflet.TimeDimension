@@ -8,6 +8,9 @@
 L.TimeDimension.Layer = (L.Layer || L.Class).extend({
 
     includes: L.Mixin.Events,
+    options: {
+        opacity: 1
+    },
 
     initialize: function(layer, options) {
         L.setOptions(this, options || {});
@@ -15,6 +18,7 @@ L.TimeDimension.Layer = (L.Layer || L.Class).extend({
         this._baseLayer = layer;
         this._currentLayer = null;
         this._timeDimension = this.options.timeDimension || null;
+        this.setOpacity(this.options.opacity);
     },
 
     addTo: function(map) {
@@ -56,6 +60,7 @@ L.TimeDimension.Layer = (L.Layer || L.Class).extend({
     },
 	
 	setOpacity: function(opacity) {
+        this.options.opacity = opacity;
         if (this._baseLayer.setOpacity) {
             this._baseLayer.setOpacity(opacity);
         }
