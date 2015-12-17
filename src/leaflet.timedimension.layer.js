@@ -9,7 +9,8 @@ L.TimeDimension.Layer = (L.Layer || L.Class).extend({
 
     includes: L.Mixin.Events,
     options: {
-        opacity: 1
+        opacity: 1,
+        zIndex: 1
     },
 
     initialize: function(layer, options) {
@@ -18,7 +19,6 @@ L.TimeDimension.Layer = (L.Layer || L.Class).extend({
         this._baseLayer = layer;
         this._currentLayer = null;
         this._timeDimension = this.options.timeDimension || null;
-        this.setOpacity(this.options.opacity);
     },
 
     addTo: function(map) {
@@ -51,15 +51,17 @@ L.TimeDimension.Layer = (L.Layer || L.Class).extend({
     },
 
     setZIndex: function(zIndex) {
+        this.options.zIndex = zIndex;
         if (this._baseLayer.setZIndex) {
             this._baseLayer.setZIndex(zIndex);
         }
         if (this._currentLayer && this._currentLayer.setZIndex) {
             this._currentLayer.setZIndex(zIndex);
         }
+        return this;
     },
-	
-	setOpacity: function(opacity) {
+
+    setOpacity: function(opacity) {
         this.options.opacity = opacity;
         if (this._baseLayer.setOpacity) {
             this._baseLayer.setOpacity(opacity);
@@ -67,6 +69,7 @@ L.TimeDimension.Layer = (L.Layer || L.Class).extend({
         if (this._currentLayer && this._currentLayer.setOpacity) {
             this._currentLayer.setOpacity(opacity);
         }
+        return this;
     },
 
     bringToBack: function() {
@@ -74,6 +77,7 @@ L.TimeDimension.Layer = (L.Layer || L.Class).extend({
             return;
         }
         this._currentLayer.bringToBack();
+        return this;
     },
 
     bringToFront: function() {
@@ -81,6 +85,7 @@ L.TimeDimension.Layer = (L.Layer || L.Class).extend({
             return;
         }
         this._currentLayer.bringToFront();
+        return this;
     },
 
     _onNewTimeLoading: function(ev) {
@@ -101,7 +106,7 @@ L.TimeDimension.Layer = (L.Layer || L.Class).extend({
         return true;
     },
 
-    getBaseLayer: function(){
+    getBaseLayer: function() {
         return this._baseLayer;
     }
 
