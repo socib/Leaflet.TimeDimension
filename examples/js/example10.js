@@ -95,7 +95,7 @@ L.TimeDimension.Layer.ImageOverlay = L.TimeDimension.Layer.extend({
         var url = this._getUrlFunction(this._baseLayer.getURL(), time);
         imageBounds = this._baseLayer._bounds;
 
-        var newLayer = L.imageOverlay(url, imageBounds);
+        var newLayer = L.imageOverlay(url, imageBounds, this._baseLayer.options);
         this._layers[time] = newLayer;
         newLayer.on('load', (function(layer, time) {
             layer.setLoaded(true);
@@ -208,7 +208,10 @@ var imageUrl = 'http://www.socib.es/users/mobims/imageArchive/clm/sirena/clm/c04
         [38.71, 1.1325]
     ];
 
-var imageLayer = L.imageOverlay(imageUrl, imageBounds);
+var imageLayer = L.imageOverlay(imageUrl, imageBounds, {
+    opacity: 0.5
+});
+
 var getSirenaImageUrl = function(baseUrl, time) {
     var beginUrl = baseUrl.substring(0, baseUrl.lastIndexOf("/") - 10);
     beginUrl = beginUrl + new Date(time).format('yyyy/mm/dd');
