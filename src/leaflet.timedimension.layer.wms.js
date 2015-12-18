@@ -30,7 +30,7 @@ L.TimeDimension.Layer.WMS = L.TimeDimension.Layer.extend({
     },
 
     getEvents : function(){
-        var clearCache = L.bind(this._evictCachedTimes, this, 0, 0);
+        var clearCache = L.bind(this._unvalidateCache, this);
         return {
             moveend: clearCache,
             zoomend: clearCache
@@ -99,14 +99,22 @@ L.TimeDimension.Layer.WMS = L.TimeDimension.Layer.extend({
 
     setParams: function(params, noRedraw) {
         L.extend(this._baseLayer.options, params);
-        this._baseLayer.setParams(params, noRedraw);
-        if (this._currentLayer) {
-            this._currentLayer.setParams(params, noRedraw);
-        }
-        if(!noRedraw){
-            this._evictCachedTimes(0, 0); //clear cached layers
+        for (var prop in this._layers) {
+            if (this._layers.hasOwnProperty(prop) && this._layers[prop].setParams) {
+                this._layers[prop].setLoaded(false);//mark it as unloaded
+                this._layers[prop].setParams(params, noRedraw);
+            }
         }
         return this;
+    },
+    
+    _unvalidateCache : function(){
+        for (var prop in this._layers) {
+            if (this._layers.hasOwnProperty(prop)) {
+                this._layers[prop].setLoaded(false);//mark it as unloaded
+                this._layers[prop].redraw();
+            }
+        }
     },
 
     _evictCachedTimes : function(keepforward, keepbackward){
@@ -204,7 +212,7 @@ L.TimeDimension.Layer.WMS = L.TimeDimension.Layer.extend({
 
     _removeLayers: function(times) {
         for (var i = 0, l = times.length; i < l; i++) {
-            if(this.map)
+            if(this._map)
                 this._map.removeLayer(this._layers[times[i]]);
             delete this._layers[times[i]];
         }
