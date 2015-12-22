@@ -351,12 +351,18 @@ L.NonTiledLayer.include({
     _loaded: false,
 
     _originalUpdate: L.NonTiledLayer.prototype._update,
+    _originalOnRemove: L.NonTiledLayer.prototype.onRemove,
 
     _update: function() {
         if (!this._visible && this._loaded) {
             return;
         }
         this._originalUpdate();
+    },
+
+    onRemove: function (map) {
+        this._loaded = false;
+        this._originalOnRemove(map);
     },
 
     setLoaded: function(loaded) {
