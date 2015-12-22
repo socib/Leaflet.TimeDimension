@@ -16,6 +16,7 @@ L.TimeDimension.Player = (L.Layer || L.Class).extend({
         this._steps = 1;
         this._timeDimension.on('timeload', (function(data){
             this.continue();  // free clock
+            this._waitingForBuffer = false; // reset buffer
         }).bind(this));
     },
 
