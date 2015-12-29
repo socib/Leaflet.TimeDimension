@@ -1,5 +1,5 @@
 /* 
- * Leaflet TimeDimension v0.1.8 - 2015-12-10 
+ * Leaflet TimeDimension v0.1.9 - 2015-12-29 
  * 
  * Copyright 2015 Biel Frontera (ICTS SOCIB) 
  * datacenter@socib.es 
@@ -513,6 +513,10 @@ L.TimeDimension.Util = {
 L.TimeDimension.Layer = (L.Layer || L.Class).extend({
 
     includes: L.Mixin.Events,
+    options: {
+        opacity: 1,
+        zIndex: 1
+    },
 
     initialize: function(layer, options) {
         L.setOptions(this, options || {});
@@ -552,12 +556,25 @@ L.TimeDimension.Layer = (L.Layer || L.Class).extend({
     },
 
     setZIndex: function(zIndex) {
+        this.options.zIndex = zIndex;
         if (this._baseLayer.setZIndex) {
             this._baseLayer.setZIndex(zIndex);
         }
         if (this._currentLayer && this._currentLayer.setZIndex) {
             this._currentLayer.setZIndex(zIndex);
         }
+        return this;
+    },
+
+    setOpacity: function(opacity) {
+        this.options.opacity = opacity;
+        if (this._baseLayer.setOpacity) {
+            this._baseLayer.setOpacity(opacity);
+        }
+        if (this._currentLayer && this._currentLayer.setOpacity) {
+            this._currentLayer.setOpacity(opacity);
+        }
+        return this;
     },
 
     bringToBack: function() {
@@ -565,6 +582,7 @@ L.TimeDimension.Layer = (L.Layer || L.Class).extend({
             return;
         }
         this._currentLayer.bringToBack();
+        return this;
     },
 
     bringToFront: function() {
@@ -572,6 +590,7 @@ L.TimeDimension.Layer = (L.Layer || L.Class).extend({
             return;
         }
         this._currentLayer.bringToFront();
+        return this;
     },
 
     _onNewTimeLoading: function(ev) {
@@ -592,7 +611,7 @@ L.TimeDimension.Layer = (L.Layer || L.Class).extend({
         return true;
     },
 
-    getBaseLayer: function(){
+    getBaseLayer: function() {
         return this._baseLayer;
     }
 
@@ -601,7 +620,6 @@ L.TimeDimension.Layer = (L.Layer || L.Class).extend({
 L.timeDimension.layer = function(layer, options) {
     return new L.TimeDimension.Layer(layer, options);
 };
-
 /*
  * L.TimeDimension.Layer.WMS: wms Layer associated to a TimeDimension
  */
@@ -631,6 +649,14 @@ L.TimeDimension.Layer.WMS = L.TimeDimension.Layer.extend({
                 time: this._defaultTime
             });
         }).bind(this));
+    },
+
+    getEvents : function(){
+        var clearCache = L.bind(this._unvalidateCache, this);
+        return {
+            moveend: clearCache,
+            zoomend: clearCache
+        }
     },
 
     eachLayer: function(method, context) {
@@ -683,15 +709,60 @@ L.TimeDimension.Layer.WMS = L.TimeDimension.Layer.extend({
         }
     },
 
+    setOpacity: function(opacity){
+        L.TimeDimension.Layer.prototype.setOpacity.apply(this, arguments);
+        //apply to all preloaded caches
+        for (var prop in this._layers) {
+            if (this._layers.hasOwnProperty(prop) && this._layers[prop].setOpacity) {
+                this._layers[prop].setOpacity(opacity);
+            }
+        }
+    },
+
     setParams: function(params, noRedraw) {
         L.extend(this._baseLayer.options, params);
-        this._baseLayer.setParams(params, noRedraw);
-        if (this._currentLayer) {
-            this._currentLayer.setParams(params, noRedraw);
+        for (var prop in this._layers) {
+            if (this._layers.hasOwnProperty(prop) && this._layers[prop].setParams) {
+                this._layers[prop].setLoaded(false);//mark it as unloaded
+                this._layers[prop].setParams(params, noRedraw);
+            }
         }
         return this;
     },
+    
+    _unvalidateCache : function(){
+        var time = this._timeDimension.getCurrentTime();
+        for (var prop in this._layers) {            
+            if (time != prop && this._layers.hasOwnProperty(prop)) {
+                this._layers[prop].setLoaded(false); //mark it as unloaded
+                this._layers[prop].redraw();
+            }
+        }
+    },
 
+    _evictCachedTimes : function(keepforward, keepbackward){
+        // Cache management
+        var times = this._getLoadedTimes();
+        var strTime = String(this._currentTime);
+        var index = times.indexOf(strTime);
+        var remove = [];
+        // remove times before current time
+        if (keepbackward > -1) {
+            var objectsToRemove = index - keepbackward;
+            if (objectsToRemove > 0) {
+                remove = times.splice(0, objectsToRemove);
+                this._removeLayers(remove);
+            }
+        }
+        if (keepforward > -1) {
+            index = times.indexOf(strTime);
+            var objectsToRemove = times.length - index - keepforward - 1;
+            if (objectsToRemove > 0) {
+                remove = times.splice(index + keepforward + 1, objectsToRemove);
+                this._removeLayers(remove);
+            }
+        }
+    },
     _showLayer: function(layer, time) {
         if (this._currentLayer && this._currentLayer !== layer) {
             this._currentLayer.hide();
@@ -701,28 +772,10 @@ L.TimeDimension.Layer.WMS = L.TimeDimension.Layer.extend({
             return;
         }
         this._currentLayer = layer;
+        this._currentTime = time;
         
-        // Cache management
-        var times = this._getLoadedTimes();
-        var strTime = String(time);
-        var index = times.indexOf(strTime);
-        var remove = [];
-        // remove times before current time
-        if (this._timeCacheBackward > -1) {
-            var objectsToRemove = index - this._timeCacheBackward;
-            if (objectsToRemove > 0) {
-                remove = times.splice(0, objectsToRemove);
-                this._removeLayers(remove);
-            }
-        }
-        if (this._timeCacheForward > -1) {
-            index = times.indexOf(strTime);
-            var objectsToRemove = times.length - index - this._timeCacheForward - 1;
-            if (objectsToRemove > 0) {
-                remove = times.splice(index + this._timeCacheForward + 1, objectsToRemove);
-                this._removeLayers(remove);
-            }
-        }
+        
+        this._evictCachedTimes(this._timeCacheBackward, this._timeCacheForward);
     },
 
     _getLayerForTime: function(time) {
@@ -782,7 +835,8 @@ L.TimeDimension.Layer.WMS = L.TimeDimension.Layer.extend({
 
     _removeLayers: function(times) {
         for (var i = 0, l = times.length; i < l; i++) {
-            this._map.removeLayer(this._layers[times[i]]);
+            if(this._map)
+                this._map.removeLayer(this._layers[times[i]]);
             delete this._layers[times[i]];
         }
     },
@@ -928,12 +982,18 @@ L.NonTiledLayer.include({
     _loaded: false,
 
     _originalUpdate: L.NonTiledLayer.prototype._update,
+    _originalOnRemove: L.NonTiledLayer.prototype.onRemove,
 
     _update: function() {
         if (!this._visible && this._loaded) {
             return;
         }
         this._originalUpdate();
+    },
+
+    onRemove: function (map) {
+        this._loaded = false;
+        this._originalOnRemove(map);
     },
 
     setLoaded: function(loaded) {
@@ -1230,6 +1290,7 @@ L.TimeDimension.Player = (L.Layer || L.Class).extend({
         this._steps = 1;
         this._timeDimension.on('timeload', (function(data){
             this.continue();  // free clock
+            this._waitingForBuffer = false; // reset buffer
         }).bind(this));
     },
 
