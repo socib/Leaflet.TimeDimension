@@ -109,9 +109,10 @@ L.TimeDimension.Layer.WMS = L.TimeDimension.Layer.extend({
     },
     
     _unvalidateCache : function(){
-        for (var prop in this._layers) {
-            if (this._layers.hasOwnProperty(prop)) {
-                this._layers[prop].setLoaded(false);//mark it as unloaded
+        var time = this._timeDimension.getCurrentTime();
+        for (var prop in this._layers) {            
+            if (time != prop && this._layers.hasOwnProperty(prop)) {
+                this._layers[prop].setLoaded(false); //mark it as unloaded
                 this._layers[prop].redraw();
             }
         }
