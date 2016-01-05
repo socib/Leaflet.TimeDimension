@@ -89,7 +89,7 @@ L.TimeDimension.Layer.WMS = L.TimeDimension.Layer.extend({
 
     setOpacity: function(opacity){
         L.TimeDimension.Layer.prototype.setOpacity.apply(this, arguments);
-        //apply to all preloaded caches
+        // apply to all preloaded caches
         for (var prop in this._layers) {
             if (this._layers.hasOwnProperty(prop) && this._layers[prop].setOpacity) {
                 this._layers[prop].setOpacity(opacity);
@@ -101,7 +101,7 @@ L.TimeDimension.Layer.WMS = L.TimeDimension.Layer.extend({
         L.extend(this._baseLayer.options, params);
         for (var prop in this._layers) {
             if (this._layers.hasOwnProperty(prop) && this._layers[prop].setParams) {
-                this._layers[prop].setLoaded(false);//mark it as unloaded
+                this._layers[prop].setLoaded(false); // mark it as unloaded
                 this._layers[prop].setParams(params, noRedraw);
             }
         }
@@ -112,7 +112,7 @@ L.TimeDimension.Layer.WMS = L.TimeDimension.Layer.extend({
         var time = this._timeDimension.getCurrentTime();
         for (var prop in this._layers) {            
             if (time != prop && this._layers.hasOwnProperty(prop)) {
-                this._layers[prop].setLoaded(false); //mark it as unloaded
+                this._layers[prop].setLoaded(false); // mark it as unloaded
                 this._layers[prop].redraw();
             }
         }
@@ -153,7 +153,7 @@ L.TimeDimension.Layer.WMS = L.TimeDimension.Layer.extend({
         this._currentTime = time;
         console.log('Show layer ' + layer.wmsParams.layers + ' with time: ' + new Date(time).toISOString());
         
-        this._evictCachedTimes(this._timeCacheBackward, this._timeCacheForward);
+        this._evictCachedTimes(this._timeCacheForward, this._timeCacheBackward);
     },
 
     _getLayerForTime: function(time) {
@@ -181,6 +181,11 @@ L.TimeDimension.Layer.WMS = L.TimeDimension.Layer.extend({
 
         newLayer.on('load', (function(layer, time) {
             layer.setLoaded(true);
+            // this time entry should exists inside _layers
+            // but it might be deleted by cache management
+            if (!this._layers[time]) {
+                this._layers[time] = layer;
+            }
             if (this._timeDimension && time == this._timeDimension.getCurrentTime() && !this._timeDimension.isLoading()) {
                 this._showLayer(layer, time);
             }
