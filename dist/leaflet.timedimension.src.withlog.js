@@ -1,7 +1,7 @@
 /* 
- * Leaflet TimeDimension v0.1.9 - 2015-12-29 
+ * Leaflet TimeDimension v0.1.10 - 2016-01-05 
  * 
- * Copyright 2015 Biel Frontera (ICTS SOCIB) 
+ * Copyright 2016 Biel Frontera (ICTS SOCIB) 
  * datacenter@socib.es 
  * http://www.socib.es/ 
  * 
@@ -630,7 +630,7 @@ L.TimeDimension.Layer.WMS = L.TimeDimension.Layer.extend({
         L.TimeDimension.Layer.prototype.initialize.call(this, layer, options);
         this._timeCacheBackward = this.options.cacheBackward || this.options.cache || 0;
         this._timeCacheForward = this.options.cacheForward || this.options.cache || 0;
-        this._wmsVersion = this.options.wmsVersion || "1.1.1";
+        this._wmsVersion = this.options.wmsVersion || this.options.version || layer.options.version || "1.1.1";
         this._proxy = this.options.proxy || null;
         this._updateTimeDimension = this.options.updateTimeDimension || false;
         this._setDefaultTime = this.options.setDefaultTime || false;
@@ -711,7 +711,7 @@ L.TimeDimension.Layer.WMS = L.TimeDimension.Layer.extend({
 
     setOpacity: function(opacity){
         L.TimeDimension.Layer.prototype.setOpacity.apply(this, arguments);
-        //apply to all preloaded caches
+        // apply to all preloaded caches
         for (var prop in this._layers) {
             if (this._layers.hasOwnProperty(prop) && this._layers[prop].setOpacity) {
                 this._layers[prop].setOpacity(opacity);
@@ -723,7 +723,7 @@ L.TimeDimension.Layer.WMS = L.TimeDimension.Layer.extend({
         L.extend(this._baseLayer.options, params);
         for (var prop in this._layers) {
             if (this._layers.hasOwnProperty(prop) && this._layers[prop].setParams) {
-                this._layers[prop].setLoaded(false);//mark it as unloaded
+                this._layers[prop].setLoaded(false); // mark it as unloaded
                 this._layers[prop].setParams(params, noRedraw);
             }
         }
@@ -734,7 +734,7 @@ L.TimeDimension.Layer.WMS = L.TimeDimension.Layer.extend({
         var time = this._timeDimension.getCurrentTime();
         for (var prop in this._layers) {            
             if (time != prop && this._layers.hasOwnProperty(prop)) {
-                this._layers[prop].setLoaded(false); //mark it as unloaded
+                this._layers[prop].setLoaded(false); // mark it as unloaded
                 this._layers[prop].redraw();
             }
         }
@@ -775,7 +775,7 @@ L.TimeDimension.Layer.WMS = L.TimeDimension.Layer.extend({
         this._currentTime = time;
         console.log('Show layer ' + layer.wmsParams.layers + ' with time: ' + new Date(time).toISOString());
         
-        this._evictCachedTimes(this._timeCacheBackward, this._timeCacheForward);
+        this._evictCachedTimes(this._timeCacheForward, this._timeCacheBackward);
     },
 
     _getLayerForTime: function(time) {
@@ -803,6 +803,11 @@ L.TimeDimension.Layer.WMS = L.TimeDimension.Layer.extend({
 
         newLayer.on('load', (function(layer, time) {
             layer.setLoaded(true);
+            // this time entry should exists inside _layers
+            // but it might be deleted by cache management
+            if (!this._layers[time]) {
+                this._layers[time] = layer;
+            }
             if (this._timeDimension && time == this._timeDimension.getCurrentTime() && !this._timeDimension.isLoading()) {
                 this._showLayer(layer, time);
             }
