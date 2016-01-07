@@ -128,7 +128,7 @@ L.Control.TimeDimension = L.Control.extend({
 				this._displayDate.className = this._displayDate.className.replace(' timecontrol-loading', '');
 				this._displayDate.innerHTML = this._getDisplayDateFormat(date);
 			}
-			if (this._slider){
+			if (this._slider && !this._slidingTimeSlider){
 	        	this._slider.slider( "value", this._timeDimension.getCurrentTimeIndex());
 			}
 		}else{
@@ -211,8 +211,10 @@ L.Control.TimeDimension = L.Control.extend({
       		range: "min",
       		stop: (function( event, ui ) {
         		this._sliderValueChanged(ui.value);
+        		this._slidingTimeSlider = false;
         	}).bind(this),
         	slide: (function( event, ui ) {
+        		this._slidingTimeSlider = true;
 				var date = new Date(this._timeDimension.getAvailableTimes()[ui.value]);
 				this._displayDate.innerHTML = this._getDisplayDateFormat(date);
         	}).bind(this),
