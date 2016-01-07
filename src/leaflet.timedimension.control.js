@@ -69,10 +69,10 @@ L.Control.TimeDimension = L.Control.extend({
 
     	}).bind(this));
 
-    	this._timeDimension.on('timeanimationrunning', (function(data){
+    	this._timeDimension.on('timeload timeanimationrunning', (function(data){
 			if (this._buttonPlayPause){
 				this._buttonPlayPause.innerHTML = '';
-				if (this._player.isPlaying()){
+				if (this._player && this._player.isPlaying()){
 					this._buttonPlayPause.className = 'leaflet-control-timecontrol timecontrol-pause';
 				} else {
 					this._buttonPlayPause.className = 'leaflet-control-timecontrol timecontrol-play';
