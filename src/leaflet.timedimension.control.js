@@ -109,6 +109,14 @@ L.Control.TimeDimension = L.Control.extend({
 		return container;
 	},
 
+	_initPlayer : function(){
+		this._player = new L.TimeDimension.Player(this.options.playerOptions, this._timeDimension);
+		//Update TransitionTime with the one setted on the slider
+		if(this._sliderSpeed){
+			this._sliderSpeedValueChanged(this._sliderSpeed.slider( "value"));
+		}
+    },
+
 	_update: function () {
 		if (!this._timeDimension){
 			return;
@@ -258,7 +266,7 @@ L.Control.TimeDimension = L.Control.extend({
 
 	_buttonPlayPauseClicked: function(event) {
 		if (!this._player){
-		    this._player = new L.TimeDimension.Player(this.options.playerOptions, this._timeDimension);
+		    this._initPlayer();
 		}
 		if (this._player.isPlaying()){
 			if (this._player.isWaiting()){
