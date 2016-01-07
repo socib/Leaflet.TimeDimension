@@ -21,51 +21,51 @@ L.TimeDimension.Player = (L.Layer || L.Class).extend({
     },
 
 
-    _tick: function(self) {
-        if (self._timeDimension.getCurrentTimeIndex() >= self._timeDimension.getAvailableTimes().length - 1) {
+    _tick: function() {
+        if (this._timeDimension.getCurrentTimeIndex() >= this._timeDimension.getAvailableTimes().length - 1) {
             //we reached the last step
-            if (!self._loop){
-                self.pause();
-                self.stop();
-                self._timeDimension.fire('timeanimationfinished');
+            if (!this._loop){
+                this.pause();
+                this.stop();
+                this._timeDimension.fire('timeanimationfinished');
                 return;
             }
         }
-        if (self._paused) {
+        if (this._paused) {
             return;
         }
         var numberNextTimesReady = 0,
-            buffer = self._bufferSize;
+            buffer = this._bufferSize;
         
-        if (self._minBufferReady > 0){
-            numberNextTimesReady = self._timeDimension.getNumberNextTimesReady(self._steps, buffer);
+        if (this._minBufferReady > 0){
+            numberNextTimesReady = this._timeDimension.getNumberNextTimesReady(this._steps, buffer);
             // If the player was waiting, check if all times are loaded
-            if (self._waitingForBuffer){
+            if (this._waitingForBuffer){
                 if (numberNextTimesReady < buffer){
                     console.log('Waiting until buffer is loaded. ' + numberNextTimesReady + ' of ' + buffer + ' loaded');
-                    self._timeDimension.fire('timeanimationwaiting', {percent: numberNextTimesReady/buffer});
+                    this._timeDimension.fire('timeanimationwaiting', {percent: numberNextTimesReady/buffer});
                     return;
                 }else{
                     // all times loaded
                     console.log('Buffer is fully loaded!');
-                    self._timeDimension.fire('timeanimationrunning');
-                    self._waitingForBuffer = false;
+                    this._timeDimension.fire('timeanimationrunning');
+                    this._waitingForBuffer = false;
                 }
             } else{
                 // check if player has to stop to wait and force to full all the buffer
-                if (numberNextTimesReady < self._minBufferReady){
+                if (numberNextTimesReady < this._minBufferReady){
                     console.log('Force wait for load buffer. ' + numberNextTimesReady + ' of ' + buffer + ' loaded');
-                    self._waitingForBuffer = true;
-                    self._timeDimension.fire('timeanimationwaiting', {percent: numberNextTimesReady/buffer});
-                    self._timeDimension.prepareNextTimes(self._steps, buffer);
+                    this._waitingForBuffer = true;
+                    this._timeDimension.fire('timeanimationwaiting', {percent: numberNextTimesReady/buffer});
+                    this._timeDimension.prepareNextTimes(this._steps, buffer);
                     return;
                 }
             }
         }
-        self.pause();
-        self._timeDimension.nextTime(self._steps, self._loop);
+        this.pause();
+        this._timeDimension.nextTime(this._steps, this._loop);
         if (buffer > 0){
-            self._timeDimension.prepareNextTimes(self._steps, buffer);
+            this._timeDimension.prepareNextTimes(this._steps, buffer);
         }
     },
 
@@ -74,10 +74,9 @@ L.TimeDimension.Player = (L.Layer || L.Class).extend({
         this._steps = numSteps || 1;
         this._waitingForBuffer = false;
         this._intervalID = window.setInterval(
-            this._tick,
-            this._transitionTime,
-            this);
-        this._tick(this);
+            L.bind(this._tick, this),
+            this._transitionTime);
+        this._tick();
     },
 
     stop: function() {
