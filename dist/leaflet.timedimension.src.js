@@ -1,5 +1,5 @@
 /* 
- * Leaflet TimeDimension v0.1.10 - 2016-01-05 
+ * Leaflet TimeDimension v0.1.11 - 2016-01-07 
  * 
  * Copyright 2016 Biel Frontera (ICTS SOCIB) 
  * datacenter@socib.es 
@@ -1287,7 +1287,6 @@ L.TimeDimension.Player = (L.Layer || L.Class).extend({
         L.setOptions(this, options);
         this._timeDimension = timeDimension;
         this._paused = false;
-        this._transitionTime = this.options.transitionTime || 1000;
         this._buffer = this.options.buffer || 5;
         this._minBufferReady = this.options.minBufferReady || 1;
         this._waitingForBuffer = false;
@@ -1297,50 +1296,55 @@ L.TimeDimension.Player = (L.Layer || L.Class).extend({
             this.continue();  // free clock
             this._waitingForBuffer = false; // reset buffer
         }).bind(this));
+        this.setTransitionTime(this.options.transitionTime || 1000);
     },
 
 
-    _tick: function(self) {
-        if (self._timeDimension.getCurrentTimeIndex() >= self._timeDimension.getAvailableTimes().length - 1) {
-            if (!self._loop){
-                clearInterval(self._intervalID);
-                self._timeDimension.fire('timeanimationfinished');
+    _tick: function() {
+        if (this._timeDimension.getCurrentTimeIndex() >= this._timeDimension.getAvailableTimes().length - 1) {
+            //we reached the last step
+            if (!this._loop){
+                this.pause();
+                this.stop();
+                this._timeDimension.fire('timeanimationfinished');
                 return;
             }
         }
-        if (self._paused) {
+        if (this._paused) {
             return;
         }
-        var numberNextTimesReady = 0;
-        if (self._minBufferReady > 0){
-            numberNextTimesReady = self._timeDimension.getNumberNextTimesReady(self._steps, self._buffer);
+        var numberNextTimesReady = 0,
+            buffer = this._bufferSize;
+        
+        if (this._minBufferReady > 0){
+            numberNextTimesReady = this._timeDimension.getNumberNextTimesReady(this._steps, buffer);
             // If the player was waiting, check if all times are loaded
-            if (self._waitingForBuffer){
-                if (numberNextTimesReady < self._buffer){
+            if (this._waitingForBuffer){
+                if (numberNextTimesReady < buffer){
                     
-                    self._timeDimension.fire('timeanimationwaiting', {percent: numberNextTimesReady/self._buffer});
+                    this._timeDimension.fire('timeanimationwaiting', {percent: numberNextTimesReady/buffer});
                     return;
                 }else{
                     // all times loaded
                     
-                    self._timeDimension.fire('timeanimationrunning');
-                    self._waitingForBuffer = false;
+                    this._timeDimension.fire('timeanimationrunning');
+                    this._waitingForBuffer = false;
                 }
             } else{
                 // check if player has to stop to wait and force to full all the buffer
-                if (numberNextTimesReady < self._minBufferReady){
+                if (numberNextTimesReady < this._minBufferReady){
                     
-                    self._waitingForBuffer = true;
-                    self._timeDimension.fire('timeanimationwaiting', {percent: numberNextTimesReady/self._buffer});
-                    self._timeDimension.prepareNextTimes(self._steps, self._buffer);
+                    this._waitingForBuffer = true;
+                    this._timeDimension.fire('timeanimationwaiting', {percent: numberNextTimesReady/buffer});
+                    this._timeDimension.prepareNextTimes(this._steps, buffer);
                     return;
                 }
             }
         }
-        self.pause();
-        self._timeDimension.nextTime(self._steps, self._loop);
-        if (self._buffer > 0){
-            self._timeDimension.prepareNextTimes(self._steps, self._buffer);
+        this.pause();
+        this._timeDimension.nextTime(this._steps, this._loop);
+        if (buffer > 0){
+            this._timeDimension.prepareNextTimes(this._steps, buffer);
         }
     },
 
@@ -1349,10 +1353,9 @@ L.TimeDimension.Player = (L.Layer || L.Class).extend({
         this._steps = numSteps || 1;
         this._waitingForBuffer = false;
         this._intervalID = window.setInterval(
-            this._tick,
-            this._transitionTime,
-            this);
-        this._tick(this);
+            L.bind(this._tick, this),
+            this._transitionTime);
+        this._tick();
     },
 
     stop: function() {
@@ -1383,6 +1386,12 @@ L.TimeDimension.Player = (L.Layer || L.Class).extend({
 
     setTransitionTime: function(transitionTime) {
         this._transitionTime = transitionTime;
+        if (typeof this._buffer === 'function'){
+            this._bufferSize = this._buffer.call(this, this._transitionTime, this._minBufferReady, this._loop);
+            
+        } else{
+            this._bufferSize = this._buffer;
+        }
         if (this._intervalID) {
             this.stop();
             this.start();
@@ -1461,10 +1470,10 @@ L.Control.TimeDimension = L.Control.extend({
 
     	}).bind(this));
 
-    	this._timeDimension.on('timeanimationrunning', (function(data){
+    	this._timeDimension.on('timeload timeanimationrunning', (function(data){
 			if (this._buttonPlayPause){
 				this._buttonPlayPause.innerHTML = '';
-				if (this._player.isPlaying()){
+				if (this._player && this._player.isPlaying()){
 					this._buttonPlayPause.className = 'leaflet-control-timecontrol timecontrol-pause';
 				} else {
 					this._buttonPlayPause.className = 'leaflet-control-timecontrol timecontrol-play';
@@ -1501,6 +1510,14 @@ L.Control.TimeDimension = L.Control.extend({
 		return container;
 	},
 
+	_initPlayer : function(){
+		this._player = new L.TimeDimension.Player(this.options.playerOptions, this._timeDimension);
+		//Update TransitionTime with the one setted on the slider
+		if(this._sliderSpeed){
+			this._sliderSpeedValueChanged(this._sliderSpeed.slider( "value"));
+		}
+    },
+
 	_update: function () {
 		if (!this._timeDimension){
 			return;
@@ -1512,7 +1529,7 @@ L.Control.TimeDimension = L.Control.extend({
 				this._displayDate.className = this._displayDate.className.replace(' timecontrol-loading', '');
 				this._displayDate.innerHTML = this._getDisplayDateFormat(date);
 			}
-			if (this._slider){
+			if (this._slider && !this._slidingTimeSlider){
 	        	this._slider.slider( "value", this._timeDimension.getCurrentTimeIndex());
 			}
 		}else{
@@ -1595,8 +1612,10 @@ L.Control.TimeDimension = L.Control.extend({
       		range: "min",
       		stop: (function( event, ui ) {
         		this._sliderValueChanged(ui.value);
+        		this._slidingTimeSlider = false;
         	}).bind(this),
         	slide: (function( event, ui ) {
+        		this._slidingTimeSlider = true;
 				var date = new Date(this._timeDimension.getAvailableTimes()[ui.value]);
 				this._displayDate.innerHTML = this._getDisplayDateFormat(date);
         	}).bind(this),
@@ -1650,7 +1669,7 @@ L.Control.TimeDimension = L.Control.extend({
 
 	_buttonPlayPauseClicked: function(event) {
 		if (!this._player){
-		    this._player = new L.TimeDimension.Player(this.options.playerOptions, this._timeDimension);
+		    this._initPlayer();
 		}
 		if (this._player.isPlaying()){
 			if (this._player.isWaiting()){
