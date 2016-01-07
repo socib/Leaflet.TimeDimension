@@ -69,10 +69,10 @@ L.Control.TimeDimension = L.Control.extend({
 
     	}).bind(this));
 
-    	this._timeDimension.on('timeanimationrunning', (function(data){
+    	this._timeDimension.on('timeload timeanimationrunning', (function(data){
 			if (this._buttonPlayPause){
 				this._buttonPlayPause.innerHTML = '';
-				if (this._player.isPlaying()){
+				if (this._player && this._player.isPlaying()){
 					this._buttonPlayPause.className = 'leaflet-control-timecontrol timecontrol-pause';
 				} else {
 					this._buttonPlayPause.className = 'leaflet-control-timecontrol timecontrol-play';
@@ -108,6 +108,14 @@ L.Control.TimeDimension = L.Control.extend({
 		}
 		return container;
 	},
+
+	_initPlayer : function(){
+		this._player = new L.TimeDimension.Player(this.options.playerOptions, this._timeDimension);
+		//Update TransitionTime with the one setted on the slider
+		if(this._sliderSpeed){
+			this._sliderSpeedValueChanged(this._sliderSpeed.slider( "value"));
+		}
+    },
 
 	_update: function () {
 		if (!this._timeDimension){
@@ -258,7 +266,7 @@ L.Control.TimeDimension = L.Control.extend({
 
 	_buttonPlayPauseClicked: function(event) {
 		if (!this._player){
-		    this._player = new L.TimeDimension.Player(this.options.playerOptions, this._timeDimension);
+		    this._initPlayer();
 		}
 		if (this._player.isPlaying()){
 			if (this._player.isWaiting()){
