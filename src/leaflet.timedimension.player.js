@@ -8,7 +8,6 @@ L.TimeDimension.Player = (L.Layer || L.Class).extend({
         L.setOptions(this, options);
         this._timeDimension = timeDimension;
         this._paused = false;
-        this._transitionTime = this.options.transitionTime || 1000;
         this._buffer = this.options.buffer || 5;
         this._minBufferReady = this.options.minBufferReady || 1;
         this._waitingForBuffer = false;
@@ -18,15 +17,16 @@ L.TimeDimension.Player = (L.Layer || L.Class).extend({
             this.continue();  // free clock
             this._waitingForBuffer = false; // reset buffer
         }).bind(this));
+        this.setTransitionTime(this.options.transitionTime || 1000);
     },
 
 
     _tick: function(self) {
         if (self._timeDimension.getCurrentTimeIndex() >= self._timeDimension.getAvailableTimes().length - 1) {
-			//we reached the last step
+            //we reached the last step
             if (!self._loop){
-				self.pause();
-				self.stop();
+                self.pause();
+                self.stop();
                 self._timeDimension.fire('timeanimationfinished');
                 return;
             }
@@ -34,14 +34,16 @@ L.TimeDimension.Player = (L.Layer || L.Class).extend({
         if (self._paused) {
             return;
         }
-        var numberNextTimesReady = 0;
+        var numberNextTimesReady = 0,
+            buffer = self._bufferSize;
+        
         if (self._minBufferReady > 0){
-            numberNextTimesReady = self._timeDimension.getNumberNextTimesReady(self._steps, self._buffer);
+            numberNextTimesReady = self._timeDimension.getNumberNextTimesReady(self._steps, buffer);
             // If the player was waiting, check if all times are loaded
             if (self._waitingForBuffer){
-                if (numberNextTimesReady < self._buffer){
-                    console.log('Waiting until buffer is loaded. ' + numberNextTimesReady + ' of ' + self._buffer + ' loaded');
-                    self._timeDimension.fire('timeanimationwaiting', {percent: numberNextTimesReady/self._buffer});
+                if (numberNextTimesReady < buffer){
+                    console.log('Waiting until buffer is loaded. ' + numberNextTimesReady + ' of ' + buffer + ' loaded');
+                    self._timeDimension.fire('timeanimationwaiting', {percent: numberNextTimesReady/buffer});
                     return;
                 }else{
                     // all times loaded
@@ -52,18 +54,18 @@ L.TimeDimension.Player = (L.Layer || L.Class).extend({
             } else{
                 // check if player has to stop to wait and force to full all the buffer
                 if (numberNextTimesReady < self._minBufferReady){
-                    console.log('Force wait for load buffer. ' + numberNextTimesReady + ' of ' + self._buffer + ' loaded');
+                    console.log('Force wait for load buffer. ' + numberNextTimesReady + ' of ' + buffer + ' loaded');
                     self._waitingForBuffer = true;
-                    self._timeDimension.fire('timeanimationwaiting', {percent: numberNextTimesReady/self._buffer});
-                    self._timeDimension.prepareNextTimes(self._steps, self._buffer);
+                    self._timeDimension.fire('timeanimationwaiting', {percent: numberNextTimesReady/buffer});
+                    self._timeDimension.prepareNextTimes(self._steps, buffer);
                     return;
                 }
             }
         }
         self.pause();
         self._timeDimension.nextTime(self._steps, self._loop);
-        if (self._buffer > 0){
-            self._timeDimension.prepareNextTimes(self._steps, self._buffer);
+        if (buffer > 0){
+            self._timeDimension.prepareNextTimes(self._steps, buffer);
         }
     },
 
@@ -106,6 +108,12 @@ L.TimeDimension.Player = (L.Layer || L.Class).extend({
 
     setTransitionTime: function(transitionTime) {
         this._transitionTime = transitionTime;
+        if (typeof this._buffer === 'function'){
+            this._bufferSize = this._buffer.call(this, this._transitionTime, this._minBufferReady, this._loop);
+            console.log('Buffer size changed to ' + this._bufferSize);
+        } else{
+            this._bufferSize = this._buffer;
+        }
         if (this._intervalID) {
             this.stop();
             this.start();
