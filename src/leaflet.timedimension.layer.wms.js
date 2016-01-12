@@ -171,12 +171,8 @@ L.TimeDimension.Layer.WMS = L.TimeDimension.Layer.extend({
         var wmsParams = this._baseLayer.options;
         wmsParams.time = new Date(nearestTime).toISOString();
 
-        var newLayer = null;
-        if (this._baseLayer instanceof L.TileLayer) {
-            newLayer = L.tileLayer.wms(this._baseLayer.getURL(), wmsParams);
-        } else {
-            newLayer = L.nonTiledLayer.wms(this._baseLayer.getURL(), wmsParams);
-        }
+        var newLayer = new this._baseLayer.constructor(this._baseLayer.getURL(), wmsParams);
+
         this._layers[time] = newLayer;
 
         newLayer.on('load', (function(layer, time) {
