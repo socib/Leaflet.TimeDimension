@@ -121,9 +121,10 @@ $.getJSON('data/spill.json', function(data) {
             var totalTimes = map.timeDimension.getAvailableTimes().length;
             var position = map.timeDimension.getAvailableTimes().indexOf(data.time);
             $(map.getContainer()).find('.animation-progress-bar').width((position*100)/totalTimes + "%");
+            // update map bounding box
+            map.fitBounds(cdriftTimeLayer.getBounds());
         }
     });
-
 
 });
 
