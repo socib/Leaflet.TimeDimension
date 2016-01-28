@@ -108,6 +108,14 @@ L.TimeDimension.Layer = (L.Layer || L.Class).extend({
 
     getBaseLayer: function() {
         return this._baseLayer;
+    },
+
+    getBounds: function() {
+        var bounds = new L.LatLngBounds();
+        if (this._currentLayer) {
+            bounds.extend(this._currentLayer.getBounds ? this._currentLayer.getBounds() : this._currentLayer.getLatLng());
+        }
+        return bounds;
     }
 
 });
