@@ -23,7 +23,7 @@ L.TimeDimension.Player = (L.Layer || L.Class).extend({
 
     _tick: function() {
         if (this._timeDimension.getCurrentTimeIndex() >= this._timeDimension.getAvailableTimes().length - 1) {
-            //we reached the last step
+            // we reached the last step
             if (!this._loop){
                 this.pause();
                 this.stop();

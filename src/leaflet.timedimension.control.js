@@ -26,6 +26,7 @@ L.Control.TimeDimension = L.Control.extend({
 	},
 
 	onAdd: function(map) {
+		this._map = map;
         if (!this._timeDimension && map.timeDimension){
             this._timeDimension = map.timeDimension;
         }
@@ -111,7 +112,7 @@ L.Control.TimeDimension = L.Control.extend({
 
 	_initPlayer : function(){
 		this._player = new L.TimeDimension.Player(this.options.playerOptions, this._timeDimension);
-		//Update TransitionTime with the one setted on the slider
+		// Update TransitionTime with the one setted on the slider
 		if(this._sliderSpeed){
 			this._sliderSpeedValueChanged(this._sliderSpeed.slider( "value"));
 		}

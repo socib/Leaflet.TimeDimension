@@ -1,5 +1,5 @@
 /* 
- * Leaflet TimeDimension v0.1.11 - 2016-01-07 
+ * Leaflet TimeDimension v0.1.12 - 2016-01-28 
  * 
  * Copyright 2016 Biel Frontera (ICTS SOCIB) 
  * datacenter@socib.es 
@@ -613,6 +613,14 @@ L.TimeDimension.Layer = (L.Layer || L.Class).extend({
 
     getBaseLayer: function() {
         return this._baseLayer;
+    },
+
+    getBounds: function() {
+        var bounds = new L.LatLngBounds();
+        if (this._currentLayer) {
+            bounds.extend(this._currentLayer.getBounds ? this._currentLayer.getBounds() : this._currentLayer.getLatLng());
+        }
+        return bounds;
     }
 
 });
@@ -793,12 +801,8 @@ L.TimeDimension.Layer.WMS = L.TimeDimension.Layer.extend({
         var wmsParams = this._baseLayer.options;
         wmsParams.time = new Date(nearestTime).toISOString();
 
-        var newLayer = null;
-        if (this._baseLayer instanceof L.TileLayer) {
-            newLayer = L.tileLayer.wms(this._baseLayer.getURL(), wmsParams);
-        } else {
-            newLayer = L.nonTiledLayer.wms(this._baseLayer.getURL(), wmsParams);
-        }
+        var newLayer = new this._baseLayer.constructor(this._baseLayer.getURL(), wmsParams);
+
         this._layers[time] = newLayer;
 
         newLayer.on('load', (function(layer, time) {
@@ -1302,7 +1306,7 @@ L.TimeDimension.Player = (L.Layer || L.Class).extend({
 
     _tick: function() {
         if (this._timeDimension.getCurrentTimeIndex() >= this._timeDimension.getAvailableTimes().length - 1) {
-            //we reached the last step
+            // we reached the last step
             if (!this._loop){
                 this.pause();
                 this.stop();
@@ -1427,6 +1431,7 @@ L.Control.TimeDimension = L.Control.extend({
 	},
 
 	onAdd: function(map) {
+		this._map = map;
         if (!this._timeDimension && map.timeDimension){
             this._timeDimension = map.timeDimension;
         }
@@ -1512,7 +1517,7 @@ L.Control.TimeDimension = L.Control.extend({
 
 	_initPlayer : function(){
 		this._player = new L.TimeDimension.Player(this.options.playerOptions, this._timeDimension);
-		//Update TransitionTime with the one setted on the slider
+		// Update TransitionTime with the one setted on the slider
 		if(this._sliderSpeed){
 			this._sliderSpeedValueChanged(this._sliderSpeed.slider( "value"));
 		}
