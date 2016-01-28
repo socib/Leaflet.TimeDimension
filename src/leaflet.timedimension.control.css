@@ -35,7 +35,7 @@
   border-right-width: 0px;
 }
 
-a.leaflet-control-timecontrol{
+.leaflet-bar-timecontrol a.leaflet-control-timecontrol{
   height: auto;
   width: auto;
   padding: 4px 15px;
@@ -67,14 +67,10 @@ a.timecontrol-date.timecontrol-loading:before{
 }
 
 
-a.timecontrol-slider{
+.leaflet-bar-timecontrol a.timecontrol-slider{
   height: auto;
   width: 300px;
   padding: 4px 15px;
-}
-
-a.timecontrol-slider:hover{
-  width: 300px;
 }
 
 a.timecontrol-slider .ui-slider{
@@ -93,7 +89,7 @@ a.timecontrol-slider .ui-slider-handle{
   padding: 0 2px;
 }
 
-a.timecontrol-speed, a.timecontrol-speed:hover{
+.leaflet-bar-timecontrol a.timecontrol-speed{
   width: 160px;
 }
 
