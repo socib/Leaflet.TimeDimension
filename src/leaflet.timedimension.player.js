@@ -1,10 +1,15 @@
+/*jshint indent: 4, browser:true*/
+/*global L*/
+
+
 /*
  * L.TimeDimension.Player
  */
-
+//'use strict';
 L.TimeDimension.Player = (L.Layer || L.Class).extend({
 
-    initialize: function(options, timeDimension) {
+    includes: L.Mixin.Events,
+    initialize: function (options, timeDimension) {
         L.setOptions(this, options);
         this._timeDimension = timeDimension;
         this._paused = false;
@@ -13,21 +18,21 @@ L.TimeDimension.Player = (L.Layer || L.Class).extend({
         this._waitingForBuffer = false;
         this._loop = this.options.loop || false;
         this._steps = 1;
-        this._timeDimension.on('timeload', (function(data){
-            this.continue();  // free clock
+        this._timeDimension.on('timeload', (function (data) {
+            this.continue(); // free clock
             this._waitingForBuffer = false; // reset buffer
         }).bind(this));
         this.setTransitionTime(this.options.transitionTime || 1000);
     },
 
 
-    _tick: function() {
+    _tick: function () {
         if (this._timeDimension.getCurrentTimeIndex() >= this._timeDimension.getAvailableTimes().length - 1) {
             // we reached the last step
-            if (!this._loop){
+            if (!this._loop) {
                 this.pause();
                 this.stop();
-                this._timeDimension.fire('timeanimationfinished');
+                this.fire('animationfinished');
                 return;
             }
         }
@@ -36,40 +41,46 @@ L.TimeDimension.Player = (L.Layer || L.Class).extend({
         }
         var numberNextTimesReady = 0,
             buffer = this._bufferSize;
-        
-        if (this._minBufferReady > 0){
+
+        if (this._minBufferReady > 0) {
             numberNextTimesReady = this._timeDimension.getNumberNextTimesReady(this._steps, buffer);
             // If the player was waiting, check if all times are loaded
-            if (this._waitingForBuffer){
-                if (numberNextTimesReady < buffer){
+            if (this._waitingForBuffer) {
+                if (numberNextTimesReady < buffer) {
                     console.log('Waiting until buffer is loaded. ' + numberNextTimesReady + ' of ' + buffer + ' loaded');
-                    this._timeDimension.fire('timeanimationwaiting', {percent: numberNextTimesReady/buffer});
+                    this.fire('waiting', {
+                        buffer: buffer,
+                        available: numberNextTimesReady
+                    });
                     return;
-                }else{
+                } else {
                     // all times loaded
                     console.log('Buffer is fully loaded!');
-                    this._timeDimension.fire('timeanimationrunning');
+                    this.fire('running');
                     this._waitingForBuffer = false;
                 }
-            } else{
+            } else {
                 // check if player has to stop to wait and force to full all the buffer
-                if (numberNextTimesReady < this._minBufferReady){
+                if (numberNextTimesReady < this._minBufferReady) {
                     console.log('Force wait for load buffer. ' + numberNextTimesReady + ' of ' + buffer + ' loaded');
                     this._waitingForBuffer = true;
-                    this._timeDimension.fire('timeanimationwaiting', {percent: numberNextTimesReady/buffer});
                     this._timeDimension.prepareNextTimes(this._steps, buffer);
+                    this.fire('waiting', {
+                        buffer: buffer,
+                        available: numberNextTimesReady
+                    });
                     return;
                 }
             }
         }
         this.pause();
         this._timeDimension.nextTime(this._steps, this._loop);
-        if (buffer > 0){
+        if (buffer > 0) {
             this._timeDimension.prepareNextTimes(this._steps, buffer);
         }
     },
 
-    start: function(numSteps) {
+    start: function (numSteps) {
         if (this._intervalID) return;
         this._steps = numSteps || 1;
         this._waitingForBuffer = false;
@@ -77,45 +88,62 @@ L.TimeDimension.Player = (L.Layer || L.Class).extend({
             L.bind(this._tick, this),
             this._transitionTime);
         this._tick();
+        this.fire('play');
+        this.fire('running');
     },
 
-    stop: function() {
+    stop: function () {
         if (!this._intervalID) return;
         clearInterval(this._intervalID);
         this._intervalID = null;
+        this.fire('stop');
     },
 
-    pause: function() {
+    pause: function () {
         this._paused = true;
     },
 
-    continue: function() {
+    continue: function () {
         this._paused = false;
     },
 
-    getTransitionTime: function() {
+    getTransitionTime: function () {
         return this._transitionTime;
     },
 
-    isPlaying: function() {
+    isPlaying: function () {
         return this._intervalID ? true : false;
     },
 
-    isWaiting: function() {
+    isWaiting: function () {
         return this._waitingForBuffer;
     },
+    isLooped: function () {
+        return this._loop;
+    },
 
-    setTransitionTime: function(transitionTime) {
+    setLooped: function (looped) {
+        this._loop = looped;
+        this.fire('loopchange', {
+            loop: looped
+        });
+    },
+
+    setTransitionTime: function (transitionTime) {
         this._transitionTime = transitionTime;
-        if (typeof this._buffer === 'function'){
+        if (typeof this._buffer === 'function') {
             this._bufferSize = this._buffer.call(this, this._transitionTime, this._minBufferReady, this._loop);
             console.log('Buffer size changed to ' + this._bufferSize);
-        } else{
+        } else {
             this._bufferSize = this._buffer;
         }
         if (this._intervalID) {
             this.stop();
             this.start();
         }
+        this.fire('speedchange', {
+            transitionTime: transitionTime,
+            buffer: this._bufferSize
+        });
     }
 });

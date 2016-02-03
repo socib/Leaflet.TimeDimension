@@ -1,6 +1,6 @@
 {
   "name": "leaflet-timedimension",
-  "version": "0.1.12",
+  "version": "1.0.0-beta",
   "description": "Add time dimension capabilities on a Leaflet map",
   "keywords": [
     "gis",

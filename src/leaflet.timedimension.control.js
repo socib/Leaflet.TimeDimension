@@ -1,328 +1,431 @@
+/*jshint indent: 4, browser:true*/
+/*global L*/
+
+/*
+ * L.Control.TimeDimension: Leaflet control to manage a timeDimension
+ */
+
+L.UI = L.ui = L.UI || {};
+L.UI.Knob = L.Draggable.extend({
+    options: {
+        className: 'knob',
+        step: 1,
+        rangeMin: 0,
+        rangeMax: 10
+            //minValue : null,
+            //maxValue : null
+    },
+    initialize: function (slider, options) {
+        L.setOptions(this, options);
+        this._element = L.DomUtil.create('div', this.options.className || 'knob', slider);
+        L.Draggable.prototype.initialize.call(this, this._element, this._element);
+        this._container = slider;
+        this.on('predrag', function () {
+            this._newPos.y = 0;
+            this._newPos.x = this._adjustX(this._newPos.x);
+        }, this);
+        L.DomEvent.disableClickPropagation(this._element);
+        this.enable();
+    },
+
+    _getProjectionCoef: function () {
+        return (this.options.rangeMax - this.options.rangeMin) / (this._container.offsetWidth || this._container.style.width);
+    },
+    _update: function () {
+        this.setPosition(L.DomUtil.getPosition(this._element).x);
+    },
+    _adjustX: function (x) {
+        var value = this._toValue(x) || this.getMinValue();
+        return this._toX(this._adjustValue(value));
+    },
+
+    _adjustValue: function (value) {
+        value = Math.max(this.getMinValue(), Math.min(this.getMaxValue(), value)); //clamp value
+        value = value - this.options.rangeMin; //offsets to zero
+
+        //snap the value to the closet step
+        value = Math.round(value / this.options.step) * this.options.step;
+        value = value + this.options.rangeMin; //restore offset
+        value = Math.round(value * 100) / 100; // *100/100 to avoid floating point precision problems
+
+        return value;
+    },
+
+    _toX: function (value) {
+        var x = (value - this.options.rangeMin) / this._getProjectionCoef();
+        //console.log('toX', value, x);
+        return x;
+    },
+
+    _toValue: function (x) {
+        var v = x * this._getProjectionCoef() + this.options.rangeMin;
+        //console.log('toValue', x, v);
+        return v;
+    },
+
+    getMinValue: function () {
+        return this.options.minValue || this.options.rangeMin;
+    },
+    getMaxValue: function () {
+        return this.options.maxValue || this.options.rangeMax;
+    },
+
+    setStep: function (step) {
+        this.options.step = step;
+        this._update();
+    },
+
+    setPosition: function (x) {
+        L.DomUtil.setPosition(this._element,
+            L.point(this._adjustX(x), 0));
+    },
+    getPosition: function () {
+        return L.DomUtil.getPosition(this._element).x;
+    },
+
+    setValue: function (v) {
+        //console.log('slider value', v);
+        this.setPosition(this._toX(v));
+    },
+
+    getValue: function () {
+        return this._adjustValue(this._toValue(this.getPosition()));
+    }
+});
+
+
 /*
  * L.Control.TimeDimension: Leaflet control to manage a timeDimension
  */
 
 L.Control.TimeDimension = L.Control.extend({
-	options: {
-		position: 'bottomleft',
-		title: 'Time Control',
-		backwardButton: true,
-		forwardButton: true,
-		playButton: true,
-		displayDate: true,
-		timeSlider: true,
-		speedSlider: true,
-		timeSteps: 1,
-		autoPlay: false,
-		playerOptions:{
-			transitionTime: 1000
-		}
-	},
-
-	initialize: function (options) {
-		L.Control.prototype.initialize.call(this, options);
-		this._dateUTC = true;
-		this._timeDimension = this.options.timeDimension || null;
-	},
-
-	onAdd: function(map) {
-		this._map = map;
-        if (!this._timeDimension && map.timeDimension){
-            this._timeDimension = map.timeDimension;
+    options: {
+        styleNS: 'leaflet-control-timecontrol',
+        position: 'bottomleft',
+        title: 'Time Control',
+        backwardButton: true,
+        forwardButton: true,
+        playButton: true,
+        loopButton: true,
+        displayDate: true,
+        timeSlider: true,
+        speedSlider: true,
+        timeSteps: 1,
+        autoPlay: false,
+        playerOptions: {
+            transitionTime: 1000
         }
-		var className = 'leaflet-control-timecontrol',
-			container;
-
-		container = L.DomUtil.create('div', 'leaflet-bar leaflet-bar-horizontal leaflet-bar-timecontrol');
-
-		if (this.options.backwardButton)
-			this._buttonBackward = this._createBackwardButton(className + " timecontrol-backward", container);
-		if (this.options.playButton)
-			this._buttonPlayPause = this._createPlayPauseButton(className + " timecontrol-play", container);
-		if (this.options.forwardButton)
-			this._buttonForward = this._createForwardButton(className + " timecontrol-forward", container);
-		if (this.options.displayDate)
-			this._displayDate = this._createDisplayDate(className + " timecontrol-date", container);
-		if (this.options.timeSlider)
-			this._slider = this._createSlider(className + " timecontrol-slider timecontrol-dateslider", container);
-		if (this.options.speedSlider)
-			this._sliderSpeed = this._createSliderSpeed(className + " timecontrol-slider timecontrol-speed", container);
-
-		this._steps = this.options.timeSteps || 1;
-
-		this._timeDimension.on('timeload', (function(data){
-        	this._update();
-    	}).bind(this));
-
-		this._timeDimension.on('timeloading', (function(data){
-			if(data.time == this._timeDimension.getCurrentTime()){
-				if (this._displayDate && this._displayDate.className.indexOf(' timecontrol-loading') == -1){
-					this._displayDate.className += " timecontrol-loading";
-				}
-			}
-    	}).bind(this));
-
-    	this._timeDimension.on('timeanimationwaiting', (function(data){
-			if (this._buttonPlayPause){
-        		this._buttonPlayPause.className = 'leaflet-control-timecontrol timecontrol-play-loading';
-        		this._buttonPlayPause.innerHTML = '<span>' + Math.floor(data.percent*100) + '%</span>';
-			}
-
-    	}).bind(this));
-
-    	this._timeDimension.on('timeload timeanimationrunning', (function(data){
-			if (this._buttonPlayPause){
-				this._buttonPlayPause.innerHTML = '';
-				if (this._player && this._player.isPlaying()){
-					this._buttonPlayPause.className = 'leaflet-control-timecontrol timecontrol-pause';
-				} else {
-					this._buttonPlayPause.className = 'leaflet-control-timecontrol timecontrol-play';
-				}
-			}
-    	}).bind(this));
-
-		this._timeDimension.on('timeanimationfinished', (function(data){
-			if (this._buttonPlayPause)
-        		this._buttonPlayPause.className = 'leaflet-control-timecontrol timecontrol-play';
-    	}).bind(this));
-
-		this._timeDimension.on('availabletimeschanged', (function(data){
-			if (this._slider)
-        		this._slider.slider("option", "max", this._timeDimension.getAvailableTimes().length - 1);
-    	}).bind(this));
-
-		// Disable dragging and zoom when user's cursor enters the element
-		container.addEventListener('mouseover', function() {
-			map.dragging.disable();
-			map.doubleClickZoom.disable();
-			// map.off('mousemove');
-		});
-
-		// Re-enable dragging and zoom when user's cursor leaves the element
-		container.addEventListener('mouseout', function() {
-			map.dragging.enable();
-			map.doubleClickZoom.enable();
-		});
-		this._update();
-		if (this.options.autoPlay && this._buttonPlayPause){
-			this._buttonPlayPauseClicked();
-		}
-		return container;
-	},
-
-	_initPlayer : function(){
-		this._player = new L.TimeDimension.Player(this.options.playerOptions, this._timeDimension);
-		// Update TransitionTime with the one setted on the slider
-		if(this._sliderSpeed){
-			this._sliderSpeedValueChanged(this._sliderSpeed.slider( "value"));
-		}
     },
 
-	_update: function () {
-		if (!this._timeDimension){
-			return;
-		}
-		var time = this._timeDimension.getCurrentTime();
-		if (time > 0){
-			var date = new Date(time);
-			if (this._displayDate){
-				this._displayDate.className = this._displayDate.className.replace(' timecontrol-loading', '');
-				this._displayDate.innerHTML = this._getDisplayDateFormat(date);
-			}
-			if (this._slider && !this._slidingTimeSlider){
-	        	this._slider.slider( "value", this._timeDimension.getCurrentTimeIndex());
-			}
-		}else{
-			if (this._displayDate){
-				this._displayDate.innerHTML = "Time not available";
-			}
-			if (this._slider){
-	        	this._slider.slider( "value", 0);
-	        }
-		}
-	},
+    initialize: function (options) {
+        L.Control.prototype.initialize.call(this, options);
+        this._dateUTC = true;
+        this._timeDimension = this.options.timeDimension || null;
+    },
 
-	_createBackwardButton: function(className, container) {
-		var link = L.DomUtil.create('a', className, container);
-		link.href = '#';
-		link.title = 'Backward';
-		// link.innerHTML = '<span class="glyphicon glyphicon-backward"></span>';
+    onAdd: function (map) {
+        this._map = map;
+        if (!this._timeDimension && map.timeDimension) {
+            this._timeDimension = map.timeDimension;
+        }
+        var container = L.DomUtil.create('div', 'leaflet-bar leaflet-bar-horizontal leaflet-bar-timecontrol');
 
-		L.DomEvent
-			.addListener(link, 'click', L.DomEvent.stopPropagation)
-			.addListener(link, 'click', L.DomEvent.preventDefault)
-			.addListener(link, 'click', this._buttonBackwardClicked, this);
+        if (this.options.backwardButton) {
+            this._buttonBackward = this._createButton('Backward', container);
+        }
+        if (this.options.playButton) {
+            this._buttonPlayPause = this._createButton('Play', container);
+        }
+        if (this.options.forwardButton) {
+            this._buttonForward = this._createButton('Forward', container);
+        }
+        if (this.options.loopButton) {
+            this._buttonLoop = this._createButton('Loop', container);
+        }
+        if (this.options.displayDate) {
+            this._displayDate = this._createDisplayDate(this.options.styleNS + " timecontrol-date", container);
+        }
+        if (this.options.timeSlider) {
+            this._sliderTime = this._createSliderTime(this.options.styleNS + " timecontrol-slider timecontrol-dateslider", container);
+        }
 
-		return link;
-	},
+        if (this.options.speedSlider) {
+            this._sliderSpeed = this._createSliderSpeed(this.options.styleNS + " timecontrol-slider timecontrol-speed", container);
+        }
 
-	_createForwardButton: function(className, container) {
-		var link = L.DomUtil.create('a', className, container);
-		link.href = '#';
-		link.title = 'Forward';
-		// link.innerHTML = '<span class="glyphicon glyphicon-forward"></span>';
+        this._steps = this.options.timeSteps || 1;
 
-		L.DomEvent
-			.addListener(link, 'click', L.DomEvent.stopPropagation)
-			.addListener(link, 'click', L.DomEvent.preventDefault)
-			.addListener(link, 'click', this._buttonForwardClicked, this);
+        this._timeDimension.on('timeload', function (data) {
+            this._update();
+            this._onPlayerStateChange();
+        }, this);
 
-		return link;
-	},
+        this._timeDimension.on('timeloading', function (data) {
+            if (data.time == this._timeDimension.getCurrentTime()) {
+                if (this._displayDate) {
+                    L.DomUtil.addClass(this._displayDate, 'loading');
+                }
+            }
+        }, this);
 
-	_createPlayPauseButton: function(className, container) {
-		var link = L.DomUtil.create('a', className, container);
-		link.href = '#';
-		link.title = 'Play';
-		// link.innerHTML = '<span class="glyphicon glyphicon-play"></span>';
+        this._timeDimension.on('availabletimeschanged', function (data) {
+            if (this._sliderTime) {
+                this._sliderTime.options.rangeMax = this._timeDimension.getAvailableTimes().length - 1;
+                this._sliderTime._update();
+            }
+        }, this);
 
-		L.DomEvent
-			.addListener(link, 'click', L.DomEvent.stopPropagation)
-			.addListener(link, 'click', L.DomEvent.preventDefault)
-			.addListener(link, 'click', this._buttonPlayPauseClicked, this);
+        // Disable dragging and zoom when user's cursor enters the element
+        container.addEventListener('mouseover', function () {
+            map.dragging.disable();
+            map.doubleClickZoom.disable();
+            // map.off('mousemove');
+        });
 
-		return link;
-	},
+        // Re-enable dragging and zoom when user's cursor leaves the element
+        container.addEventListener('mouseout', function () {
+            map.dragging.enable();
+            map.doubleClickZoom.enable();
+        });
+        //this._initPlayer();
+        //this._update();
 
-	_createDisplayDate: function(className, container) {
-		var link = L.DomUtil.create('a', className, container);
-		link.href = '#';
-		link.title = 'UTC Time';
-		L.DomEvent
-			.addListener(link, 'click', L.DomEvent.stopPropagation)
-			.addListener(link, 'click', L.DomEvent.preventDefault)
-			.addListener(link, 'click', this._toggleDateUTC, this);
+        map.whenReady(this._initPlayer, this)
+            .whenReady(this._update, this);
+        return container;
+    },
+    onRemove: function () {
+        this._player.off('play stop running loopchange speedchange', this._onPlayerStateChange, this);
+        this._player.off('waiting', this._onPlayerWaiting, this);
+        this._player = null;
+    },
 
-		return link;
-	},
+    _initPlayer: function () {
+        if (this.options.player) {
+            this._player = this.options.player;
+        } else {
+            this._player = new L.TimeDimension.Player(this.options.playerOptions, this._timeDimension);
+        }
+        var speed = Math.round(10000 / (this.options.playerOptions.transitionTime || 1000)) / 10;
+        this._sliderSpeed.setValue(speed);
+        if (this.options.autoPlay && this._buttonPlayPause) {
+            this._player.start(this._steps);
+        }
+        this._player.on('play stop running loopchange speedchange', this._onPlayerStateChange, this);
+        this._player.on('waiting', this._onPlayerWaiting, this);
+    },
 
-	_createSlider: function(className, container) {
-		var _slider = L.DomUtil.create('a', className, container);
-		_slider.href = '#';
-		L.DomEvent
-			.addListener(_slider, 'click', L.DomEvent.stopPropagation)
-			.addListener(_slider, 'click', L.DomEvent.preventDefault);
+    _onPlayerWaiting: function (evt) {
+        if (this._buttonPlayPause) {
+            L.DomUtil.addClass(this._buttonPlayPause, 'loading');
+            this._buttonPlayPause.innerHTML = '<span>' + Math.floor(evt.available / evt.buffer * 100) + '%</span>';
+        }
+    },
+    _onPlayerStateChange: function () {
+        if (this._buttonPlayPause) {
+            if (this._player.isPlaying()) {
+                L.DomUtil.addClass(this._buttonPlayPause, 'pause');
+                L.DomUtil.removeClass(this._buttonPlayPause, 'play');
+            } else {
+                L.DomUtil.removeClass(this._buttonPlayPause, 'pause');
+                L.DomUtil.addClass(this._buttonPlayPause, 'play');
+            }
+            if (!this._player.isWaiting()) {
+                this._buttonPlayPause.innerHTML = '';
+                L.DomUtil.removeClass(this._buttonPlayPause, 'loading');
+            } else {
+                L.DomUtil.addClass(this._buttonPlayPause, 'loading');
+            }
+        }
+        if (this._buttonLoop) {
+            if (this._player.isLooped()) {
+                L.DomUtil.addClass(this._buttonLoop, 'looped');
+            } else {
+                L.DomUtil.removeClass(this._buttonLoop, 'looped');
+            }
+        }
+    },
 
-		_slider.innerHTML = '<div class="slider"></div>';
-		var slider = $(_slider).find('.slider');
-		var max = this._timeDimension.getAvailableTimes().length - 1;
-		slider.slider({
-      		min: 0,
-      		max: max,
-      		range: "min",
-      		stop: (function( event, ui ) {
-        		this._sliderValueChanged(ui.value);
-        		this._slidingTimeSlider = false;
-        	}).bind(this),
-        	slide: (function( event, ui ) {
-        		this._slidingTimeSlider = true;
-				var date = new Date(this._timeDimension.getAvailableTimes()[ui.value]);
-				this._displayDate.innerHTML = this._getDisplayDateFormat(date);
-        	}).bind(this),
+    _update: function () {
+        if (!this._timeDimension) {
+            return;
+        }
+        var time = this._timeDimension.getCurrentTime();
+        if (time > 0) {
+            var date = new Date(time);
+            if (this._displayDate) {
+                L.DomUtil.removeClass(this._displayDate, 'loading');
+                this._displayDate.innerHTML = this._getDisplayDateFormat(date);
+            }
+            if (this._sliderTime && !this._slidingTimeSlider) {
+                this._sliderTime.setValue(this._timeDimension.getCurrentTimeIndex());
+            }
+        } else {
+            if (this._displayDate) {
+                this._displayDate.innerHTML = "Time not available";
+            }
+        }
+    },
 
-      	});
-		return slider;
-	},
+    _createButton: function (title, container) {
+        var link = L.DomUtil.create('a', this.options.styleNS + ' timecontrol-' + title.toLowerCase(), container);
+        link.href = '#';
+        link.title = title;
 
-	_createSliderSpeed: function(className, container) {
-		var _slider = L.DomUtil.create('a', className, container);
-		_slider.href = '#';
-		L.DomEvent
-			.addListener(_slider, 'click', L.DomEvent.stopPropagation)
-			.addListener(_slider, 'click', L.DomEvent.preventDefault);
+        L.DomEvent
+            .addListener(link, 'click', L.DomEvent.stopPropagation)
+            .addListener(link, 'click', L.DomEvent.preventDefault)
+            .addListener(link, 'click', this['_button' + title + 'Clicked'], this);
 
-		var currentSpeed = 1;
-		if (this._player){
-			currentSpeed = 1000/this._playerOptions.getTransitionTime();
-		}else{
-			currentSpeed = Math.round(10000/(this.options.playerOptions.transitionTime||1000))/10;
-		}
-		_slider.innerHTML = '<span class="speed">' +  currentSpeed  + 'fps</span><div class="slider"></div>';
-		var slider = $(_slider).find('.slider');
-		slider.slider({
-      		min: 0.1,
-      		max: 10,
-      		value: currentSpeed,
-      		step: 0.1,
-      		range: "min",
-      		stop: (function(sliderContainer, event, ui ) {
-        		var speed = $(sliderContainer).find('.speed')[0];
-				speed.innerHTML = ui.value + "fps";
-        		this._sliderSpeedValueChanged(ui.value);
-        	}).bind(this, _slider),
-        	slide: (function(sliderContainer, event, ui ) {
-        		var speed = $(sliderContainer).find('.speed')[0];
-				speed.innerHTML = ui.value + "fps";
-        	}).bind(this, _slider),
+        return link;
+    },
 
-      	});
-		return slider;
-	},
+    _createDisplayDate: function (className, container) {
+        var link = L.DomUtil.create('a', className, container);
+        link.href = '#';
+        link.title = 'UTC Time';
+        L.DomEvent
+            .addListener(link, 'click', L.DomEvent.stopPropagation)
+            .addListener(link, 'click', L.DomEvent.preventDefault)
+            .addListener(link, 'click', this._toggleDateUTC, this);
 
-	_buttonBackwardClicked: function(event) {
-		this._timeDimension.previousTime(this._steps);
-	},
+        return link;
+    },
 
-	_buttonForwardClicked: function(event) {
-		this._timeDimension.nextTime(this._steps);
-	},
+    _createSliderTime: function (className, container) {
+        var sliderContainer = L.DomUtil.create('a', className, container);
+        sliderContainer.href = '#';
+        L.DomEvent
+            .addListener(sliderContainer, 'click', L.DomEvent.stopPropagation)
+            .addListener(sliderContainer, 'click', L.DomEvent.preventDefault);
 
-	_buttonPlayPauseClicked: function(event) {
-		if (!this._player){
-		    this._initPlayer();
-		}
-		if (this._player.isPlaying()){
-			if (this._player.isWaiting()){
-				// force start
-				this._buttonPlayPause.className = 'leaflet-control-timecontrol timecontrol-pause';
-				this._buttonPlayPause.innerHTML = '';
-				this._player.stop();
-				this._player.start(this._steps);
+        var sliderbar = L.DomUtil.create('div', 'slider', sliderContainer);
+        var max = this._timeDimension.getAvailableTimes().length - 1;
 
-			} else {
-				this._buttonPlayPause.className = 'leaflet-control-timecontrol timecontrol-play';
-				this._player.stop();
-				this._buttonPlayPause.innerHTML = '';
-			}
-		} else {
-			this._buttonPlayPause.className = 'leaflet-control-timecontrol timecontrol-pause';
-			this._player.start(this._steps);
-		}
-	},
+        var knob = new L.UI.Knob(sliderbar, {
+            rangeMin: 0,
+            rangeMax: max
+        });
+        knob.on('dragend', function (e) {
+            var value = e.target.getValue();
+            this._sliderTimeValueChanged(value);
+            this._slidingTimeSlider = false;
+        }, this);
+        knob.on('drag', function (e) {
+            this._slidingTimeSlider = true;
+            var date = new Date(this._timeDimension.getAvailableTimes()[e.target.getValue()]);
+            this._displayDate.innerHTML = this._getDisplayDateFormat(date);
+        }, this);
 
-	_sliderValueChanged: function(newValue) {
-		this._timeDimension.setCurrentTimeIndex(newValue);
-	},
+        L.DomEvent.on(sliderbar, 'click', function (e) {
+            if (e.target === knob._element) {
+                return; //prevent value changes on drag release
+            }
+            var first = (e.touches && e.touches.length === 1 ? e.touches[0] : e),
+                x = L.DomEvent.getMousePosition(first, sliderbar).x;
+            knob.setPosition(x);
+            this._sliderTimeValueChanged(knob.getValue());
+        }, this);
+        knob.setPosition(0);
+        return knob;
+    },
 
-	_sliderSpeedValueChanged: function(newValue){
-		if (this._player){
-		    this._player.setTransitionTime(1000/newValue);
-		}
-	},
+    _createSliderSpeed: function (className, container) {
+        var sliderContainer = L.DomUtil.create('a', className, container);
+        sliderContainer.href = '#';
+        L.DomEvent
+            .addListener(sliderContainer, 'click', L.DomEvent.stopPropagation)
+            .addListener(sliderContainer, 'click', L.DomEvent.preventDefault);
 
-	_toggleDateUTC: function(event){
-		if (this._dateUTC){
-			this._displayDate.title = 'Local Time';
-		}else{
-			this._displayDate.title = 'UTC Time';
-		}
-		this._dateUTC = !this._dateUTC;
-		this._update();
-	},
+        var speedLabel = L.DomUtil.create('span', 'speed', sliderContainer);
+        var sliderbar = L.DomUtil.create('div', 'slider', sliderContainer);
+        var initialSpeed = Math.round(10000 / (this.options.playerOptions.transitionTime || 1000)) / 10;
+        speedLabel.innerHTML = initialSpeed + "fps";
 
-	_getDisplayDateFormat: function(date){
-		return this._dateUTC ? date.toISOString() : date.toLocaleString();
-	}
+        var knob = new L.UI.Knob(sliderbar, {
+            step: 0.1,
+            rangeMin: 0.1,
+            rangeMax: 10
+        });
+        knob.on('dragend', function (e) {
+            var value = e.target.getValue();
+            speedLabel.innerHTML = value + "fps";
+            this._sliderSpeedValueChanged(value);
+        }, this);
+        knob.on('drag', function (e) {
+            speedLabel.innerHTML = e.target.getValue() + "fps";
+        }, this);
+
+        L.DomEvent.on(sliderbar, 'click', function (e) {
+            if (e.target === knob._element) {
+                return; //prevent value changes on drag release
+            }
+            var first = (e.touches && e.touches.length === 1 ? e.touches[0] : e),
+                x = L.DomEvent.getMousePosition(first, sliderbar).x;
+            knob.setPosition(x);
+            speedLabel.innerHTML = knob.getValue() + "fps";
+            this._sliderSpeedValueChanged(knob.getValue());
+        }, this);
+        return knob;
+    },
+
+    _buttonBackwardClicked: function (event) {
+        this._timeDimension.previousTime(this._steps);
+    },
+
+    _buttonForwardClicked: function (event) {
+        this._timeDimension.nextTime(this._steps);
+    },
+    _buttonLoopClicked: function (event) {
+        this._player.setLooped(!this._player.isLooped());
+    },
+
+    _buttonPlayClicked: function (event) {
+        if (this._player.isPlaying()) {
+            if (this._player.isWaiting()) {
+                // force restart
+                this._player.stop();
+                this._player.start(this._steps);
+
+            } else {
+                this._player.stop();
+            }
+        } else {
+            this._player.start(this._steps);
+        }
+    },
+
+    _sliderTimeValueChanged: function (newValue) {
+        this._timeDimension.setCurrentTimeIndex(newValue);
+    },
+
+    _sliderSpeedValueChanged: function (newValue) {
+        this._player.setTransitionTime(1000 / newValue);
+    },
+
+    _toggleDateUTC: function (event) {
+        if (this._dateUTC) {
+            this._displayDate.title = 'Local Time';
+        } else {
+            this._displayDate.title = 'UTC Time';
+        }
+        this._dateUTC = !this._dateUTC;
+        this._update();
+    },
+
+    _getDisplayDateFormat: function (date) {
+        return this._dateUTC ? date.toISOString() : date.toLocaleString();
+    }
 
 });
 
-L.Map.addInitHook(function() {
-	if (this.options.timeDimensionControl) {
-		this.timeDimensionControl = L.control.timeDimension(this.options.timeDimensionControlOptions || {});
-		this.addControl(this.timeDimensionControl);
-	}
+L.Map.addInitHook(function () {
+    if (this.options.timeDimensionControl) {
+        this.timeDimensionControl = L.control.timeDimension(this.options.timeDimensionControlOptions || {});
+        this.addControl(this.timeDimensionControl);
+    }
 });
 
-L.control.timeDimension = function(options) {
-	return new L.Control.TimeDimension(options);
+L.control.timeDimension = function (options) {
+    return new L.Control.TimeDimension(options);
 };
