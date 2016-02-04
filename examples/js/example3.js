@@ -3,9 +3,9 @@ var map = L.map('map', {
     fullscreenControl: true,
     timeDimension: true,
     timeDimensionOptions: {
-        timeInterval: "2014-09-30/2014-10-30",
+        timeInterval: "2015-09-01/2015-09-03",
         period: "PT1H",
-        currentTime: Date.parse("2014-09-30T09:00:00Z")
+        currentTime: Date.parse("2015-09-01T00:00:00Z")
     },
     timeDimensionControl: true,
     timeDimensionControlOptions: {
@@ -55,3 +55,22 @@ testLegend.onAdd = function(map) {
     return div;
 };
 testLegend.addTo(map);
+
+$('#dtp_start').datetimepicker({
+    inline: true,
+    value: new Date('2015-09-01'),
+    format: "c"
+});
+$('#dtp_end').datetimepicker({
+    inline: true,
+    value: new Date('2015-09-03'),
+    format: "c"
+});
+
+$("#btn_timerange").click(function(){
+    var startTime = new Date($('#dtp_start').val());
+    var endTime = new Date($('#dtp_end').val());
+    var newAvailableTimes = L.TimeDimension.Util.explodeTimeRange(startTime, endTime, 'PT1H');
+    map.timeDimension.setAvailableTimes(newAvailableTimes, 'replace');
+    map.timeDimension.setCurrentTime(startTime);
+});

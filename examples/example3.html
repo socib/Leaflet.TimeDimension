@@ -9,6 +9,7 @@
         <link rel="stylesheet" href="js/vendors/leaflet-0.7.3/leaflet.css" />
         <link rel="stylesheet" href="js/vendors/leaflet-plugins/Leaflet.Coordinates-0.1.3.css" />
         <link rel="stylesheet" href="js/vendors/leaflet-plugins/Control.FullScreen.css" />
+        <link rel="stylesheet" href="js/vendors/jquery.datetimepicker.css" />
         <link rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.11.0/themes/smoothness/jquery-ui.css" />
         <link rel="stylesheet" href="../src/leaflet.timedimension.control.css" />
         <link rel="stylesheet" href="css/style.css" />
@@ -20,6 +21,19 @@
                 <h2>SOCIB HF RADAR</h2>
             </div>
             <div id="map" class="map radar"></div>
+            <p>
+                <h2>Select start time and end time of the animation loop</h2>
+                <div style="float:left; margin-right: 10px;">
+                <label for="start_time">Start time (local time)</label><br/><input id="dtp_start" name="start_time" type="text" >
+                </div>
+                <div style="float:left; margin-right: 10px;">
+                <label for="end_time">End time (local time)</label><br/><input id="dtp_end" name="end_time" type="text" >                
+                </div>
+                <div style="float:left; padding-top: 120px;">
+                    <button type="button" id="btn_timerange" class="btn" >Apply new time range</button>
+                </div>
+            </p>
+            <div style="clear: both;"></div>
 
             <h2>Code</h2>
             <pre><code class="javascript" id="code"></code></pre>            
@@ -45,6 +59,7 @@
         <script type="text/javascript" src="js/vendors/leaflet-plugins/Control.FullScreen.js"></script>
         <script type="text/javascript" src="js/vendors/leaflet-plugins/NonTiledLayer.js"></script>
         <script type="text/javascript" src="js/vendors/leaflet-plugins/NonTiledLayer.WMS.js"></script>
+        <script type="text/javascript" src="js/vendors/jquery.datetimepicker.full.min.js"></script>
 
         <script type="text/javascript" src="../src/leaflet.timedimension.js"></script>
         <script type="text/javascript" src="../src/leaflet.timedimension.util.js"></script>
