@@ -112,6 +112,19 @@
     cursor: -webkit-grab;
     cursor: -moz-grab;
 }
+.timecontrol-slider .knob:after {
+    /** Big transparent block on top of the knob for easier grabbing on touch device*/
+    content: ' ';
+    display: block;
+    position: absolute;
+    width: 20px;
+    top:-5px;
+    height: 32px;
+    left: -7px;
+   /* opacity: 0.5;
+    background: red;*/
+    
+}
 .timecontrol-slider .knob.upper,
 .timecontrol-slider .knob.lower {
     width: 11px;
@@ -126,6 +139,13 @@
 .timecontrol-slider .knob.lower {
     margin-top: -5px;
     margin-left: -10px;
+}
+.timecontrol-slider .knob.lower:after {
+    right:0px;
+    left: initial;
+}
+.timecontrol-slider .knob.upper:after {
+    left:0px;
 }
 .timecontrol-slider .knob.upper:before,
 .timecontrol-slider .knob.lower:before {
@@ -233,4 +253,11 @@ a.timecontrol-play.loading:before {
         float: none;
         border-right: none;
     }
+}
+.leaflet-touch .leaflet-bar-timecontrol .leaflet-control-timecontrol{
+     height: 30px;
+    line-height: 30px;
+}
+.leaflet-touch .timecontrol-slider .slider{
+    margin-top: 10px;
 }

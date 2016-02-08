@@ -183,18 +183,8 @@ L.Control.TimeDimension = L.Control.extend({
 
         this._timeDimension.on('limitschanged availabletimeschanged', this._onTimeLimitsChanged, this);
 
-        // Disable dragging and zoom when user's cursor enters the element
-        container.addEventListener('mouseover', function () {
-            map.dragging.disable();
-            map.doubleClickZoom.disable();
-            // map.off('mousemove');
-        });
+        L.DomEvent.disableClickPropagation(container);
 
-        // Re-enable dragging and zoom when user's cursor leaves the element
-        container.addEventListener('mouseout', function () {
-            map.dragging.enable();
-            map.doubleClickZoom.enable();
-        });
         this._initPlayer();
         window.timeDimension = this._timeDimension;
         return container;
@@ -230,7 +220,7 @@ L.Control.TimeDimension = L.Control.extend({
     _onTimeLimitsChanged: function () {
         var lowerIndex = this._timeDimension.getLowerLimitIndex(),
             upperIndex = this._timeDimension.getUpperLimitIndex(),
-            max = this._timeDimension.getAvailableTimes().length-1;
+            max = this._timeDimension.getAvailableTimes().length - 1;
 
         if (this._limitKnobs) {
             this._limitKnobs[0].options.rangeMax = max;
@@ -273,7 +263,7 @@ L.Control.TimeDimension = L.Control.extend({
                 L.DomUtil.removeClass(this._buttonLoop, 'looped');
             }
         }
-        if (this._sliderSpeed) {
+        if (this._sliderSpeed && !this._draggingSpeed) {
             var speed = Math.round(10000 / (this._player.getTransitionTime() || 1000)) / 10;
             this._sliderSpeed.setValue(speed);
         }
@@ -463,7 +453,7 @@ L.Control.TimeDimension = L.Control.extend({
 
     _createSliderSpeed: function (className, container) {
         var sliderContainer = L.DomUtil.create('div', className, container);
-       /* L.DomEvent
+        /* L.DomEvent
             .addListener(sliderContainer, 'click', L.DomEvent.stopPropagation)
             .addListener(sliderContainer, 'click', L.DomEvent.preventDefault);
 */
@@ -479,10 +469,12 @@ L.Control.TimeDimension = L.Control.extend({
         });
         knob.on('dragend', function (e) {
             var value = e.target.getValue();
+            this._draggingSpeed = false;
             speedLabel.innerHTML = value + "fps";
             this._sliderSpeedValueChanged(value);
         }, this);
         knob.on('drag', function (e) {
+            this._draggingSpeed = true;
             speedLabel.innerHTML = e.target.getValue() + "fps";
         }, this);
 
