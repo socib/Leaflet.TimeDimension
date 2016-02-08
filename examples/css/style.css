@@ -1,9 +1,11 @@
+html *{
+    box-sizing:border-box;
+}
 .container {
     padding: 10px 15px 20px 15px;
-    width: 1170px;
     margin-right: auto;
     margin-left: auto;
-    position: relative;
+    max-width: 970px;
 }
 #header{
     background-image: url(../img/logo-leaflettimedimension.png);
@@ -66,6 +68,10 @@ a.github:hover span{
     -webkit-border-radius:5px;-moz-border-radius:5px;border-radius:5px;
     padding: 5px;
 }
+.leaflet-bottom.leaflet-left {
+    /*bigger margin to not overlaps with attribution*/
+    margin-bottom: 10px; 
+}
 
 h1, h2{
     color: #999;
@@ -120,26 +126,8 @@ ul.examples li a img{
     margin-bottom: 15px;
 }
 
-@media (min-width: 768px){
-    .container {
-        width: 750px;
-    }
-}
-
-@media (min-width: 992px){
-    .container {
-        width: 970px;
-    }
-}
-
-@media (min-width: 1190px){
-    .container {
-        width: 1170px;
-    }
-}
-
 .map{
-    width: 100%;
+
     height: 500px;
 }
 
