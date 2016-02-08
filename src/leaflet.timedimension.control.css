@@ -3,12 +3,18 @@
     src: url('//netdna.bootstrapcdn.com/bootstrap/3.0.0/fonts/glyphicons-halflings-regular.eot');
     src: url('//netdna.bootstrapcdn.com/bootstrap/3.0.0/fonts/glyphicons-halflings-regular.eot?#iefix') format('embedded-opentype'), url('//netdna.bootstrapcdn.com/bootstrap/3.0.0/fonts/glyphicons-halflings-regular.woff') format('woff'), url('//netdna.bootstrapcdn.com/bootstrap/3.0.0/fonts/glyphicons-halflings-regular.ttf') format('truetype'), url('//netdna.bootstrapcdn.com/bootstrap/3.0.0/fonts/glyphicons-halflings-regular.svg#glyphicons-halflingsregular') format('svg');
 }
+.leaflet-bar-timecontrol{
+     background-color: #fff;
+}
 .leaflet-bar-timecontrol * {
     box-sizing: border-box;
 }
 .leaflet-bar-timecontrol .leaflet-control-timecontrol {
     float: left;
+    height: 26px;
+    line-height: 26px;
     border: solid #a5a5a5;
+    background-color: #fff;
     border-width: 0 1px 0 0;
 }
 .leaflet-bar-timecontrol .leaflet-control-timecontrol:first-child {
@@ -21,10 +27,10 @@
     font-family: "Glyphicons Halflings";
     display: block;
 }
-.leaflet-bar-timecontrol a.timecontrol-slider,
-.leaflet-bar-timecontrol a.timecontrol-slider:hover {
+.leaflet-bar-timecontrol .timecontrol-slider {
     position: relative;
     width: auto;
+    cursor: auto;
 }
 .leaflet-bar-timecontrol a.timecontrol-date,
 .leaflet-bar-timecontrol a.timecontrol-date:hover {
@@ -33,6 +39,10 @@
     width: auto;
     padding: 0 10px 0 20px;
     white-space: nowrap;
+}
+.leaflet-bar-timecontrol a.timecontrol-date.utc,
+.leaflet-bar-timecontrol a.timecontrol-date.utc:hover {
+    min-width: 185px;
 }
 .leaflet-bar-timecontrol a.timecontrol-date.loading,
 .leaflet-bar-timecontrol a.timecontrol-date.loading:hover {
@@ -43,6 +53,7 @@
 }
 .leaflet-bar-timecontrol .timecontrol-speed {
     white-space: nowrap;
+    cursor: auto;
 }
 .leaflet-bar-timecontrol .timecontrol-speed .slider {
     width: 50px;
@@ -58,7 +69,7 @@
 .leaflet-bar-timecontrol .timecontrol-play:hover {
     position: relative;
 }
-.leaflet-bar-timecontrol .timecontrol-play span{
+.leaflet-bar-timecontrol .timecontrol-play span {
     font-size: 10px;
 }
 .leaflet-bar-timecontrol a.timecontrol-play.loading {
@@ -68,34 +79,78 @@
 /**
 * Slider/Knobs styles
 */
+
 .timecontrol-slider .slider {
+    position: relative;
     height: 12px;
     margin: 6px;
     border: 1px solid #a5a5a5;
-}
-.timecontrol-slider .slider:hover {
     cursor: pointer;
 }
+.timecontrol-slider .slider.has-limits {
+    margin-left: 15px;
+    margin-right: 15px;
+    background-color: #ddd;
+}
+.timecontrol-slider .slider.has-limits .range {
+    position: absolute;
+    height: 10px;
+    background-color: #fff;
+    /*opacity: 0.5;*/
+}
 .timecontrol-slider .knob {
-    position: relative;
-    width: 10px;
+    position: absolute;
+    width: 8px;
     height: 22px;
     background-color: #ddd;
     border-radius: 2px;
     border: 1px solid #a5a5a5;
     /*use margins because on ie,leaflet will use top/left for positionning*/
     margin-top: -6px;
-    margin-left: -6px;
-}
-.timecontrol-slider .knob:hover {
-    cursor: default;
+    margin-left: -4px;
+    cursor: ew-resize;
     cursor: -webkit-grab;
     cursor: -moz-grab;
 }
-.leaflet-dragging .timecontrol-slider,
-.leaflet-dragging .timecontrol-slider.slider,
-.leaflet-dragging .timecontrol-slider.knob:hover {
-    cursor: move;
+.timecontrol-slider .knob.upper,
+.timecontrol-slider .knob.lower {
+    width: 11px;
+    height: 20px;
+    border: none;
+    background-color: transparent;
+}
+.timecontrol-slider .knob.upper {
+    margin-top: -5px;
+    margin-left: -1px;
+}
+.timecontrol-slider .knob.lower {
+    margin-top: -5px;
+    margin-left: -10px;
+}
+.timecontrol-slider .knob.upper:before,
+.timecontrol-slider .knob.lower:before {
+    display: block;
+    content: '';
+    position: relative;
+    top: 2px;
+    width: 0;
+    height: 0;
+    border-style: solid;
+}
+.timecontrol-slider .knob.upper:before {
+    border-width: 16px 0 0 10px;
+    border-color: transparent transparent transparent #a5a5a5;
+}
+.timecontrol-slider .knob.lower:before {
+    border-width: 0 0 16px 10px;
+    border-color: transparent transparent #a5a5a5;
+}
+
+.timecontrol-slider .slider.dragging,
+.timecontrol-slider .dragging .knob,
+.timecontrol-slider .knob.leaflet-drag-target {
+    cursor: ew-resize;
+    cursor: grabbing;
     cursor: -webkit-grabbing;
     cursor: -moz-grabbing;
 }
@@ -124,17 +179,19 @@
         transform: rotate(360deg);
     }
 }
-.timecontrol-loop.looped {
+.timecontrol-loop.looped,
+.timecontrol-loop.looped:hover {
     background-color: #ddd;
     color: #094F8E;
 }
 .timecontrol-play:before {
     position: absolute;
     left: 5px;
+     content: "\e072";
 }
-.timecontrol-play.play:before {
+/*.timecontrol-play.play:before {
     content: "\e072";
-}
+}*/
 .timecontrol-play.pause:before {
     content: "\e073";
 }
@@ -167,4 +224,13 @@ a.timecontrol-play.loading:before {
 }
 .timecontrol-loop:before {
     content: "\e030";
+}
+
+@media (max-width: 767px){
+    .leaflet-bar-timecontrol .timecontrol-date,
+    .leaflet-bar-timecontrol .timecontrol-slider{
+        clear: both;
+        float: none;
+        border-right: none;
+    }
 }

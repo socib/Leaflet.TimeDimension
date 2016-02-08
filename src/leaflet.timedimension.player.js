@@ -27,7 +27,10 @@ L.TimeDimension.Player = (L.Layer || L.Class).extend({
 
 
     _tick: function () {
-        if (this._timeDimension.getCurrentTimeIndex() >= this._timeDimension.getAvailableTimes().length - 1) {
+        var maxIndex =
+            Math.min(this._timeDimension.getAvailableTimes().length - 1,
+                this._timeDimension.getUpperLimitIndex() || Infinity);
+        if (this._timeDimension.getCurrentTimeIndex() >= maxIndex) {
             // we reached the last step
             if (!this._loop) {
                 this.pause();
@@ -43,7 +46,7 @@ L.TimeDimension.Player = (L.Layer || L.Class).extend({
             buffer = this._bufferSize;
 
         if (this._minBufferReady > 0) {
-            numberNextTimesReady = this._timeDimension.getNumberNextTimesReady(this._steps, buffer);
+            numberNextTimesReady = this._timeDimension.getNumberNextTimesReady(this._steps, buffer, this._loop);
             // If the player was waiting, check if all times are loaded
             if (this._waitingForBuffer) {
                 if (numberNextTimesReady < buffer) {
@@ -64,7 +67,7 @@ L.TimeDimension.Player = (L.Layer || L.Class).extend({
                 if (numberNextTimesReady < this._minBufferReady) {
                     console.log('Force wait for load buffer. ' + numberNextTimesReady + ' of ' + buffer + ' loaded');
                     this._waitingForBuffer = true;
-                    this._timeDimension.prepareNextTimes(this._steps, buffer);
+                    this._timeDimension.prepareNextTimes(this._steps, buffer, this._loop);
                     this.fire('waiting', {
                         buffer: buffer,
                         available: numberNextTimesReady
@@ -76,7 +79,7 @@ L.TimeDimension.Player = (L.Layer || L.Class).extend({
         this.pause();
         this._timeDimension.nextTime(this._steps, this._loop);
         if (buffer > 0) {
-            this._timeDimension.prepareNextTimes(this._steps, buffer);
+            this._timeDimension.prepareNextTimes(this._steps, buffer, this._loop);
         }
     },
 
@@ -84,6 +87,7 @@ L.TimeDimension.Player = (L.Layer || L.Class).extend({
         if (this._intervalID) return;
         this._steps = numSteps || 1;
         this._waitingForBuffer = false;
+        this.continue();
         this._intervalID = window.setInterval(
             L.bind(this._tick, this),
             this._transitionTime);
