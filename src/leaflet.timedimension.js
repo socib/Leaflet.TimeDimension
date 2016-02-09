@@ -63,6 +63,9 @@ L.TimeDimension = (L.Layer || L.Class).extend({
         var lowerLimit = this._lowerLimit || 0;
         //clamp the value
         newIndex = Math.min(Math.max(lowerLimit, newIndex), upperLimit);
+        if (newIndex < 0) {
+            return;
+        }
         this._loadingTimeIndex = newIndex;
         var newTime = this._availableTimes[newIndex];
         console.log('INIT -- Current time: ' + new Date(newTime).toISOString());

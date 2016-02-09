@@ -342,8 +342,11 @@ L.Control.TimeDimension = L.Control.extend({
         }, this);
         knob.on('drag', function (e) {
             this._slidingTimeSlider = true;
-            var date = new Date(this._timeDimension.getAvailableTimes()[e.target.getValue()]);
-            this._displayDate.innerHTML = this._getDisplayDateFormat(date);
+            var time = this._timeDimension.getAvailableTimes()[e.target.getValue()];
+            if (time) {
+                var date = new Date(time);
+                this._displayDate.innerHTML = this._getDisplayDateFormat(date);
+            }
         }, this);
 
         knob.on('predrag', function () {
