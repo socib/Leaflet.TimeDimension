@@ -116,7 +116,7 @@ L.Control.TimeDimension = L.Control.extend({
         backwardButton: true,
         forwardButton: true,
         playButton: true,
-        loopButton: true,
+        loopButton: false,
         displayDate: true,
         timeSlider: true,
         limitSliders: false,
