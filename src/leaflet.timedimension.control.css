@@ -56,11 +56,11 @@
     cursor: auto;
 }
 .leaflet-bar-timecontrol .timecontrol-speed .slider {
-    width: 50px;
+    width: 55px;
     display: inline-block;
 }
 .leaflet-bar-timecontrol .timecontrol-speed .speed {
-    width: 50px;
+    width: 55px;
     display: inline-block;
     float: left;
     text-align: right;
@@ -204,10 +204,19 @@
     background-color: #ddd;
     color: #094F8E;
 }
+
+.timecontrol-backward:before,
+.timecontrol-forward:before,
+.timecontrol-stop:before,
+.timecontrol-play:before,
+.timecontrol-loop:before {    
+    width: 100%;
+    text-align: center;
+}
+
 .timecontrol-play:before {
     position: absolute;
-    left: 5px;
-     content: "\e072";
+    content: "\e072";
 }
 /*.timecontrol-play.play:before {
     content: "\e072";
@@ -231,7 +240,7 @@ a.timecontrol-play.loading:before {
 .timecontrol-speed:before {
     content: "\e141";
     position: absolute;
-    left: 2px;
+    left: 7px;
 }
 .timecontrol-stop:before {
     content: "\e074";
