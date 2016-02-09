@@ -1,164 +1,263 @@
-@font-face{
-  font-family:'Glyphicons Halflings';
-  src:url('//netdna.bootstrapcdn.com/bootstrap/3.0.0/fonts/glyphicons-halflings-regular.eot');
-  src:url('//netdna.bootstrapcdn.com/bootstrap/3.0.0/fonts/glyphicons-halflings-regular.eot?#iefix') format('embedded-opentype'),
-  url('//netdna.bootstrapcdn.com/bootstrap/3.0.0/fonts/glyphicons-halflings-regular.woff') format('woff'),
-  url('//netdna.bootstrapcdn.com/bootstrap/3.0.0/fonts/glyphicons-halflings-regular.ttf') format('truetype'),
-  url('//netdna.bootstrapcdn.com/bootstrap/3.0.0/fonts/glyphicons-halflings-regular.svg#glyphicons-halflingsregular') format('svg');}
-
+@font-face {
+    font-family: 'Glyphicons Halflings';
+    src: url('//netdna.bootstrapcdn.com/bootstrap/3.0.0/fonts/glyphicons-halflings-regular.eot');
+    src: url('//netdna.bootstrapcdn.com/bootstrap/3.0.0/fonts/glyphicons-halflings-regular.eot?#iefix') format('embedded-opentype'), url('//netdna.bootstrapcdn.com/bootstrap/3.0.0/fonts/glyphicons-halflings-regular.woff') format('woff'), url('//netdna.bootstrapcdn.com/bootstrap/3.0.0/fonts/glyphicons-halflings-regular.ttf') format('truetype'), url('//netdna.bootstrapcdn.com/bootstrap/3.0.0/fonts/glyphicons-halflings-regular.svg#glyphicons-halflingsregular') format('svg');
+}
 .leaflet-bar-timecontrol{
-  margin-bottom: 20px !important;
-  background-color: #FFF;
+     background-color: #fff;
 }
-
-.leaflet-bar-horizontal a {
-  float: left;
-  border-right: 1px solid #ccc;
-  border-bottom-width: 0px;
-  text-decoration: none;
+.leaflet-bar-timecontrol * {
+    box-sizing: border-box;
 }
-
-.leaflet-bar-horizontal a:hover {
-  border-bottom-width: 0px;
+.leaflet-bar-timecontrol .leaflet-control-timecontrol {
+    float: left;
+    height: 26px;
+    line-height: 26px;
+    border: solid #a5a5a5;
+    background-color: #fff;
+    border-width: 0 1px 0 0;
 }
-
-.leaflet-bar-horizontal a:first-child {
-  border-top-left-radius: 4px;
-  border-bottom-left-radius: 4px;
-  border-top-right-radius: 0px;
+.leaflet-bar-timecontrol .leaflet-control-timecontrol:first-child {
+    border-radius: 4px 0 0 4px;
 }
-
-.leaflet-bar-horizontal a:last-child {
-  border-top-right-radius: 4px;
-  border-bottom-right-radius: 4px;
-  border-bottom-left-radius: 0px;
-  border-right-width: 0px;
+.leaflet-bar-timecontrol .leaflet-control-timecontrol:last-child {
+    border-radius: 0 4px 4px 0;
 }
-
-.leaflet-bar-timecontrol a.leaflet-control-timecontrol{
-  height: auto;
-  width: auto;
-  padding: 4px 15px;
-  font-size: 12px;
-  line-height: 26px;
+.leaflet-bar-timecontrol .leaflet-control-timecontrol:before {
+    font-family: "Glyphicons Halflings";
+    display: block;
 }
-
-a.leaflet-control-timecontrol:hover{
-  height: auto;
-  width: auto;
+.leaflet-bar-timecontrol .timecontrol-slider {
+    position: relative;
+    width: auto;
+    cursor: auto;
 }
-
-a.timecontrol-date{
-  padding-left: 30px;
+.leaflet-bar-timecontrol a.timecontrol-date,
+.leaflet-bar-timecontrol a.timecontrol-date:hover {
+    position: relative;
+    min-width: 150px;
+    width: auto;
+    padding: 0 10px 0 20px;
+    white-space: nowrap;
 }
-
-a.timecontrol-date.timecontrol-loading{
-  padding-left: 5px;
-  background-color: #ffefa4;
+.leaflet-bar-timecontrol a.timecontrol-date.utc,
+.leaflet-bar-timecontrol a.timecontrol-date.utc:hover {
+    min-width: 185px;
 }
-
-a.timecontrol-date.timecontrol-loading:before{
-  font-family: "Glyphicons Halflings";
-  content: "\e031";
-  width: 25px;
-  display: inline-block;
-  line-height: 20px;
-  -webkit-animation: rotation 12s infinite linear;
-}
-
-
-.leaflet-bar-timecontrol a.timecontrol-slider{
-  height: auto;
-  width: 300px;
-  padding: 4px 15px;
-}
-
-a.timecontrol-slider .ui-slider{
-  margin-top: 8px;
-  margin-bottom: 7px;
-  height: 9px;
-}
-
-a.timecontrol-slider .ui-slider-handle{
-  border-bottom: 1px !important;
-  width: 5px;
-  height: 17px;
-  border-width: 1px;
-  border-color: #a5a5a5;
-  border-radius: 4px;
-  padding: 0 2px;
-}
-
-.leaflet-bar-timecontrol a.timecontrol-speed{
-  width: 160px;
-}
-
-a.timecontrol-speed span.speed{
-  display: inline-block;
-  float: left;
-  width: 50px;
-  height: 26px;
-  white-space: nowrap;
-  text-align: left;
-}
-
-a.timecontrol-speed .ui-slider{
-  margin-left: 55px;
-}
-
-a.timecontrol-speed span.speed:before{
-  font-family: "Glyphicons Halflings";
-  content: "\e141";
-  padding-right: 5px;
-}
-
-a.timecontrol-play:before {
-  font-family: "Glyphicons Halflings";
-  content: "\e072";
-}
-a.timecontrol-pause:before {
-  font-family: "Glyphicons Halflings";
-  content: "\e073";
-}
-
-@-webkit-keyframes rotation {
-    from{
-        -webkit-transform: rotate(0deg);
-    }
-    to{
-        -webkit-transform: rotate(360deg);
-    }
-}
-
-a.timecontrol-play-loading{
+.leaflet-bar-timecontrol a.timecontrol-date.loading,
+.leaflet-bar-timecontrol a.timecontrol-date.loading:hover {
     background-color: #ffefa4;
+}
+.leaflet-bar-timecontrol .timecontrol-dateslider .slider {
+    width: 200px;
+}
+.leaflet-bar-timecontrol .timecontrol-speed {
+    white-space: nowrap;
+    cursor: auto;
+}
+.leaflet-bar-timecontrol .timecontrol-speed .slider {
+    width: 50px;
+    display: inline-block;
+}
+.leaflet-bar-timecontrol .timecontrol-speed .speed {
+    width: 50px;
+    display: inline-block;
+    float: left;
+    text-align: right;
+}
+.leaflet-bar-timecontrol .timecontrol-play,
+.leaflet-bar-timecontrol .timecontrol-play:hover {
     position: relative;
 }
-
-a.timecontrol-play-loading span{
-  display: inline-block;
-  width: 0;
-  position: absolute;
-  top: 5px;
-  left: 10px;
-  font-weight: bold;
+.leaflet-bar-timecontrol .timecontrol-play span {
+    font-size: 10px;
+}
+.leaflet-bar-timecontrol a.timecontrol-play.loading {
+    background-color: #ffefa4;
 }
 
-a.timecontrol-play-loading:before {
-  font-family: "Glyphicons Halflings";
-  content: "\e031";
-  opacity: 0.2;
-  -webkit-animation: rotation 12s infinite linear;
+/**
+* Slider/Knobs styles
+*/
+
+.timecontrol-slider .slider {
+    position: relative;
+    height: 12px;
+    margin: 6px;
+    border: 1px solid #a5a5a5;
+    cursor: pointer;
 }
-a.timecontrol-stop:before {
-  font-family: "Glyphicons Halflings";
-  content: "\e074";
+.timecontrol-slider .slider.has-limits {
+    margin-left: 15px;
+    margin-right: 15px;
+    background-color: #ddd;
 }
-a.timecontrol-forward:before {
-  font-family: "Glyphicons Halflings";
-  content: "\e075";
+.timecontrol-slider .slider.has-limits .range {
+    position: absolute;
+    height: 10px;
+    background-color: #fff;
+    /*opacity: 0.5;*/
 }
-a.timecontrol-backward:before {
-  font-family: "Glyphicons Halflings";
-  content: "\e071";
+.timecontrol-slider .knob {
+    position: absolute;
+    width: 8px;
+    height: 22px;
+    background-color: #ddd;
+    border-radius: 2px;
+    border: 1px solid #a5a5a5;
+    /*use margins because on ie,leaflet will use top/left for positionning*/
+    margin-top: -6px;
+    margin-left: -4px;
+    cursor: ew-resize;
+    cursor: -webkit-grab;
+    cursor: -moz-grab;
+}
+.timecontrol-slider .knob:after {
+    /** Big transparent block on top of the knob for easier grabbing on touch device*/
+    content: ' ';
+    display: block;
+    position: absolute;
+    width: 20px;
+    top:-5px;
+    height: 32px;
+    left: -7px;
+   /* opacity: 0.5;
+    background: red;*/
+    
+}
+.timecontrol-slider .knob.upper,
+.timecontrol-slider .knob.lower {
+    width: 11px;
+    height: 20px;
+    border: none;
+    background-color: transparent;
+}
+.timecontrol-slider .knob.upper {
+    margin-top: -5px;
+    margin-left: -1px;
+}
+.timecontrol-slider .knob.lower {
+    margin-top: -5px;
+    margin-left: -10px;
+}
+.timecontrol-slider .knob.lower:after {
+    right:0px;
+    left: initial;
+}
+.timecontrol-slider .knob.upper:after {
+    left:0px;
+}
+.timecontrol-slider .knob.upper:before,
+.timecontrol-slider .knob.lower:before {
+    display: block;
+    content: '';
+    position: relative;
+    top: 2px;
+    width: 0;
+    height: 0;
+    border-style: solid;
+}
+.timecontrol-slider .knob.upper:before {
+    border-width: 16px 0 0 10px;
+    border-color: transparent transparent transparent #a5a5a5;
+}
+.timecontrol-slider .knob.lower:before {
+    border-width: 0 0 16px 10px;
+    border-color: transparent transparent #a5a5a5;
+}
+
+.timecontrol-slider .slider.dragging,
+.timecontrol-slider .dragging .knob,
+.timecontrol-slider .knob.leaflet-drag-target {
+    cursor: ew-resize;
+    cursor: grabbing;
+    cursor: -webkit-grabbing;
+    cursor: -moz-grabbing;
+}
+
+/**
+* Icons definitions
+*/
+
+@-webkit-keyframes icon-rotation {
+    from {
+        -webkit-transform: rotate(0deg);
+        transform: rotate(0deg);
+    }
+    to {
+        -webkit-transform: rotate(360deg);
+        transform: rotate(360deg);
+    }
+}
+@keyframes icon-rotation {
+    from {
+        -webkit-transform: rotate(0deg);
+        transform: rotate(0deg);
+    }
+    to {
+        -webkit-transform: rotate(360deg);
+        transform: rotate(360deg);
+    }
+}
+.timecontrol-loop.looped,
+.timecontrol-loop.looped:hover {
+    background-color: #ddd;
+    color: #094F8E;
+}
+.timecontrol-play:before {
+    position: absolute;
+    left: 5px;
+     content: "\e072";
+}
+/*.timecontrol-play.play:before {
+    content: "\e072";
+}*/
+.timecontrol-play.pause:before {
+    content: "\e073";
+}
+a.timecontrol-play.loading:before {
+    content: "\e031";
+    opacity: 0.2;
+    -webkit-animation: icon-rotation 6s infinite linear;
+    animation: icon-rotation 6s infinite linear;
+}
+.timecontrol-date.loading:before {
+    content: "\e031";
+    left: 5px;
+    position: absolute;
+    -webkit-animation: icon-rotation 6s infinite linear;
+    animation: icon-rotation 6s infinite linear;
+}
+.timecontrol-speed:before {
+    content: "\e141";
+    position: absolute;
+    left: 2px;
+}
+.timecontrol-stop:before {
+    content: "\e074";
+}
+.timecontrol-forward:before {
+    content: "\e075";
+}
+.timecontrol-backward:before {
+    content: "\e071";
+}
+.timecontrol-loop:before {
+    content: "\e030";
+}
+
+@media (max-width: 767px){
+    .leaflet-bar-timecontrol .timecontrol-date,
+    .leaflet-bar-timecontrol .timecontrol-slider{
+        clear: both;
+        float: none;
+        border-right: none;
+    }
+}
+.leaflet-touch .leaflet-bar-timecontrol .leaflet-control-timecontrol{
+     height: 30px;
+    line-height: 30px;
+}
+.leaflet-touch .timecontrol-slider .slider{
+    margin-top: 10px;
 }

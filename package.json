@@ -1,6 +1,6 @@
 {
   "name": "leaflet-timedimension",
-  "version": "0.1.12",
+  "version": "1.0.0-beta",
   "description": "Add time dimension capabilities on a Leaflet map",
   "keywords": [
     "gis",
@@ -21,6 +21,11 @@
   "repository": {
     "type": "git",
     "url": "git://github.com/socib/Leaflet.TimeDimension.git"
+  },
+  "dependencies": {
+    "iso8601-js-period": "*",
+    "leaflet": "~0.7.4 || ~1.0.0",
+    "jquery": "1.x || 2.x"
   },
   "devDependencies": {
     "grunt": "~0.4.5",
