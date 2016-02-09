@@ -136,7 +136,7 @@ L.Control.TimeDimension = L.Control.extend({
     },
 
     onAdd: function (map) {
-        var container, limitKnobs;
+        var container;
         this._map = map;
         if (!this._timeDimension && map.timeDimension) {
             this._timeDimension = map.timeDimension;
@@ -186,7 +186,6 @@ L.Control.TimeDimension = L.Control.extend({
         L.DomEvent.disableClickPropagation(container);
 
         this._initPlayer();
-        window.timeDimension = this._timeDimension;
         return container;
     },
     addTo: function () {
