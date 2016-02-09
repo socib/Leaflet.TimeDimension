@@ -73,11 +73,12 @@ Option                | Default       | Description
 
 #### Events
 
-Event         | Data   | Description
---------------|--------|---------------------------------------------------------------
-`timeloading` | time   | Fired when a new time is required to load
-`timeload`    | time   | Fired when a all synced layers have been loaded/prepared for a new time (or timeout)
+Event          | Data   | Description
+---------------|--------|---------------------------------------------------------------
+`timeloading`  | time   | Fired when a new time is required to load
+`timeload`     | time   | Fired when a all synced layers have been loaded/prepared for a new time (or timeout)
 `availabletimeschanged`    | -   | Fired when the list of available times have been updated
+`limitschanged`| lowerLimit, upperLimit | Fired when range limits changed. Limits are expressed in index value
 
 #### Methods
 
@@ -133,7 +134,7 @@ Option                | Default       | Description
 `requestTimeFromCapabilities` | `false || updateTimeDimension` | Get list of available times for this layer from getCapabilities 
 `proxy`               | `null`        | URL of the proxy used to obtain getCapabilities responses from the WMS server avoiding cross site origin problems
 `setDefaultTime`      | `false`       | If true, it will change the current time to the default time of the layer (according to getCapabilities)
-`wmsVersion`          | `"1.1.1"`     | WMS version of the layer. Used to construct the getCapabilities request
+`wmsVersion`          | `"1.1.1" || layer.options.version`     | WMS version of the layer. Used to construct the getCapabilities request
 
 
 ### L.TimeDimension.Layer.GeoJSON
@@ -169,13 +170,17 @@ Option                | Default       | Description
 `timeDimension`       | `null`        | 
 `backwardButton`      | `true`        | Show backward button
 `forwardButton`       | `true`        | Show forward button
-`playButton`          | `true`        | Show play|pause button
+`playButton`          | `true`        | Show play/pause button
+`loopButton`          | `false`       | Show loop button to enable/disable loop animation
 `displayDate`         | `true`        | Show display date control
 `timeSlider`          | `true`        | Show time slider control
 `speedSlider`         | `true`        | Show speed slider control
+`limitSliders`        | `false`       | Show limit knobs on the time slider to restrict animation range
+`limitMinimumRange`   | `5`           | The minimum number of steps allowed in animation range
 `timeSteps`           | `1`           | Number of time steps applied to the TimeDimension (forwards or backwards) in a time change
 `autoPlay`            | `false`       | Animate the map automatically
-`playerOptions`       | -             | [Options](#timeDimensionPlayerOptions) for the TimeDimension Player object attached.
+`player`              | -             | Attach an existing player to that control
+`playerOptions`       | -             | [Options](#timeDimensionPlayerOptions) for the TimeDimension Player object attached.(Cannot be used with `player` option)
 
 
 
@@ -190,17 +195,39 @@ Option                | Default       | Description
 ----------------------|---------------|---------------------------------------------------------
 `timeDimension`       | `null`        | 
 `transitionTime`      | `1000`        | Milliseconds that the player will wait to check and launch the next time in the TimeDimension
-`buffer`              | `5`           | Number of times forward that will be requested in each iteration
+`buffer`              | `5`           | *(Number or Function)* Number of times forward that will be requested in each iteration. Function callback will be called with 3 parameters (`transitionTime`, `minBufferReady`, `loop`)
 `minBufferReady`      | `1`           | If this option is greater than 0, the player will full the buffer every time the number of next ready times (next layers ready) is bellow this number.
 `loop`                | `false`       | Loop the animation when arrives to the last available time
 
+#### <a name="timeDimensionPlayerMethod"></a> Methods
+
+Method                | Returns       | Description
+----------------------|---------------|---------------------------------------------------------
+`start()`             | -             | Start animation
+`stop()`              | -             | Stop active animation
+`getTransitionTime()` |  `<int>`      | Returns the time interval between two animation steps (in milliseconds)
+`setTransitionTime(interval)`   | -   | Change the time interval between two animation steps
+`isLooped()`          | `<boolean>`   | Returns the loop state
+`setLooped(boolean)`  | -             | Activate/Desactivate the loop state
+
+#### <a name="timeDimensionPlayerMethod"></a> Events
+List of events triggered by the player. Register with [`.on()`](http://leafletjs.com/reference.html#events-addeventlistener)
+
+Event              | Data           | Description
+-------------------|----------------------|---------------------------------------------------------
+`play`             | -                    | When the animation is started/unpaused
+`running`          | -                    | When the animation is resuming after a waiting state
+`stop`             | -                    | When the animation is stopped/paused
+`waiting`          | `available`, `buffer`| When the animation is wainting for some layer to be loaded
+`animationfinished`|  -                   | When the animation reached the end of the timeline (`loop` is disabled)
+`loopchange`       | `loop`               | When the `loop` setting is changed
+`speedchange`      | `transitionTime`, `buffer` | When the `transitionTime` setting is changed
 
 ## Requisites
 
 - [iso8601-js-period](https://github.com/nezasa/iso8601-js-period)
 - For the TimeDimension Control:
     - jquery
-    - jquery UI
     - glyphicons
 
 
