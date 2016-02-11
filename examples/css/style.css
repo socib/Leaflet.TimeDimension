@@ -96,11 +96,12 @@ h1 small a{
 
 ul.examples{
     list-style: none;
+    padding: 0;
 }
 
 ul.examples li {
     float: left;
-    margin-right: 15px;
+    margin-right: 5px;
     margin-bottom: 15px;
 }
 
@@ -108,10 +109,9 @@ ul.examples li a{
     display: block;
     color: #444;
     background-color: #80bf43;
-    width: 350px;
-    min-height: 200px;
+    width: 300px;
+    min-height: 205px;
     text-align: center;
-    padding: 20px 5px 5px 5px;
     text-decoration: none;
     font-size: 1.2em;
 }
