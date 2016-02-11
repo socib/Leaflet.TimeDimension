@@ -29,7 +29,7 @@ L.TimeDimension.Layer.WMS = L.TimeDimension.Layer.extend({
         }).bind(this));
     },
 
-    getEvents : function(){
+    getEvents: function() {
         var clearCache = L.bind(this._unvalidateCache, this);
         return {
             moveend: clearCache,
@@ -87,7 +87,7 @@ L.TimeDimension.Layer.WMS = L.TimeDimension.Layer.extend({
         }
     },
 
-    setOpacity: function(opacity){
+    setOpacity: function(opacity) {
         L.TimeDimension.Layer.prototype.setOpacity.apply(this, arguments);
         // apply to all preloaded caches
         for (var prop in this._layers) {
@@ -99,7 +99,7 @@ L.TimeDimension.Layer.WMS = L.TimeDimension.Layer.extend({
 
     setParams: function(params, noRedraw) {
         L.extend(this._baseLayer.options, params);
-        if (this._baseLayer.setParams){
+        if (this._baseLayer.setParams) {
             this._baseLayer.setParams(params, noRedraw);
         }
         for (var prop in this._layers) {
@@ -110,10 +110,10 @@ L.TimeDimension.Layer.WMS = L.TimeDimension.Layer.extend({
         }
         return this;
     },
-    
-    _unvalidateCache : function(){
+
+    _unvalidateCache: function() {
         var time = this._timeDimension.getCurrentTime();
-        for (var prop in this._layers) {            
+        for (var prop in this._layers) {
             if (time != prop && this._layers.hasOwnProperty(prop)) {
                 this._layers[prop].setLoaded(false); // mark it as unloaded
                 this._layers[prop].redraw();
@@ -121,7 +121,7 @@ L.TimeDimension.Layer.WMS = L.TimeDimension.Layer.extend({
         }
     },
 
-    _evictCachedTimes : function(keepforward, keepbackward){
+    _evictCachedTimes: function(keepforward, keepbackward) {
         // Cache management
         var times = this._getLoadedTimes();
         var strTime = String(this._currentTime);
@@ -155,7 +155,7 @@ L.TimeDimension.Layer.WMS = L.TimeDimension.Layer.extend({
         this._currentLayer = layer;
         this._currentTime = time;
         console.log('Show layer ' + layer.wmsParams.layers + ' with time: ' + new Date(time).toISOString());
-        
+
         this._evictCachedTimes(this._timeCacheForward, this._timeCacheBackward);
     },
 
@@ -217,7 +217,7 @@ L.TimeDimension.Layer.WMS = L.TimeDimension.Layer.extend({
 
     _removeLayers: function(times) {
         for (var i = 0, l = times.length; i < l; i++) {
-            if(this._map)
+            if (this._map)
                 this._map.removeLayer(this._layers[times[i]]);
             delete this._layers[times[i]];
         }
@@ -235,7 +235,13 @@ L.TimeDimension.Layer.WMS = L.TimeDimension.Layer.extend({
         }
         this._capabilitiesRequested = true;
         var wms = this._baseLayer.getURL();
-        var url = wms + "?service=WMS&version=" +
+        var url = wms;
+        if (wms.indexOf('?') > -1) {
+            url += '&';
+        } else {
+            url += '?';
+        }
+        url += "service=WMS&version=" +
             this._wmsVersion + "&request=GetCapabilities";
         if (this._proxy) {
             url = this._proxy + '?url=' + encodeURIComponent(url);
@@ -373,7 +379,7 @@ L.NonTiledLayer.include({
         this._originalUpdate();
     },
 
-    onRemove: function (map) {
+    onRemove: function(map) {
         this._loaded = false;
         this._originalOnRemove(map);
     },
