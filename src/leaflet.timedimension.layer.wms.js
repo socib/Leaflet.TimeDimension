@@ -99,6 +99,9 @@ L.TimeDimension.Layer.WMS = L.TimeDimension.Layer.extend({
 
     setParams: function(params, noRedraw) {
         L.extend(this._baseLayer.options, params);
+        if (this._baseLayer.setParams){
+            this._baseLayer.setParams(params, noRedraw);
+        }
         for (var prop in this._layers) {
             if (this._layers.hasOwnProperty(prop) && this._layers[prop].setParams) {
                 this._layers[prop].setLoaded(false); // mark it as unloaded
