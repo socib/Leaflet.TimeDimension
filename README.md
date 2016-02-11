@@ -175,6 +175,9 @@ Option                | Default       | Description
 `displayDate`         | `true`        | Show display date control
 `timeSlider`          | `true`        | Show time slider control
 `speedSlider`         | `true`        | Show speed slider control
+`minSpeed`            | `0.1`         | Minimum selectable value for speed slider in fps (`1000/transitionTime`)
+`maxSpeed`            | `10`          | Maximum selectable value for speed slider in fps
+`speedStep`           | `0.1`         | Speed slider step size
 `limitSliders`        | `false`       | Show limit knobs on the time slider to restrict animation range
 `limitMinimumRange`   | `5`           | The minimum number of steps allowed in animation range
 `timeSteps`           | `1`           | Number of time steps applied to the TimeDimension (forwards or backwards) in a time change

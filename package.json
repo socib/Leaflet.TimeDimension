@@ -18,6 +18,13 @@
     "email": "datacenter@socib.es",
     "url": "http://www.socib.es/"
   },
+  "contributors":[
+    {
+      "name": "Sylvain Marcadal (Ram)",
+      "email": "sylvain@marcadal.me",
+      "url": "https://github.com/ram-one"
+    }
+  ],
   "repository": {
     "type": "git",
     "url": "git://github.com/socib/Leaflet.TimeDimension.git"

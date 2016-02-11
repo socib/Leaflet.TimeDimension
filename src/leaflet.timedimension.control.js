@@ -122,6 +122,9 @@ L.Control.TimeDimension = L.Control.extend({
         limitSliders: false,
         limitMinimumRange: 5,
         speedSlider: true,
+        minSpeed: 0.1,
+        maxSpeed: 10,
+        speedStep: 0.1,
         timeSteps: 1,
         autoPlay: false,
         playerOptions: {
@@ -156,19 +159,19 @@ L.Control.TimeDimension = L.Control.extend({
             this._buttonLoop = this._createButton('Loop', container);
         }
         if (this.options.displayDate) {
-            this._displayDate = this._createDisplayDate(this.options.styleNS + " timecontrol-date", container);
+            this._displayDate = this._createDisplayDate(this.options.styleNS + ' timecontrol-date', container);
         }
 
         if (this.options.timeSlider) {
-            this._sliderTime = this._createSliderTime(this.options.styleNS + " timecontrol-slider timecontrol-dateslider", container);
+            this._sliderTime = this._createSliderTime(this.options.styleNS + ' timecontrol-slider timecontrol-dateslider', container);
         }
         if (this.options.speedSlider) {
-            this._sliderSpeed = this._createSliderSpeed(this.options.styleNS + " timecontrol-slider timecontrol-speed", container);
+            this._sliderSpeed = this._createSliderSpeed(this.options.styleNS + ' timecontrol-slider timecontrol-speed', container);
         }
 
         this._steps = this.options.timeSteps || 1;
 
-        this._timeDimension.on('timeload', function (data) {
+        this._timeDimension.on('timeload', function () {
             this._update();
             this._onPlayerStateChange();
         }, this);
@@ -236,7 +239,7 @@ L.Control.TimeDimension = L.Control.extend({
     _onPlayerWaiting: function (evt) {
         if (this._buttonPlayPause) {
             L.DomUtil.addClass(this._buttonPlayPause, 'loading');
-            this._buttonPlayPause.innerHTML = '<span>' + Math.floor(evt.available / evt.buffer * 100) + '%</span>';
+            this._buttonPlayPause.innerHTML = this._getDisplayLoadingText(evt.available, evt.buffer);
         }
     },
     _onPlayerStateChange: function () {
@@ -284,7 +287,7 @@ L.Control.TimeDimension = L.Control.extend({
             }
         } else {
             if (this._displayDate) {
-                this._displayDate.innerHTML = "Time not available";
+                this._displayDate.innerHTML = this._getDisplayNoTimeError();
             }
         }
     },
@@ -331,6 +334,7 @@ L.Control.TimeDimension = L.Control.extend({
             limits = this._limitKnobs = this._createLimitKnobs(sliderbar);
         }
         knob = new L.UI.Knob(sliderbar, {
+            className: 'knob main',
             rangeMin: 0,
             rangeMax: max
         });
@@ -416,12 +420,12 @@ L.Control.TimeDimension = L.Control.extend({
         }, this);
 
         //Add listeners to position the range bar
-        lknob.on('drag positionchanged', function (e) {
+        lknob.on('drag positionchanged', function () {
             L.DomUtil.setPosition(rangeBar, L.point(lknob.getPosition(), 0));
             rangeBar.style.width = uknob.getPosition() - lknob.getPosition() + 'px';
         }, this);
 
-        uknob.on('drag positionchanged', function (e) {
+        uknob.on('drag positionchanged', function () {
             rangeBar.style.width = uknob.getPosition() - lknob.getPosition() + 'px';
         }, this);
 
@@ -442,10 +446,10 @@ L.Control.TimeDimension = L.Control.extend({
             }
         }, this);
 
-        lknob.on('dblclick', function (e) {
+        lknob.on('dblclick', function () {
             this._timeDimension.setLowerLimitIndex(0);
         }, this);
-        uknob.on('dblclick', function (e) {
+        uknob.on('dblclick', function () {
             this._timeDimension.setUpperLimitIndex(this._timeDimension.getAvailableTimes().length - 1);
         }, this);
 
@@ -462,22 +466,23 @@ L.Control.TimeDimension = L.Control.extend({
         var speedLabel = L.DomUtil.create('span', 'speed', sliderContainer);
         var sliderbar = L.DomUtil.create('div', 'slider', sliderContainer);
         var initialSpeed = Math.round(10000 / (this.options.playerOptions.transitionTime || 1000)) / 10;
-        speedLabel.innerHTML = initialSpeed + "fps";
+        speedLabel.innerHTML = this._getDisplaySpeed(initialSpeed);
 
         var knob = new L.UI.Knob(sliderbar, {
-            step: 0.1,
-            rangeMin: 0.1,
-            rangeMax: 10
+            step: this.options.speedStep,
+            rangeMin: this.options.minSpeed,
+            rangeMax: this.options.maxSpeed
         });
+
         knob.on('dragend', function (e) {
             var value = e.target.getValue();
             this._draggingSpeed = false;
-            speedLabel.innerHTML = value + "fps";
+            speedLabel.innerHTML = this._getDisplaySpeed(value);
             this._sliderSpeedValueChanged(value);
         }, this);
         knob.on('drag', function (e) {
             this._draggingSpeed = true;
-            speedLabel.innerHTML = e.target.getValue() + "fps";
+            speedLabel.innerHTML = this._getDisplaySpeed(e.target.getValue());
         }, this);
 
         L.DomEvent.on(sliderbar, 'click', function (e) {
@@ -487,24 +492,24 @@ L.Control.TimeDimension = L.Control.extend({
             var first = (e.touches && e.touches.length === 1 ? e.touches[0] : e),
                 x = L.DomEvent.getMousePosition(first, sliderbar).x;
             knob.setPosition(x);
-            speedLabel.innerHTML = knob.getValue() + "fps";
+            speedLabel.innerHTML = this._getDisplaySpeed(knob.getValue());
             this._sliderSpeedValueChanged(knob.getValue());
         }, this);
         return knob;
     },
 
-    _buttonBackwardClicked: function (event) {
+    _buttonBackwardClicked: function () {
         this._timeDimension.previousTime(this._steps);
     },
 
-    _buttonForwardClicked: function (event) {
+    _buttonForwardClicked: function () {
         this._timeDimension.nextTime(this._steps);
     },
-    _buttonLoopClicked: function (event) {
+    _buttonLoopClicked: function () {
         this._player.setLooped(!this._player.isLooped());
     },
 
-    _buttonPlayClicked: function (event) {
+    _buttonPlayClicked: function () {
         if (this._player.isPlaying()) {
             if (this._player.isWaiting()) {
                 // force restart
@@ -532,7 +537,7 @@ L.Control.TimeDimension = L.Control.extend({
         this._player.setTransitionTime(1000 / newValue);
     },
 
-    _toggleDateUTC: function (event) {
+    _toggleDateUTC: function () {
         if (this._dateUTC) {
             L.DomUtil.removeClass(this._displayDate, 'utc');
             this._displayDate.title = 'Local Time';
@@ -546,6 +551,15 @@ L.Control.TimeDimension = L.Control.extend({
 
     _getDisplayDateFormat: function (date) {
         return this._dateUTC ? date.toISOString() : date.toLocaleString();
+    },
+    _getDisplaySpeed: function (fps) {
+        return fps + 'fps';
+    },
+    _getDisplayLoadingText: function (available, buffer) {
+        return '<span>' + Math.floor(available / buffer * 100) + '%</span>';
+    },
+    _getDisplayNoTimeError: function () {
+        return 'Time not available';
     }
 
 });

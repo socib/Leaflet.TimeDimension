@@ -27,6 +27,10 @@
       "name": "Biel Frontera (ICTS SOCIB)",
       "email": "datacenter@socib.es",
       "homepage": "http://www.socib.es/"
+    },
+    { 
+      "name": "Sylvain Marcadal (Ram)", 
+      "email":"sylvain@marcadal.me"
     }
   ],
   "homepage": "http://apps.socib.es/Leaflet.TimeDimension/",
