@@ -96,6 +96,16 @@ L.TimeDimension.Layer.WMS = L.TimeDimension.Layer.extend({
             }
         }
     },
+    
+    setZIndex: function(zIndex){
+        L.TimeDimension.Layer.prototype.setZIndex.apply(this, arguments);
+        // apply to all preloaded caches
+        for (var prop in this._layers) {
+            if (this._layers.hasOwnProperty(prop) && this._layers[prop].setZIndex) {
+                this._layers[prop].setZIndex(zIndex);
+            }
+        }
+    },
 
     setParams: function(params, noRedraw) {
         L.extend(this._baseLayer.options, params);
