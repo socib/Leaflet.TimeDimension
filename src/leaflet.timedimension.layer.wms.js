@@ -9,6 +9,7 @@ L.TimeDimension.Layer.WMS = L.TimeDimension.Layer.extend({
         this._timeCacheBackward = this.options.cacheBackward || this.options.cache || 0;
         this._timeCacheForward = this.options.cacheForward || this.options.cache || 0;
         this._wmsVersion = this.options.wmsVersion || this.options.version || layer.options.version || "1.1.1";
+        this._getCapabilitiesParams = this.options.getCapabilitiesParams || {};
         this._proxy = this.options.proxy || null;
         this._updateTimeDimension = this.options.updateTimeDimension || false;
         this._setDefaultTime = this.options.setDefaultTime || false;
@@ -244,18 +245,10 @@ L.TimeDimension.Layer.WMS = L.TimeDimension.Layer.extend({
             return;
         }
         this._capabilitiesRequested = true;
-        var wms = this._baseLayer.getURL();
-        var url = wms;
-        if (wms.indexOf('?') > -1) {
-            url += '&';
-        } else {
-            url += '?';
-        }
-        url += "service=WMS&version=" +
-            this._wmsVersion + "&request=GetCapabilities";
+        var url = this._getCapabilitiesUrl();
         if (this._proxy) {
             url = this._proxy + '?url=' + encodeURIComponent(url);
-        }
+        }         
         $.get(url, (function(data) {
             this._defaultTime = Date.parse(this._getDefaultTimeFromCapabilities(data));
             this._setDefaultTime = this._setDefaultTime || (this._timeDimension && this._timeDimension.getAvailableTimes().length == 0);
@@ -264,6 +257,17 @@ L.TimeDimension.Layer.WMS = L.TimeDimension.Layer.extend({
                 this._timeDimension.setCurrentTime(this._defaultTime);
             }
         }).bind(this));
+    },
+
+    _getCapabilitiesUrl: function() {
+        var url = this._baseLayer.getURL();
+        var params = L.extend({}, this._getCapabilitiesParams, {
+          'request': 'GetCapabilities',
+          'service': 'WMS',
+          'version': this._wmsVersion
+        });
+        url = url + L.Util.getParamString(params, url, params.uppercase);
+        return url;
     },
 
     _parseTimeDimensionFromCapabilities: function(xml) {
