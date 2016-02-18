@@ -42,11 +42,11 @@ testTimeLayer.addTo(map);
 
 ### L.Map
 
-This plugin will attach to a Map a TimeDimension object and a TimeDimension Control related if `timeDimension` and `timeDimensionControl` options are included.
+This plugin will attach to a Map a TimeDimension object and a related TimeDimension Control if `timeDimension` and `timeDimensionControl` options are included.
 
 Option                        | Description
 ------------------------------|---------------------------------------------------------
-`timeDimension`               | Creates a new TimeDimesion object linked to the map.
+`timeDimension`               | Creates a new TimeDimension object linked to the map.
 `timeDimensionOptions`        | [Options](#timeDimensionOptions) for the TimeDimension object.
 `timeDimensionControl`        | Adds a TimeDimension Control to the map.
 `timeDimensionControlOptions` | [Options](#timeDimensionControlOptions) for the TimeDimension Control object.
@@ -140,11 +140,11 @@ Option                | Default       | Description
 
 ### L.TimeDimension.Layer.GeoJSON
 
-Manages a GeoJSON layer with a TimeDimension. According to GeoJSON specification, geometry coordinates can have only three dimensions: latitude, longitude and elevation. There isn't an standard way to add time dimension information. This plugin will search for some attributes inside properties: 
+Manages a GeoJSON layer with a TimeDimension. According to GeoJSON specification, geometry coordinates can have only three dimensions: latitude, longitude and elevation. There isn't a standard way to add time dimension information. This plugin will search for some attributes inside properties: 
 - `coordTimes`, `times` or `linestringTimestamps`: array of times that can be associated with a geometry (datestrings or ms). In the case of a LineString, it must have as many items as coordinates in the LineString. (Note: `coordTimes` is the name of the property [recently](https://github.com/mapbox/togeojson/blob/master/CHANGELOG.md#0100) included at [Mapbox toGeoJSON library](http://mapbox.github.io/togeojson/))
 - `time`: time of the feature
 
-This component will create and show new GeoJSON layers which include only that features (or part of them) that are active for the time of the TimeDimension (according to a duration option). These new layers will inherit the baseLayer options. In the case of LineStrings, if `addlastPoint` option is enabled, a Point feature will be added with the property `last` (that can be used to customize the marker of this special Point).
+This component will create and show new GeoJSON layers which include only those features (or part of them) that are active for the time of the TimeDimension (according to a duration option). These new layers will inherit the baseLayer options. In the case of LineStrings, if `addlastPoint` option is enabled, a Point feature will be added with the property `last` (that can be used to customize the marker of this special Point).
 
 
 #### <a name="timeDimensionLayerGeoJSONOptions"></a> Options
@@ -200,8 +200,8 @@ Option                | Default       | Description
 `timeDimension`       | `null`        | 
 `transitionTime`      | `1000`        | Milliseconds that the player will wait to check and launch the next time in the TimeDimension
 `buffer`              | `5`           | *(Number or Function)* Number of times forward that will be requested in each iteration. Function callback will be called with 3 parameters (`transitionTime`, `minBufferReady`, `loop`)
-`minBufferReady`      | `1`           | If this option is greater than 0, the player will full the buffer every time the number of next ready times (next layers ready) is bellow this number.
-`loop`                | `false`       | Loop the animation when arrives to the last available time
+`minBufferReady`      | `1`           | If this option is greater than 0, the player will full the buffer every time the number of next ready times (next layers ready) is below this number.
+`loop`                | `false`       | Loop the animation when it reaches the last available time
 
 #### <a name="timeDimensionPlayerMethod"></a> Methods
 
@@ -209,9 +209,9 @@ Method                | Returns       | Description
 ----------------------|---------------|---------------------------------------------------------
 `start()`             | -             | Start animation
 `stop()`              | -             | Stop active animation
-`getTransitionTime()` |  `<int>`      | Returns the time interval between two animation steps (in milliseconds)
+`getTransitionTime()` |  `<int>`      | Return the time interval between two animation steps (in milliseconds)
 `setTransitionTime(interval)`   | -   | Change the time interval between two animation steps
-`isLooped()`          | `<boolean>`   | Returns the loop state
+`isLooped()`          | `<boolean>`   | Return the loop state
 `setLooped(boolean)`  | -             | Activate/Desactivate the loop state
 
 #### <a name="timeDimensionPlayerEvents"></a> Events
@@ -222,8 +222,8 @@ Event              | Data           | Description
 `play`             | -                    | When the animation is started/unpaused
 `running`          | -                    | When the animation is resuming after a waiting state
 `stop`             | -                    | When the animation is stopped/paused
-`waiting`          | `available`, `buffer`| When the animation is wainting for some layer to be loaded
-`animationfinished`|  -                   | When the animation reached the end of the timeline (`loop` is disabled)
+`waiting`          | `available`, `buffer`| When the animation is waiting for some layers to be loaded
+`animationfinished`|  -                   | When the animation has reached the end of the timeline (`loop` is disabled)
 `loopchange`       | `loop`               | When the `loop` setting is changed
 `speedchange`      | `transitionTime`, `buffer` | When the `transitionTime` setting is changed
 
@@ -237,7 +237,7 @@ Event              | Data           | Description
 
 ## Bugs, issues and contributions
 
-Contributions and criticism are welcome.
+Contributions and criticisms are welcome.
 
 If you have any doubt or problem, please fill an [issue](https://github.com/socib/Leaflet.TimeDimension/issues)!
 
