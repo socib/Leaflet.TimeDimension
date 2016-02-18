@@ -221,9 +221,23 @@
 /*.timecontrol-play.play:before {
     content: "\e072";
 }*/
+.timecontrol-play.reverse:before {
+    content: "\e072";
+    -ms-transform: rotate(180deg);
+    -webkit-transform: rotate(180deg);
+    transform: rotate(180deg);
+    margin-top: 1px;
+}
 .timecontrol-play.pause:before {
     content: "\e073";
 }
+.timecontrol-play.reverse.pause:before {
+    -ms-transform: none;
+    -webkit-transform: none;
+    transform: none;
+    margin-top: 0;
+}
+
 a.timecontrol-play.loading:before {
     content: "\e031";
     opacity: 0.2;

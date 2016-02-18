@@ -126,15 +126,24 @@ L.TimeDimension = (L.Layer || L.Class).extend({
         }
         var newIndex = this._currentTimeIndex;
         var upperLimit = this._upperLimit || this._availableTimes.length - 1;
+        var lowerLimit = this._lowerLimit || 0;
         if (this._loadingTimeIndex > -1) {
             newIndex = this._loadingTimeIndex;
         }
         newIndex = newIndex + numSteps;
         if (newIndex > upperLimit) {
             if (!!loop) {
-                newIndex = this._lowerLimit || 0;
+                newIndex = lowerLimit;
             } else {
                 newIndex = upperLimit;
+            }
+        }
+        // loop backwards
+        if (newIndex < lowerLimit) {
+            if (!!loop) {
+                newIndex = upperLimit;
+            } else {
+                newIndex = lowerLimit;
             }
         }
         this.setCurrentTimeIndex(newIndex);
@@ -157,11 +166,19 @@ L.TimeDimension = (L.Layer || L.Class).extend({
         }
         var count = howmany;
         var upperLimit = this._upperLimit || this._availableTimes.length - 1;
+        var lowerLimit = this._lowerLimit || 0;
         while (count > 0) {
             newIndex = newIndex + numSteps;
             if (newIndex > upperLimit) {
                 if (!!loop) {
-                    newIndex = this._lowerLimit || 0;
+                    newIndex = lowerLimit;
+                } else {
+                    break;
+                }
+            }
+            if (newIndex < lowerLimit) {
+                if (!!loop) {
+                    newIndex = upperLimit;
                 } else {
                     break;
                 }
@@ -185,11 +202,21 @@ L.TimeDimension = (L.Layer || L.Class).extend({
         var count = howmany;
         var ready = 0;
         var upperLimit = this._upperLimit || this._availableTimes.length - 1;
+        var lowerLimit = this._lowerLimit || 0;
         while (count > 0) {
             newIndex = newIndex + numSteps;
             if (newIndex > upperLimit) {
                 if (!!loop) {
-                    newIndex = this._lowerLimit || 0;
+                    newIndex = lowerLimit;
+                } else {
+                    count = 0;
+                    ready = howmany;
+                    break;
+                }
+            }
+            if (newIndex < lowerLimit) {
+                if (!!loop) {
+                    newIndex = upperLimit;
                 } else {
                     count = 0;
                     ready = howmany;
@@ -205,19 +232,8 @@ L.TimeDimension = (L.Layer || L.Class).extend({
         return ready;
     },
 
-    previousTime: function (numSteps) {
-        if (!numSteps) {
-            numSteps = 1;
-        }
-        var newIndex = this._currentTimeIndex;
-        if (this._loadingTimeIndex > -1) {
-            newIndex = this._loadingTimeIndex;
-        }
-        newIndex = newIndex - numSteps;
-        if (newIndex < this._lowerLimit) {
-            newIndex = this._lowerLimit;
-        }
-        this.setCurrentTimeIndex(newIndex);
+    previousTime: function (numSteps, loop) {
+        this.nextTime(numSteps*(-1), loop);
     },
 
     registerSyncedLayer: function (layer) {

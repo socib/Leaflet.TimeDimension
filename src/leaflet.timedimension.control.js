@@ -15,40 +15,40 @@ L.UI.Knob = L.Draggable.extend({
             //minValue : null,
             //maxValue : null
     },
-    initialize: function (slider, options) {
+    initialize: function(slider, options) {
         L.setOptions(this, options);
         this._element = L.DomUtil.create('div', this.options.className || 'knob', slider);
         L.Draggable.prototype.initialize.call(this, this._element, this._element);
         this._container = slider;
-        this.on('predrag', function () {
+        this.on('predrag', function() {
             this._newPos.y = 0;
             this._newPos.x = this._adjustX(this._newPos.x);
         }, this);
-        this.on('dragstart', function () {
+        this.on('dragstart', function() {
             L.DomUtil.addClass(slider, 'dragging');
         });
-        this.on('dragend', function () {
+        this.on('dragend', function() {
             L.DomUtil.removeClass(slider, 'dragging');
         });
-        L.DomEvent.on(this._element, 'dblclick', function (e) {
+        L.DomEvent.on(this._element, 'dblclick', function(e) {
             this.fire('dblclick', e);
         }, this);
         L.DomEvent.disableClickPropagation(this._element);
         this.enable();
     },
 
-    _getProjectionCoef: function () {
+    _getProjectionCoef: function() {
         return (this.options.rangeMax - this.options.rangeMin) / (this._container.offsetWidth || this._container.style.width);
     },
-    _update: function () {
+    _update: function() {
         this.setPosition(L.DomUtil.getPosition(this._element).x);
     },
-    _adjustX: function (x) {
+    _adjustX: function(x) {
         var value = this._toValue(x) || this.getMinValue();
         return this._toX(this._adjustValue(value));
     },
 
-    _adjustValue: function (value) {
+    _adjustValue: function(value) {
         value = Math.max(this.getMinValue(), Math.min(this.getMaxValue(), value)); //clamp value
         value = value - this.options.rangeMin; //offsets to zero
 
@@ -60,45 +60,45 @@ L.UI.Knob = L.Draggable.extend({
         return value;
     },
 
-    _toX: function (value) {
+    _toX: function(value) {
         var x = (value - this.options.rangeMin) / this._getProjectionCoef();
         //console.log('toX', value, x);
         return x;
     },
 
-    _toValue: function (x) {
+    _toValue: function(x) {
         var v = x * this._getProjectionCoef() + this.options.rangeMin;
         //console.log('toValue', x, v);
         return v;
     },
 
-    getMinValue: function () {
+    getMinValue: function() {
         return this.options.minValue || this.options.rangeMin;
     },
-    getMaxValue: function () {
+    getMaxValue: function() {
         return this.options.maxValue || this.options.rangeMax;
     },
 
-    setStep: function (step) {
+    setStep: function(step) {
         this.options.step = step;
         this._update();
     },
 
-    setPosition: function (x) {
+    setPosition: function(x) {
         L.DomUtil.setPosition(this._element,
             L.point(this._adjustX(x), 0));
         this.fire('positionchanged');
     },
-    getPosition: function () {
+    getPosition: function() {
         return L.DomUtil.getPosition(this._element).x;
     },
 
-    setValue: function (v) {
+    setValue: function(v) {
         //console.log('slider value', v);
         this.setPosition(this._toX(v));
     },
 
-    getValue: function () {
+    getValue: function() {
         return this._adjustValue(this._toValue(this.getPosition()));
     }
 });
@@ -116,6 +116,7 @@ L.Control.TimeDimension = L.Control.extend({
         backwardButton: true,
         forwardButton: true,
         playButton: true,
+        playReverseButton: false,
         loopButton: false,
         displayDate: true,
         timeSlider: true,
@@ -132,13 +133,13 @@ L.Control.TimeDimension = L.Control.extend({
         }
     },
 
-    initialize: function (options) {
+    initialize: function(options) {
         L.Control.prototype.initialize.call(this, options);
         this._dateUTC = true;
         this._timeDimension = this.options.timeDimension || null;
     },
 
-    onAdd: function (map) {
+    onAdd: function(map) {
         var container;
         this._map = map;
         if (!this._timeDimension && map.timeDimension) {
@@ -148,6 +149,9 @@ L.Control.TimeDimension = L.Control.extend({
 
         if (this.options.backwardButton) {
             this._buttonBackward = this._createButton('Backward', container);
+        }
+        if (this.options.playReverseButton) {
+            this._buttonPlayReversePause = this._createButton('Play Reverse', container);
         }
         if (this.options.playButton) {
             this._buttonPlayPause = this._createButton('Play', container);
@@ -171,12 +175,12 @@ L.Control.TimeDimension = L.Control.extend({
 
         this._steps = this.options.timeSteps || 1;
 
-        this._timeDimension.on('timeload', function () {
+        this._timeDimension.on('timeload', function() {
             this._update();
             this._onPlayerStateChange();
         }, this);
 
-        this._timeDimension.on('timeloading', function (data) {
+        this._timeDimension.on('timeloading', function(data) {
             if (data.time == this._timeDimension.getCurrentTime()) {
                 if (this._displayDate) {
                     L.DomUtil.addClass(this._displayDate, 'loading');
@@ -191,7 +195,7 @@ L.Control.TimeDimension = L.Control.extend({
         this._initPlayer();
         return container;
     },
-    addTo: function () {
+    addTo: function() {
         //To be notified AFTER the component was added to the DOM
         L.Control.prototype.addTo.apply(this, arguments);
         this._onPlayerStateChange();
@@ -199,13 +203,13 @@ L.Control.TimeDimension = L.Control.extend({
         this._update();
         return this;
     },
-    onRemove: function () {
+    onRemove: function() {
         this._player.off('play stop running loopchange speedchange', this._onPlayerStateChange, this);
         this._player.off('waiting', this._onPlayerWaiting, this);
         this._player = null;
     },
 
-    _initPlayer: function () {
+    _initPlayer: function() {
         if (this.options.player) {
             this._player = this.options.player;
         } else {
@@ -219,7 +223,7 @@ L.Control.TimeDimension = L.Control.extend({
         this._player.on('waiting', this._onPlayerWaiting, this);
         this._onPlayerStateChange();
     },
-    _onTimeLimitsChanged: function () {
+    _onTimeLimitsChanged: function() {
         var lowerIndex = this._timeDimension.getLowerLimitIndex(),
             upperIndex = this._timeDimension.getUpperLimitIndex(),
             max = this._timeDimension.getAvailableTimes().length - 1;
@@ -236,26 +240,43 @@ L.Control.TimeDimension = L.Control.extend({
         }
     },
 
-    _onPlayerWaiting: function (evt) {
-        if (this._buttonPlayPause) {
+    _onPlayerWaiting: function(evt) {
+        if (this._buttonPlayPause && this._player.getSteps() > 0) {
             L.DomUtil.addClass(this._buttonPlayPause, 'loading');
             this._buttonPlayPause.innerHTML = this._getDisplayLoadingText(evt.available, evt.buffer);
         }
+        if (this._buttonPlayReversePause && this._player.getSteps() < 0) {
+            L.DomUtil.addClass(this._buttonPlayReversePause, 'loading');
+            this._buttonPlayReversePause.innerHTML = this._getDisplayLoadingText(evt.available, evt.buffer);
+        }
     },
-    _onPlayerStateChange: function () {
+    _onPlayerStateChange: function() {
         if (this._buttonPlayPause) {
-            if (this._player.isPlaying()) {
+            if (this._player.isPlaying() && this._player.getSteps() > 0) {
                 L.DomUtil.addClass(this._buttonPlayPause, 'pause');
                 L.DomUtil.removeClass(this._buttonPlayPause, 'play');
             } else {
                 L.DomUtil.removeClass(this._buttonPlayPause, 'pause');
                 L.DomUtil.addClass(this._buttonPlayPause, 'play');
             }
-            if (!this._player.isWaiting()) {
+            if (this._player.isWaiting() && this._player.getSteps() > 0) {
+                L.DomUtil.addClass(this._buttonPlayPause, 'loading');
+            } else {
                 this._buttonPlayPause.innerHTML = '';
                 L.DomUtil.removeClass(this._buttonPlayPause, 'loading');
+            }
+        }
+        if (this._buttonPlayReversePause) {
+            if (this._player.isPlaying() && this._player.getSteps() < 0) {
+                L.DomUtil.addClass(this._buttonPlayReversePause, 'pause');
             } else {
-                L.DomUtil.addClass(this._buttonPlayPause, 'loading');
+                L.DomUtil.removeClass(this._buttonPlayReversePause, 'pause');
+            }
+            if (this._player.isWaiting() && this._player.getSteps() < 0) {
+                L.DomUtil.addClass(this._buttonPlayReversePause, 'loading');
+            } else {
+                this._buttonPlayReversePause.innerHTML = '';
+                L.DomUtil.removeClass(this._buttonPlayReversePause, 'loading');
             }
         }
         if (this._buttonLoop) {
@@ -271,7 +292,7 @@ L.Control.TimeDimension = L.Control.extend({
         }
     },
 
-    _update: function () {
+    _update: function() {
         if (!this._timeDimension) {
             return;
         }
@@ -292,7 +313,7 @@ L.Control.TimeDimension = L.Control.extend({
         }
     },
 
-    _createButton: function (title, container) {
+    _createButton: function(title, container) {
         var link = L.DomUtil.create('a', this.options.styleNS + ' timecontrol-' + title.toLowerCase(), container);
         link.href = '#';
         link.title = title;
@@ -300,12 +321,12 @@ L.Control.TimeDimension = L.Control.extend({
         L.DomEvent
             .addListener(link, 'click', L.DomEvent.stopPropagation)
             .addListener(link, 'click', L.DomEvent.preventDefault)
-            .addListener(link, 'click', this['_button' + title + 'Clicked'], this);
+            .addListener(link, 'click', this['_button' + title.replace(/ /i, '') + 'Clicked'], this);
 
         return link;
     },
 
-    _createDisplayDate: function (className, container) {
+    _createDisplayDate: function(className, container) {
         var link = L.DomUtil.create('a', className + ' utc', container);
         link.href = '#';
         link.title = 'UTC Time';
@@ -317,7 +338,7 @@ L.Control.TimeDimension = L.Control.extend({
         return link;
     },
 
-    _createSliderTime: function (className, container) {
+    _createSliderTime: function(className, container) {
         var sliderContainer,
             sliderbar,
             max,
@@ -338,12 +359,12 @@ L.Control.TimeDimension = L.Control.extend({
             rangeMin: 0,
             rangeMax: max
         });
-        knob.on('dragend', function (e) {
+        knob.on('dragend', function(e) {
             var value = e.target.getValue();
             this._sliderTimeValueChanged(value);
             this._slidingTimeSlider = false;
         }, this);
-        knob.on('drag', function (e) {
+        knob.on('drag', function(e) {
             this._slidingTimeSlider = true;
             var time = this._timeDimension.getAvailableTimes()[e.target.getValue()];
             if (time) {
@@ -352,7 +373,7 @@ L.Control.TimeDimension = L.Control.extend({
             }
         }, this);
 
-        knob.on('predrag', function () {
+        knob.on('predrag', function() {
             var minPosition, maxPosition;
             if (limits) {
                 //limits the position between lower and upper knobs
@@ -366,7 +387,7 @@ L.Control.TimeDimension = L.Control.extend({
                 }
             }
         }, knob);
-        L.DomEvent.on(sliderbar, 'click', function (e) {
+        L.DomEvent.on(sliderbar, 'click', function(e) {
             if (L.DomUtil.hasClass(e.target, 'knob')) {
                 return; //prevent value changes on drag release
             }
@@ -389,7 +410,7 @@ L.Control.TimeDimension = L.Control.extend({
     },
 
 
-    _createLimitKnobs: function (sliderbar) {
+    _createLimitKnobs: function(sliderbar) {
         L.DomUtil.addClass(sliderbar, 'has-limits');
         var max = this._timeDimension.getAvailableTimes().length - 1;
         var rangeBar = L.DomUtil.create('div', 'range', sliderbar);
@@ -410,27 +431,27 @@ L.Control.TimeDimension = L.Control.extend({
         uknob.setPosition(max);
 
         //Add listeners for value changes
-        lknob.on('dragend', function (e) {
+        lknob.on('dragend', function(e) {
             var value = e.target.getValue();
             this._sliderLimitsValueChanged(value, uknob.getValue());
         }, this);
-        uknob.on('dragend', function (e) {
+        uknob.on('dragend', function(e) {
             var value = e.target.getValue();
             this._sliderLimitsValueChanged(lknob.getValue(), value);
         }, this);
 
         //Add listeners to position the range bar
-        lknob.on('drag positionchanged', function () {
+        lknob.on('drag positionchanged', function() {
             L.DomUtil.setPosition(rangeBar, L.point(lknob.getPosition(), 0));
             rangeBar.style.width = uknob.getPosition() - lknob.getPosition() + 'px';
         }, this);
 
-        uknob.on('drag positionchanged', function () {
+        uknob.on('drag positionchanged', function() {
             rangeBar.style.width = uknob.getPosition() - lknob.getPosition() + 'px';
         }, this);
 
         //Add listeners to prevent overlaps
-        uknob.on('predrag', function () {
+        uknob.on('predrag', function() {
             //bond upper to lower
             var lowerPosition = lknob._toX(lknob.getValue() + this.options.limitMinimumRange);
             if (uknob._newPos.x <= lowerPosition) {
@@ -438,7 +459,7 @@ L.Control.TimeDimension = L.Control.extend({
             }
         }, this);
 
-        lknob.on('predrag', function () {
+        lknob.on('predrag', function() {
             //bond lower to upper
             var upperPosition = uknob._toX(uknob.getValue() - this.options.limitMinimumRange);
             if (lknob._newPos.x >= upperPosition) {
@@ -446,10 +467,10 @@ L.Control.TimeDimension = L.Control.extend({
             }
         }, this);
 
-        lknob.on('dblclick', function () {
+        lknob.on('dblclick', function() {
             this._timeDimension.setLowerLimitIndex(0);
         }, this);
-        uknob.on('dblclick', function () {
+        uknob.on('dblclick', function() {
             this._timeDimension.setUpperLimitIndex(this._timeDimension.getAvailableTimes().length - 1);
         }, this);
 
@@ -457,7 +478,7 @@ L.Control.TimeDimension = L.Control.extend({
     },
 
 
-    _createSliderSpeed: function (className, container) {
+    _createSliderSpeed: function(className, container) {
         var sliderContainer = L.DomUtil.create('div', className, container);
         /* L.DomEvent
             .addListener(sliderContainer, 'click', L.DomEvent.stopPropagation)
@@ -474,18 +495,18 @@ L.Control.TimeDimension = L.Control.extend({
             rangeMax: this.options.maxSpeed
         });
 
-        knob.on('dragend', function (e) {
+        knob.on('dragend', function(e) {
             var value = e.target.getValue();
             this._draggingSpeed = false;
             speedLabel.innerHTML = this._getDisplaySpeed(value);
             this._sliderSpeedValueChanged(value);
         }, this);
-        knob.on('drag', function (e) {
+        knob.on('drag', function(e) {
             this._draggingSpeed = true;
             speedLabel.innerHTML = this._getDisplaySpeed(e.target.getValue());
         }, this);
 
-        L.DomEvent.on(sliderbar, 'click', function (e) {
+        L.DomEvent.on(sliderbar, 'click', function(e) {
             if (e.target === knob._element) {
                 return; //prevent value changes on drag release
             }
@@ -498,18 +519,18 @@ L.Control.TimeDimension = L.Control.extend({
         return knob;
     },
 
-    _buttonBackwardClicked: function () {
+    _buttonBackwardClicked: function() {
         this._timeDimension.previousTime(this._steps);
     },
 
-    _buttonForwardClicked: function () {
+    _buttonForwardClicked: function() {
         this._timeDimension.nextTime(this._steps);
     },
-    _buttonLoopClicked: function () {
+    _buttonLoopClicked: function() {
         this._player.setLooped(!this._player.isLooped());
     },
 
-    _buttonPlayClicked: function () {
+    _buttonPlayClicked: function() {
         if (this._player.isPlaying()) {
             if (this._player.isWaiting()) {
                 // force restart
@@ -524,20 +545,33 @@ L.Control.TimeDimension = L.Control.extend({
         }
     },
 
-    _sliderTimeValueChanged: function (newValue) {
+    _buttonPlayReverseClicked: function() {
+        if (this._player.isPlaying()) {
+            if (this._player.isWaiting()) {
+                // force restart
+                this._player.stop();
+                this._player.start(this._steps * (-1));
+            } else {
+                this._player.stop();
+            }
+        } else {
+            this._player.start(this._steps * (-1));
+        }
+    },
+    _sliderTimeValueChanged: function(newValue) {
         this._timeDimension.setCurrentTimeIndex(newValue);
     },
 
-    _sliderLimitsValueChanged: function (lowerLimit, upperLimit) {
+    _sliderLimitsValueChanged: function(lowerLimit, upperLimit) {
         this._timeDimension.setLowerLimitIndex(lowerLimit);
         this._timeDimension.setUpperLimitIndex(upperLimit);
     },
 
-    _sliderSpeedValueChanged: function (newValue) {
+    _sliderSpeedValueChanged: function(newValue) {
         this._player.setTransitionTime(1000 / newValue);
     },
 
-    _toggleDateUTC: function () {
+    _toggleDateUTC: function() {
         if (this._dateUTC) {
             L.DomUtil.removeClass(this._displayDate, 'utc');
             this._displayDate.title = 'Local Time';
@@ -549,28 +583,28 @@ L.Control.TimeDimension = L.Control.extend({
         this._update();
     },
 
-    _getDisplayDateFormat: function (date) {
+    _getDisplayDateFormat: function(date) {
         return this._dateUTC ? date.toISOString() : date.toLocaleString();
     },
-    _getDisplaySpeed: function (fps) {
+    _getDisplaySpeed: function(fps) {
         return fps + 'fps';
     },
-    _getDisplayLoadingText: function (available, buffer) {
+    _getDisplayLoadingText: function(available, buffer) {
         return '<span>' + Math.floor(available / buffer * 100) + '%</span>';
     },
-    _getDisplayNoTimeError: function () {
+    _getDisplayNoTimeError: function() {
         return 'Time not available';
     }
 
 });
 
-L.Map.addInitHook(function () {
+L.Map.addInitHook(function() {
     if (this.options.timeDimensionControl) {
         this.timeDimensionControl = L.control.timeDimension(this.options.timeDimensionControlOptions || {});
         this.addControl(this.timeDimensionControl);
     }
 });
 
-L.control.timeDimension = function (options) {
+L.control.timeDimension = function(options) {
     return new L.Control.TimeDimension(options);
 };

@@ -9,7 +9,7 @@
 L.TimeDimension.Player = (L.Layer || L.Class).extend({
 
     includes: L.Mixin.Events,
-    initialize: function (options, timeDimension) {
+    initialize: function(options, timeDimension) {
         L.setOptions(this, options);
         this._timeDimension = timeDimension;
         this._paused = false;
@@ -18,7 +18,7 @@ L.TimeDimension.Player = (L.Layer || L.Class).extend({
         this._waitingForBuffer = false;
         this._loop = this.options.loop || false;
         this._steps = 1;
-        this._timeDimension.on('timeload', (function (data) {
+        this._timeDimension.on('timeload', (function(data) {
             this.continue(); // free clock
             this._waitingForBuffer = false; // reset buffer
         }).bind(this));
@@ -26,11 +26,13 @@ L.TimeDimension.Player = (L.Layer || L.Class).extend({
     },
 
 
-    _tick: function () {
+    _tick: function() {
         var maxIndex =
             Math.min(this._timeDimension.getAvailableTimes().length - 1,
                 this._timeDimension.getUpperLimitIndex() || Infinity);
-        if (this._timeDimension.getCurrentTimeIndex() >= maxIndex) {
+        var maxForward = (this._timeDimension.getCurrentTimeIndex() >= maxIndex) && (this._steps > 0);
+        var maxBackward = (this._timeDimension.getCurrentTimeIndex() == 0) && (this._steps < 0);
+        if (maxForward || maxBackward) {
             // we reached the last step
             if (!this._loop) {
                 this.pause();
@@ -39,6 +41,7 @@ L.TimeDimension.Player = (L.Layer || L.Class).extend({
                 return;
             }
         }
+
         if (this._paused) {
             return;
         }
@@ -83,7 +86,7 @@ L.TimeDimension.Player = (L.Layer || L.Class).extend({
         }
     },
 
-    start: function (numSteps) {
+    start: function(numSteps) {
         if (this._intervalID) return;
         this._steps = numSteps || 1;
         this._waitingForBuffer = false;
@@ -96,44 +99,44 @@ L.TimeDimension.Player = (L.Layer || L.Class).extend({
         this.fire('running');
     },
 
-    stop: function () {
+    stop: function() {
         if (!this._intervalID) return;
         clearInterval(this._intervalID);
         this._intervalID = null;
         this.fire('stop');
     },
 
-    pause: function () {
+    pause: function() {
         this._paused = true;
     },
 
-    continue: function () {
+    continue: function() {
         this._paused = false;
     },
 
-    getTransitionTime: function () {
+    getTransitionTime: function() {
         return this._transitionTime;
     },
 
-    isPlaying: function () {
+    isPlaying: function() {
         return this._intervalID ? true : false;
     },
 
-    isWaiting: function () {
+    isWaiting: function() {
         return this._waitingForBuffer;
     },
-    isLooped: function () {
+    isLooped: function() {
         return this._loop;
     },
 
-    setLooped: function (looped) {
+    setLooped: function(looped) {
         this._loop = looped;
         this.fire('loopchange', {
             loop: looped
         });
     },
 
-    setTransitionTime: function (transitionTime) {
+    setTransitionTime: function(transitionTime) {
         this._transitionTime = transitionTime;
         if (typeof this._buffer === 'function') {
             this._bufferSize = this._buffer.call(this, this._transitionTime, this._minBufferReady, this._loop);
@@ -149,5 +152,9 @@ L.TimeDimension.Player = (L.Layer || L.Class).extend({
             transitionTime: transitionTime,
             buffer: this._bufferSize
         });
+    },
+
+    getSteps: function() {
+        return this._steps;
     }
 });
