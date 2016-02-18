@@ -11,6 +11,9 @@ var map = L.map('map', {
     timeDimensionControlOptions: {
         autoPlay: true,
         loopButton: true,
+        timeSteps: 1,
+        playReverseButton: true,
+        limitSliders: true,
         playerOptions: {
             buffer: 0,
             transitionTime: 250,
@@ -41,7 +44,7 @@ var testLayer = L.nonTiledLayer.wms(testWMS, {
 var proxy = 'server/proxy.php';
 var testTimeLayer = L.timeDimension.layer.wms(testLayer, {
     proxy: proxy,
-    updateTimeDimension: true,
+    updateTimeDimension: true
 });
 testTimeLayer.addTo(map);
 
@@ -73,5 +76,13 @@ $("#btn_timerange").click(function(){
     var endTime = new Date($('#dtp_end').val());
     var newAvailableTimes = L.TimeDimension.Util.explodeTimeRange(startTime, endTime, 'PT1H');
     map.timeDimension.setAvailableTimes(newAvailableTimes, 'replace');
+    map.timeDimension.setCurrentTime(startTime);
+});
+
+$("#btn_limitrange").click(function(){
+    var startTime = new Date($('#dtp_start').val());
+    var endTime = new Date($('#dtp_end').val());    
+    map.timeDimension.setLowerLimit(startTime);
+    map.timeDimension.setUpperLimit(endTime);
     map.timeDimension.setCurrentTime(startTime);
 });
