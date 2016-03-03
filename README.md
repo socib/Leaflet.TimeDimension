@@ -202,6 +202,7 @@ Option                | Default       | Description
 `buffer`              | `5`           | *(Number or Function)* Number of times forward that will be requested in each iteration. Function callback will be called with 3 parameters (`transitionTime`, `minBufferReady`, `loop`)
 `minBufferReady`      | `1`           | If this option is greater than 0, the player will full the buffer every time the number of next ready times (next layers ready) is below this number.
 `loop`                | `false`       | Loop the animation when it reaches the last available time
+`startOver`           | `false`       | When the player is at the last position, it start over to the beginning when the user press play
 
 #### <a name="timeDimensionPlayerMethod"></a> Methods
 
