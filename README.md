@@ -38,6 +38,8 @@ var testTimeLayer = L.timeDimension.layer.wms(testLayer);
 testTimeLayer.addTo(map);
 ```
 
+For more control over each object creation, you can create timeDimension objects manually, see [Example 9](blob/master/examples/js/example9.js#L11)
+
 ## API
 
 ### L.Map
@@ -92,7 +94,7 @@ Method                 | Returns          | Description
 `prepareNextTimes(numSteps, howmany)` | - | Fire 'timeloading' for severals times (in order to pre-load layers)
 `registerSyncedLayer(L.TimeDimension.Layer layer)` | - | TimeDimension will check if all layers are ready before firing timeload. It will listen to "timeload" event of these layers.
 `unregisterSyncedLayer(L.TimeDimension.Layer layer)`| -                | 
-`setAvailableTimes(times, mode)`| -       | Update available times of the TimeDimension with a new array of times (in ms). Mode can be one of these values: `intersect`, `union`, `replace`, `extremes` (this will take the first time and the last time given and it will create available times according to the TimeDimension period). 
+`setAvailableTimes(times, mode)`| -       | Update available times of the TimeDimension with a new array of times (in ms). Mode : [Update modes](#timeDimensionModes)
 
 
 ### L.TimeDimension.Layer
@@ -130,7 +132,7 @@ Option                | Default       | Description
 `cacheBackward`       | `cache || 0`  | Number of layers that can be kept hidden on the map for previous times
 `cacheForward`        | `cache || 0`  | Number of layers that can be kept hidden on the map for future times
 `updateTimeDimension` | `false`       | Update the list of available times of the attached TimeDimension with the available times obtained by getCapabilities
-`updateTimeDimensionMode` | `intersect` | Operation to merge the available times of the TimeDimension and the layer (intersect, union, replace or extremes)
+`updateTimeDimensionMode` | `intersect` | Operation to merge the available times of the TimeDimension and the layer (intersect, union, replace or extremes). See [Update modes](#timeDimensionModes)
 `requestTimeFromCapabilities` | `false || updateTimeDimension` | Get list of available times for this layer from getCapabilities 
 `proxy`               | `null`        | URL of the proxy used to obtain getCapabilities responses from the WMS server avoiding cross site origin problems
 `getCapabilitiesParams` | `{}`        | Extra parameters needed to create getCapabilities request
@@ -228,11 +230,20 @@ Event              | Data           | Description
 `loopchange`       | `loop`               | When the `loop` setting is changed
 `speedchange`      | `transitionTime`, `buffer` | When the `transitionTime` setting is changed
 
+
+### <a name="timeDimensionModes"></a>TimeDimension update modes
+Update mode can be one of these values: `intersect`, `union`, `replace`, `extremes`.
+- ```replace``` It replaces available times with only the new ones (from layer or ```setAvailableTimes```).
+- ```union``` It adds new times and merge them to existing ones.
+- ```intersect``` It keeps only the time shared in both existing and new ones.
+- ```extremes``` It can recompute periodic times according to [options.period](#timeDimensionOptions) and extreme values of the set.
+
+
 ## Requisites
 
+- jquery
 - [iso8601-js-period](https://github.com/nezasa/iso8601-js-period)
 - For the TimeDimension Control:
-    - jquery
     - glyphicons
 
 

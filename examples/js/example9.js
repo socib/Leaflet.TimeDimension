@@ -4,21 +4,36 @@ startDate.setUTCHours(0, 0, 0, 0);
 var map = L.map('map', {
     zoom: 12,
     fullscreenControl: true,
-    timeDimensionControl: true,
-    timeDimensionControlOptions: {
-        position: 'bottomleft',
-        autoPlay: true,
-        playerOptions: {
-            transitionTime: 500,
-            loop: true,
-        }
-    },
-    timeDimension: true,
-    timeDimensionOptions: {
-        period: "PT5M",
-    },
     center: [39.3, 4]
 });
+
+// start of TimeDimension manual instantiation
+var timeDimension = new L.TimeDimension({
+        period: "PT5M",
+    });
+// helper to share the timeDimension object between all layers
+map.timeDimension = timeDimension; 
+// otherwise you have to set the 'timeDimension' option on all layers.
+
+var player        = new L.TimeDimension.Player({
+    transitionTime: 100, 
+    loop: false,
+    startOver:true
+}, timeDimension);
+
+var timeDimensionControlOptions = {
+    player:        player,
+    timeDimension: timeDimension,
+    position:      'bottomleft',
+    autoPlay:      true,
+    minSpeed:      1,
+    speedStep:     0.5,
+    maxSpeed:      15
+};
+
+var timeDimensionControl = new L.Control.TimeDimension(timeDimensionControlOptions);
+map.addControl(timeDimensionControl);
+
 
 L.control.coordinates({
     position: "bottomright",
