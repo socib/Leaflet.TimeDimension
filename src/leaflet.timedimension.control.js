@@ -145,8 +145,9 @@ L.Control.TimeDimension = L.Control.extend({
         if (!this._timeDimension && map.timeDimension) {
             this._timeDimension = map.timeDimension;
         }
+        this._initPlayer();
+        
         container = L.DomUtil.create('div', 'leaflet-bar leaflet-bar-horizontal leaflet-bar-timecontrol');
-
         if (this.options.backwardButton) {
             this._buttonBackward = this._createButton('Backward', container);
         }
@@ -192,7 +193,6 @@ L.Control.TimeDimension = L.Control.extend({
 
         L.DomEvent.disableClickPropagation(container);
 
-        this._initPlayer();
         return container;
     },
     addTo: function() {
@@ -287,7 +287,8 @@ L.Control.TimeDimension = L.Control.extend({
             }
         }
         if (this._sliderSpeed && !this._draggingSpeed) {
-            var speed = Math.round(10000 / (this._player.getTransitionTime() || 1000)) / 10;
+            var speed =  this._player.getTransitionTime() || 1000;//transitionTime
+            speed = Math.round(10000 / speed) /10; // 1s / transition
             this._sliderSpeed.setValue(speed);
         }
     },
@@ -486,7 +487,7 @@ L.Control.TimeDimension = L.Control.extend({
 */
         var speedLabel = L.DomUtil.create('span', 'speed', sliderContainer);
         var sliderbar = L.DomUtil.create('div', 'slider', sliderContainer);
-        var initialSpeed = Math.round(10000 / (this.options.playerOptions.transitionTime || 1000)) / 10;
+        var initialSpeed = Math.round(10000 / (this._player.getTransitionTime() || 1000)) / 10;
         speedLabel.innerHTML = this._getDisplaySpeed(initialSpeed);
 
         var knob = new L.UI.Knob(sliderbar, {
@@ -503,6 +504,9 @@ L.Control.TimeDimension = L.Control.extend({
         }, this);
         knob.on('drag', function(e) {
             this._draggingSpeed = true;
+            speedLabel.innerHTML = this._getDisplaySpeed(e.target.getValue());
+        }, this);
+         knob.on('positionchanged', function (e) {
             speedLabel.innerHTML = this._getDisplaySpeed(e.target.getValue());
         }, this);
 
