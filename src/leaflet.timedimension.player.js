@@ -19,7 +19,7 @@ L.TimeDimension.Player = (L.Layer || L.Class).extend({
         this._loop = this.options.loop || false;
         this._steps = 1;
         this._timeDimension.on('timeload', (function(data) {
-            this.continue(); // free clock
+            this.release(); // free clock
             this._waitingForBuffer = false; // reset buffer
         }).bind(this));
         this.setTransitionTime(this.options.transitionTime || 1000);
@@ -27,9 +27,7 @@ L.TimeDimension.Player = (L.Layer || L.Class).extend({
 
 
     _tick: function() {
-        var maxIndex =
-            Math.min(this._timeDimension.getAvailableTimes().length - 1,
-                this._timeDimension.getUpperLimitIndex() || Infinity);
+        var maxIndex = this._getMaxIndex();
         var maxForward = (this._timeDimension.getCurrentTimeIndex() >= maxIndex) && (this._steps > 0);
         var maxBackward = (this._timeDimension.getCurrentTimeIndex() == 0) && (this._steps < 0);
         if (maxForward || maxBackward) {
@@ -85,12 +83,22 @@ L.TimeDimension.Player = (L.Layer || L.Class).extend({
             this._timeDimension.prepareNextTimes(this._steps, buffer, this._loop);
         }
     },
+    
+    _getMaxIndex: function(){
+       return Math.min(this._timeDimension.getAvailableTimes().length - 1, 
+                       this._timeDimension.getUpperLimitIndex() || Infinity);
+    },
 
     start: function(numSteps) {
         if (this._intervalID) return;
         this._steps = numSteps || 1;
         this._waitingForBuffer = false;
-        this.continue();
+        if (this.options.startOver){
+            if (this._timeDimension.getCurrentTimeIndex() === this._getMaxIndex()){
+                 this._timeDimension.setCurrentTimeIndex(this._timeDimension.getLowerLimitIndex() || 0);
+            }
+        }
+        this.release();
         this._intervalID = window.setInterval(
             L.bind(this._tick, this),
             this._transitionTime);
@@ -110,7 +118,7 @@ L.TimeDimension.Player = (L.Layer || L.Class).extend({
         this._paused = true;
     },
 
-    continue: function() {
+    release: function () {
         this._paused = false;
     },
 
