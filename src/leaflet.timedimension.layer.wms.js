@@ -182,11 +182,8 @@ L.TimeDimension.Layer.WMS = L.TimeDimension.Layer.extend({
             return this._layers[nearestTime];
         }
 
-        var wmsParams = this._baseLayer.options;
-        wmsParams.time = new Date(nearestTime).toISOString();
-
-        var newLayer = new this._baseLayer.constructor(this._baseLayer.getURL(), wmsParams);
-
+        var newLayer = this._createLayerForTime(nearestTime);
+       
         this._layers[time] = newLayer;
 
         newLayer.on('load', (function(layer, time) {
@@ -212,6 +209,12 @@ L.TimeDimension.Layer.WMS = L.TimeDimension.Layer.extend({
             this.hide();
         }).bind(newLayer);
         return newLayer;
+    },
+    
+    _createLayerForTime:function(time){
+        var wmsParams = this._baseLayer.options;
+        wmsParams.time = new Date(time).toISOString();
+        return new this._baseLayer.constructor(this._baseLayer.getURL(), wmsParams);
     },
 
     _getLoadedTimes: function() {
