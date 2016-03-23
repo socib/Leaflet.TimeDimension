@@ -197,7 +197,7 @@ L.Control.TimeDimension = L.Control.extend({
     onRemove: function() {
         this._player.off('play stop running loopchange speedchange', this._onPlayerStateChange, this);
         this._player.off('waiting', this._onPlayerWaiting, this);
-        this._player = null;
+        //this._player = null;  keep it for later re-add
         
         this._timeDimension.off('timeload',  this._update, this);
         this._timeDimension.off('timeload',  this._onPlayerStateChange, this);
@@ -206,12 +206,13 @@ L.Control.TimeDimension = L.Control.extend({
     },
 
     _initPlayer: function() {
-        if (this.options.player) {
-            this._player = this.options.player;
-        } else {
-            this._player = new L.TimeDimension.Player(this.options.playerOptions, this._timeDimension);
+        if (!this._player){ // in case of remove/add
+            if (this.options.player) {
+                this._player = this.options.player;
+            } else {
+                this._player = new L.TimeDimension.Player(this.options.playerOptions, this._timeDimension);
+            }
         }
-
         if (this.options.autoPlay && this._buttonPlayPause) {
             this._player.start(this._steps);
         }
