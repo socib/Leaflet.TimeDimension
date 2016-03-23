@@ -176,18 +176,9 @@ L.Control.TimeDimension = L.Control.extend({
 
         this._steps = this.options.timeSteps || 1;
 
-        this._timeDimension.on('timeload', function() {
-            this._update();
-            this._onPlayerStateChange();
-        }, this);
-
-        this._timeDimension.on('timeloading', function(data) {
-            if (data.time == this._timeDimension.getCurrentTime()) {
-                if (this._displayDate) {
-                    L.DomUtil.addClass(this._displayDate, 'loading');
-                }
-            }
-        }, this);
+        this._timeDimension.on('timeload',  this._update, this);
+        this._timeDimension.on('timeload',  this._onPlayerStateChange, this);
+        this._timeDimension.on('timeloading', this._onTimeLoading, this);
 
         this._timeDimension.on('limitschanged availabletimeschanged', this._onTimeLimitsChanged, this);
 
@@ -207,6 +198,11 @@ L.Control.TimeDimension = L.Control.extend({
         this._player.off('play stop running loopchange speedchange', this._onPlayerStateChange, this);
         this._player.off('waiting', this._onPlayerWaiting, this);
         this._player = null;
+        
+        this._timeDimension.off('timeload',  this._update, this);
+        this._timeDimension.off('timeload',  this._onPlayerStateChange, this);
+        this._timeDimension.off('timeloading', this._onTimeLoading, this);
+        this._timeDimension.off('limitschanged availabletimeschanged', this._onTimeLimitsChanged, this);
     },
 
     _initPlayer: function() {
@@ -223,6 +219,15 @@ L.Control.TimeDimension = L.Control.extend({
         this._player.on('waiting', this._onPlayerWaiting, this);
         this._onPlayerStateChange();
     },
+    
+    _onTimeLoading : function(data) {
+        if (data.time == this._timeDimension.getCurrentTime()) {
+            if (this._displayDate) {
+                L.DomUtil.addClass(this._displayDate, 'loading');
+            }
+        }
+    },
+
     _onTimeLimitsChanged: function() {
         var lowerIndex = this._timeDimension.getLowerLimitIndex(),
             upperIndex = this._timeDimension.getUpperLimitIndex(),
