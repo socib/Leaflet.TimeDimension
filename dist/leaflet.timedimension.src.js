@@ -1,5 +1,5 @@
 /* 
- * Leaflet TimeDimension v1.0.2 - 2016-03-08 
+ * Leaflet TimeDimension v1.0.3 - 2016-03-29 
  * 
  * Copyright 2016 Biel Frontera (ICTS SOCIB) 
  * datacenter@socib.es 
@@ -894,11 +894,8 @@ L.TimeDimension.Layer.WMS = L.TimeDimension.Layer.extend({
             return this._layers[nearestTime];
         }
 
-        var wmsParams = this._baseLayer.options;
-        wmsParams.time = new Date(nearestTime).toISOString();
-
-        var newLayer = new this._baseLayer.constructor(this._baseLayer.getURL(), wmsParams);
-
+        var newLayer = this._createLayerForTime(nearestTime);
+       
         this._layers[time] = newLayer;
 
         newLayer.on('load', (function(layer, time) {
@@ -924,6 +921,12 @@ L.TimeDimension.Layer.WMS = L.TimeDimension.Layer.extend({
             this.hide();
         }).bind(newLayer);
         return newLayer;
+    },
+    
+    _createLayerForTime:function(time){
+        var wmsParams = this._baseLayer.options;
+        wmsParams.time = new Date(time).toISOString();
+        return new this._baseLayer.constructor(this._baseLayer.getURL(), wmsParams);
     },
 
     _getLoadedTimes: function() {
@@ -1731,18 +1734,9 @@ L.Control.TimeDimension = L.Control.extend({
 
         this._steps = this.options.timeSteps || 1;
 
-        this._timeDimension.on('timeload', function() {
-            this._update();
-            this._onPlayerStateChange();
-        }, this);
-
-        this._timeDimension.on('timeloading', function(data) {
-            if (data.time == this._timeDimension.getCurrentTime()) {
-                if (this._displayDate) {
-                    L.DomUtil.addClass(this._displayDate, 'loading');
-                }
-            }
-        }, this);
+        this._timeDimension.on('timeload',  this._update, this);
+        this._timeDimension.on('timeload',  this._onPlayerStateChange, this);
+        this._timeDimension.on('timeloading', this._onTimeLoading, this);
 
         this._timeDimension.on('limitschanged availabletimeschanged', this._onTimeLimitsChanged, this);
 
@@ -1761,16 +1755,22 @@ L.Control.TimeDimension = L.Control.extend({
     onRemove: function() {
         this._player.off('play stop running loopchange speedchange', this._onPlayerStateChange, this);
         this._player.off('waiting', this._onPlayerWaiting, this);
-        this._player = null;
+        //this._player = null;  keep it for later re-add
+        
+        this._timeDimension.off('timeload',  this._update, this);
+        this._timeDimension.off('timeload',  this._onPlayerStateChange, this);
+        this._timeDimension.off('timeloading', this._onTimeLoading, this);
+        this._timeDimension.off('limitschanged availabletimeschanged', this._onTimeLimitsChanged, this);
     },
 
     _initPlayer: function() {
-        if (this.options.player) {
-            this._player = this.options.player;
-        } else {
-            this._player = new L.TimeDimension.Player(this.options.playerOptions, this._timeDimension);
+        if (!this._player){ // in case of remove/add
+            if (this.options.player) {
+                this._player = this.options.player;
+            } else {
+                this._player = new L.TimeDimension.Player(this.options.playerOptions, this._timeDimension);
+            }
         }
-
         if (this.options.autoPlay && this._buttonPlayPause) {
             this._player.start(this._steps);
         }
@@ -1778,6 +1778,15 @@ L.Control.TimeDimension = L.Control.extend({
         this._player.on('waiting', this._onPlayerWaiting, this);
         this._onPlayerStateChange();
     },
+    
+    _onTimeLoading : function(data) {
+        if (data.time == this._timeDimension.getCurrentTime()) {
+            if (this._displayDate) {
+                L.DomUtil.addClass(this._displayDate, 'loading');
+            }
+        }
+    },
+
     _onTimeLimitsChanged: function() {
         var lowerIndex = this._timeDimension.getLowerLimitIndex(),
             upperIndex = this._timeDimension.getUpperLimitIndex(),
