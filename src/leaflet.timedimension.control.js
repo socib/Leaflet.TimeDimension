@@ -120,6 +120,7 @@ L.Control.TimeDimension = L.Control.extend({
         loopButton: false,
         displayDate: true,
         timeSlider: true,
+        timeSliderDragUpdate: false,
         limitSliders: false,
         limitMinimumRange: 5,
         speedSlider: true,
@@ -377,6 +378,9 @@ L.Control.TimeDimension = L.Control.extend({
             if (time) {
                 var date = new Date(time);
                 this._displayDate.innerHTML = this._getDisplayDateFormat(date);
+                if (this.options.timeSliderDragUpdate){
+                    this._sliderTimeValueChanged(e.target.getValue());                    
+                }
             }
         }, this);
 

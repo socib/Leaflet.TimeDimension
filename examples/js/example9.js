@@ -28,7 +28,8 @@ var timeDimensionControlOptions = {
     autoPlay:      true,
     minSpeed:      1,
     speedStep:     0.5,
-    maxSpeed:      15
+    maxSpeed:      15,
+    timeSliderDragUpdate: true
 };
 
 var timeDimensionControl = new L.Control.TimeDimension(timeDimensionControlOptions);
