@@ -214,7 +214,7 @@ L.Control.TimeDimension = L.Control.extend({
                 this._player = new L.TimeDimension.Player(this.options.playerOptions, this._timeDimension);
             }
         }
-        if (this.options.autoPlay && this._buttonPlayPause) {
+        if (this.options.autoPlay) {
             this._player.start(this._steps);
         }
         this._player.on('play stop running loopchange speedchange', this._onPlayerStateChange, this);
