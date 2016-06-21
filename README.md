@@ -177,6 +177,7 @@ Option                | Default       | Description
 `loopButton`          | `false`       | Show loop button to enable/disable loop animation
 `displayDate`         | `true`        | Show display date control
 `timeSlider`          | `true`        | Show time slider control
+`timeSliderDragUpdate`          | `false`        | Update the map when dragging
 `speedSlider`         | `true`        | Show speed slider control
 `minSpeed`            | `0.1`         | Minimum selectable value for speed slider in fps (`1000/transitionTime`)
 `maxSpeed`            | `10`          | Maximum selectable value for speed slider in fps
