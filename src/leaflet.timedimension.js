@@ -155,6 +155,7 @@ L.TimeDimension = (L.Layer || L.Class).extend({
         }
 
         var newIndex = this._currentTimeIndex;
+        var currentIndex = newIndex;
         if (this._loadingTimeIndex > -1) {
             newIndex = this._loadingTimeIndex;
         }
@@ -182,6 +183,11 @@ L.TimeDimension = (L.Layer || L.Class).extend({
                 } else {
                     break;
                 }
+            }
+            if (currentIndex === newIndex) {
+                //we looped around the timeline
+                //no need to load further, the next times are already loading
+                break;
             }
             this.fire('timeloading', {
                 time: this._availableTimes[newIndex]
