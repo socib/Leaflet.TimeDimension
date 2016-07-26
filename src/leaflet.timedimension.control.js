@@ -147,7 +147,7 @@ L.Control.TimeDimension = L.Control.extend({
             this._timeDimension = map.timeDimension;
         }
         this._initPlayer();
-        
+
         container = L.DomUtil.create('div', 'leaflet-bar leaflet-bar-horizontal leaflet-bar-timecontrol');
         if (this.options.backwardButton) {
             this._buttonBackward = this._createButton('Backward', container);
@@ -199,7 +199,7 @@ L.Control.TimeDimension = L.Control.extend({
         this._player.off('play stop running loopchange speedchange', this._onPlayerStateChange, this);
         this._player.off('waiting', this._onPlayerWaiting, this);
         //this._player = null;  keep it for later re-add
-        
+
         this._timeDimension.off('timeload',  this._update, this);
         this._timeDimension.off('timeload',  this._onPlayerStateChange, this);
         this._timeDimension.off('timeloading', this._onTimeLoading, this);
@@ -221,7 +221,7 @@ L.Control.TimeDimension = L.Control.extend({
         this._player.on('waiting', this._onPlayerWaiting, this);
         this._onPlayerStateChange();
     },
-    
+
     _onTimeLoading : function(data) {
         if (data.time == this._timeDimension.getCurrentTime()) {
             if (this._displayDate) {
@@ -377,9 +377,11 @@ L.Control.TimeDimension = L.Control.extend({
             var time = this._timeDimension.getAvailableTimes()[e.target.getValue()];
             if (time) {
                 var date = new Date(time);
-                this._displayDate.innerHTML = this._getDisplayDateFormat(date);
+                if (this._displayDate) {
+                  this._displayDate.innerHTML = this._getDisplayDateFormat(date);
+                }
                 if (this.options.timeSliderDragUpdate){
-                    this._sliderTimeValueChanged(e.target.getValue());                    
+                    this._sliderTimeValueChanged(e.target.getValue());
                 }
             }
         }, this);
