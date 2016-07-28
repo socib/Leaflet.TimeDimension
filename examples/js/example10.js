@@ -212,6 +212,10 @@ var imageLayer = L.imageOverlay(imageUrl, imageBounds, {
     opacity: 0.5
 });
 
+Date.prototype.format = function (mask, utc) {
+    return dateFormat(this, mask, utc);
+};
+
 var getSirenaImageUrl = function(baseUrl, time) {
     var beginUrl = baseUrl.substring(0, baseUrl.lastIndexOf("/") - 10);
     beginUrl = beginUrl + new Date(time).format('yyyy/mm/dd');
@@ -267,7 +271,6 @@ $.getJSON('js/example10-data.json', function(data) {
         }
     });
 });
-
 
 
 // basic custom control

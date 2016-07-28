@@ -1,3 +1,6 @@
+Date.prototype.format = function (mask, utc) {
+    return dateFormat(this, mask, utc);
+};
 
 var currentMonth = new Date();
 currentMonth.setUTCDate(1, 0, 0, 0, 0);

@@ -35,16 +35,6 @@ var timeDimensionControlOptions = {
 var timeDimensionControl = new L.Control.TimeDimension(timeDimensionControlOptions);
 map.addControl(timeDimensionControl);
 
-
-L.control.coordinates({
-    position: "bottomright",
-    decimals: 3,
-    labelTemplateLat: "Latitude: {y}",
-    labelTemplateLng: "Longitude: {x}",
-    useDMS: true,
-    enableUserInput: false
-}).addTo(map);
-
 var icon = L.icon({
     iconUrl: 'img/running.png',
     iconSize: [22, 22],

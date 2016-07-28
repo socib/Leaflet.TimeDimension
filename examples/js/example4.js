@@ -10,6 +10,11 @@ var map = L.map('map', {
     timeDimensionOptions: {
         timeInterval: "P2W/" + endDate.toISOString(),
         period: "PT5M"
+    },
+    timeDimensionControlOptions: {        
+        playerOptions: {
+            transitionTime: 250,
+        }        
     }
 });
 
@@ -41,12 +46,3 @@ testLegend.onAdd = function(map) {
     return div;
 };
 testLegend.addTo(map);
-
-L.control.coordinates({
-    position: "bottomright",
-    decimals: 3,
-    labelTemplateLat: "Latitude: {y}",
-    labelTemplateLng: "Longitude: {x}",
-    useDMS: true,
-    enableUserInput: false
-}).addTo(map);
