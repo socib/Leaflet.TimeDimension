@@ -1007,7 +1007,7 @@ L.TimeDimension.Layer.WMS = L.TimeDimension.Layer.extend({
 
     _parseTimeDimensionFromCapabilities: function(xml) {
         var layers = xml.querySelectorAll('Layer');
-        var layerName = "reflectivity_range" // this._baseLayer.wmsParams.layers;
+        var layerName = this._baseLayer.wmsParams.layers;
         var layer = null;
         var layerParent = null;
         layers.forEach(function(current) {
@@ -1069,7 +1069,7 @@ L.TimeDimension.Layer.WMS = L.TimeDimension.Layer.extend({
 
     _getDefaultTimeFromCapabilities: function(xml) {
         var layers = xml.querySelectorAll('Layer');
-        var layerName = "reflectivity_range" // this._baseLayer.wmsParams.layers;
+        var layerName = this._baseLayer.wmsParams.layers;
         var layer = null;
         var layerParent = null;
         layers.forEach(function(current) {
