@@ -24,6 +24,12 @@ L.TimeDimension.Layer.GeoJson = L.TimeDimension.Layer.extend({
             this._loaded = true;
             this._setAvailableTimes();
         }
+        // reload available times if data is added to the base layer
+        this._baseLayer.on('layeradd', (function () {
+            if (this._loaded) {
+                this._setAvailableTimes();
+            }
+        }).bind(this));
     },
 
     onAdd: function(map) {
@@ -116,7 +122,6 @@ L.TimeDimension.Layer.GeoJson = L.TimeDimension.Layer.extend({
         }
         if (this._timeDimension && (this._updateTimeDimension || this._timeDimension.getAvailableTimes().length == 0)) {
             this._timeDimension.setAvailableTimes(this._availableTimes, this._updateTimeDimensionMode);
-            this._timeDimension.setCurrentTime(this._availableTimes[0]);
         }
     },
 
