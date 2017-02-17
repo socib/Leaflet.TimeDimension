@@ -60,7 +60,7 @@ L.TimeDimension.Util = {
         var tr = timeRange.split('/');
         var startTime = new Date(Date.parse(tr[0]));
         var endTime = new Date(Date.parse(tr[1]));
-        var duration = tr.length > 2 ? tr[2] : "P1D";
+        var duration = tr.length > 2  && tr[2] !== "" ? tr[2] : "P1D";
 
         return this.explodeTimeRange(startTime, endTime, duration);
     },

@@ -52,9 +52,9 @@ module.exports = function(grunt) {
         concat: {
             js: {
                 options: {
-                    banner: '<%= meta.banner %>' + 
+                    banner: '<%= meta.banner %>' /*+ 
                         '(function($){',
-                    footer: '})(jQuery);'
+                    footer: '})(jQuery);'*/
                 },
                 src: [
                     'src/leaflet.timedimension.js',

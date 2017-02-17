@@ -1,5 +1,5 @@
 /* 
- * Leaflet TimeDimension v1.0.6 - 2016-07-28 
+ * Leaflet TimeDimension v1.0.6 - 2016-11-29 
  * 
  * Copyright 2016 Biel Frontera (ICTS SOCIB) 
  * datacenter@socib.es 
@@ -14,7 +14,7 @@
  * git://github.com/socib/Leaflet.TimeDimension.git 
  * 
  */
-(function($){/*jshint indent: 4, browser:true*/
+/*jshint indent: 4, browser:true*/
 /*global L*/
 /*
  * L.TimeDimension: TimeDimension object manages the time component of a layer.
@@ -454,7 +454,7 @@ L.TimeDimension.Util = {
         var tr = timeRange.split('/');
         var startTime = new Date(Date.parse(tr[0]));
         var endTime = new Date(Date.parse(tr[1]));
-        var duration = tr.length > 2 ? tr[2] : "P1D";
+        var duration = tr.length > 2  && tr[2] !== "" ? tr[2] : "P1D";
 
         return this.explodeTimeRange(startTime, endTime, duration);
     },
@@ -969,8 +969,11 @@ L.TimeDimension.Layer.WMS = L.TimeDimension.Layer.extend({
         var url = this._getCapabilitiesUrl();
         if (this._proxy) {
             url = this._proxy + '?url=' + encodeURIComponent(url);
-        }         
-        $.get(url, (function(data) {
+        }
+
+        var oReq = new XMLHttpRequest();
+        oReq.addEventListener("load", (function(xhr) {
+            var data = xhr.currentTarget.responseXML;
             this._defaultTime = Date.parse(this._getDefaultTimeFromCapabilities(data));
             this._setDefaultTime = this._setDefaultTime || (this._timeDimension && this._timeDimension.getAvailableTimes().length == 0);
             this.setAvailableTimes(this._parseTimeDimensionFromCapabilities(data));
@@ -978,6 +981,17 @@ L.TimeDimension.Layer.WMS = L.TimeDimension.Layer.extend({
                 this._timeDimension.setCurrentTime(this._defaultTime);
             }
         }).bind(this));
+        oReq.open("GET", url);
+        oReq.send();
+
+        // $.get(url, (function(data) {
+        //     this._defaultTime = Date.parse(this._getDefaultTimeFromCapabilities(data));
+        //     this._setDefaultTime = this._setDefaultTime || (this._timeDimension && this._timeDimension.getAvailableTimes().length == 0);
+        //     this.setAvailableTimes(this._parseTimeDimensionFromCapabilities(data));
+        //     if (this._setDefaultTime && this._timeDimension) {
+        //         this._timeDimension.setCurrentTime(this._defaultTime);
+        //     }
+        // }).bind(this));
     },
 
     _getCapabilitiesUrl: function() {
@@ -992,65 +1006,127 @@ L.TimeDimension.Layer.WMS = L.TimeDimension.Layer.extend({
     },
 
     _parseTimeDimensionFromCapabilities: function(xml) {
-        var layers = $(xml).find('Layer[queryable="1"]');
+        var layers = xml.querySelectorAll('Layer');
         var layerName = this._baseLayer.wmsParams.layers;
-        var layerNameElement = layers.find("Name").filter(function(index) {
-            return $(this).text() === layerName;
-        });
+        var layer = null;
+        var layerParent = null;
+        layers.forEach(function(current) {
+          if (current.querySelector("Name").innerHTML === layerName) {
+            layer = current;
+            layerParent = current.parentNode;
+          }
+        })
         var times = null;
-        if (layerNameElement) {
-            var layer = layerNameElement.parent();
+        if (layer) {
             times = this._getTimesFromLayerCapabilities(layer);
             if (!times) {
-                times = this._getTimesFromLayerCapabilities(layer.parent());
+                times = this._getTimesFromLayerCapabilities(layerParent);
             }
         }
         return times;
+
+        // var layers = $(xml).find('Layer[queryable="1"]');
+        // var layerName = this._baseLayer.wmsParams.layers;
+        // var layerNameElement = layers.find("Name").filter(function(index) {
+        //     return $(this).text() === layerName;
+        // });
+        // var times = null;
+        // if (layerNameElement) {
+        //     var layer = layerNameElement.parent();
+        //     times = this._getTimesFromLayerCapabilities(layer);
+        //     if (!times) {
+        //         times = this._getTimesFromLayerCapabilities(layer.parent());
+        //     }
+        // }
+        // return times;
+
     },
 
     _getTimesFromLayerCapabilities: function(layer) {
         var times = null;
-        var dimension = layer.find("Dimension[name='time']");
+        var dimension = layer.querySelectorAll("Dimension[name='time']");
         if (dimension && dimension.length && dimension[0].textContent.length) {
             times = dimension[0].textContent.trim();
         } else {
-            var extent = layer.find("Extent[name='time']");
+            var extent = layer.querySelectorAll("Extent[name='time']");
             if (extent && extent.length && extent[0].textContent.length) {
                 times = extent[0].textContent.trim();
             }
         }
         return times;
+        // var times = null;
+        // var dimension = layer.querySelector("Dimension[name='time']");
+        // if (dimension && dimension.length && dimension[0].textContent.length) {
+        //     times = dimension[0].textContent.trim();
+        // } else {
+        //     var extent = layer.querySelector("Extent[name='time']");
+        //     if (extent && extent.length && extent[0].textContent.length) {
+        //         times = extent[0].textContent.trim();
+        //     }
+        // }
+        // return times;
     },
 
     _getDefaultTimeFromCapabilities: function(xml) {
-        var layers = $(xml).find('Layer[queryable="1"]');
+        var layers = xml.querySelectorAll('Layer');
         var layerName = this._baseLayer.wmsParams.layers;
-        var layerNameElement = layers.find("Name").filter(function(index) {
-            return $(this).text() === layerName;
-        });
+        var layer = null;
+        var layerParent = null;
+        layers.forEach(function(current) {
+          if (current.querySelector("Name").innerHTML === layerName) {
+            layer = current;
+            layerParent = current.parentNode;
+          }
+        })
         var defaultTime = 0;
-        if (layerNameElement) {
-            var layer = layerNameElement.parent();
+        if (layer) {
             defaultTime = this._getDefaultTimeFromLayerCapabilities(layer);
             if (defaultTime == 0) {
-                defaultTime = this._getDefaultTimeFromLayerCapabilities(layer.parent());
+                defaultTime = this._getDefaultTimeFromLayerCapabilities(layerParent);
             }
         }
         return defaultTime;
+
+        // var layers = $(xml).find('Layer[queryable="1"]');
+        // var layerName = this._baseLayer.wmsParams.layers;
+        // var layerNameElement = layers.find("Name").filter(function(index) {
+        //     return $(this).text() === layerName;
+        // });
+        // var defaultTime = 0;
+        // if (layerNameElement) {
+        //     var layer = layerNameElement.parent();
+        //     defaultTime = this._getDefaultTimeFromLayerCapabilities(layer);
+        //     if (defaultTime == 0) {
+        //         defaultTime = this._getDefaultTimeFromLayerCapabilities(layer.parent());
+        //     }
+        // }
+        // return defaultTime;
     },
 
     _getDefaultTimeFromLayerCapabilities: function(layer) {
         var defaultTime = 0;
-        var dimension = layer.find("Dimension[name='time']");
-        if (dimension && dimension.attr("default")) {
-            defaultTime = dimension.attr("default");
+        var dimension = layer.querySelectorAll("Dimension[name='time']");
+        if (dimension && dimension.length && dimension[0].attributes.default) {
+            defaultTime = dimension[0].attributes.default.value;
         } else {
-            var extent = layer.find("Extent[name='time']");
-            if (extent && extent.attr("default")) {
-                defaultTime = extent.attr("default");
+            var extent = layer.querySelectorAll("Extent[name='time']");
+            if (extent && extent.length && extent[0].attributes.default) {
+                defaultTime = extent[0].attributes.default.value;
             }
         }
         return defaultTime;
+
+        // var defaultTime = 0;
+        // var dimension = layer.find("Dimension[name='time']");
+        // if (dimension && dimension.attr("default")) {
+        //     defaultTime = dimension.attr("default");
+        // } else {
+        //     var extent = layer.find("Extent[name='time']");
+        //     if (extent && extent.attr("default")) {
+        //         defaultTime = extent.attr("default");
+        //     }
+        // }
+        // return defaultTime;
     },
 
 
@@ -2188,4 +2264,3 @@ L.Map.addInitHook(function() {
 L.control.timeDimension = function(options) {
     return new L.Control.TimeDimension(options);
 };
-})(jQuery);
