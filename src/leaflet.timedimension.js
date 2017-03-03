@@ -50,7 +50,7 @@ L.TimeDimension = (L.Layer || L.Class).extend({
         if (index >= 0) {
             return this._availableTimes[index];
         } else {
-            return 0;
+            return null;
         }
     },
 
