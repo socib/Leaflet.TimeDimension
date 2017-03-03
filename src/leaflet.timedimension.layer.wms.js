@@ -267,7 +267,7 @@ L.TimeDimension.Layer.WMS = L.TimeDimension.Layer.extend({
     _getCapabilitiesUrl: function() {
         var url = this._baseLayer.getURL();
         if (this._getCapabilitiesAlternateUrl)
-            url = this._getCapabilitiesAlternateUrl
+            url = this._getCapabilitiesAlternateUrl;
         var params = L.extend({}, this._getCapabilitiesParams, {
           'request': 'GetCapabilities',
           'service': 'WMS',
