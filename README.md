@@ -136,6 +136,8 @@ Option                | Default       | Description
 `requestTimeFromCapabilities` | `false || updateTimeDimension` | Get list of available times for this layer from getCapabilities 
 `proxy`               | `null`        | URL of the proxy used to obtain getCapabilities responses from the WMS server avoiding cross site origin problems
 `getCapabilitiesParams` | `{}`        | Extra parameters needed to create getCapabilities request
+`getCapabilitiesUrl`    | `null`      | Alternative URL for the GetCapabilities request (useful if using a cache service like GeoWebCache) 
+`getCapabilitiesLayerName`| `null`    | Alternative layer name for the GetCapabilities request (useful if using a cache service like GeoWebCache)
 `setDefaultTime`      | `false`       | If true, it will change the current time to the default time of the layer (according to getCapabilities)
 `wmsVersion`          | `"1.1.1" || layer.options.version`     | WMS version of the layer. Used to construct the getCapabilities request
 
