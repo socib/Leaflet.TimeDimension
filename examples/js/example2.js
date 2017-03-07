@@ -1,5 +1,7 @@
 var map = L.map('map', {
-    zoom: 4,
+    zoom: 4.5,
+    zoomDelta: 0.5,
+    zoomSnap: 0.5,    
     fullscreenControl: true,
     timeDimension: true,
     timeDimensionControl: true,

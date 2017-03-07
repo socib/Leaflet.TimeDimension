@@ -156,14 +156,6 @@ map.on('overlayremove', function(eventLayer) {
 
 var baseLayers = getCommonBaseLayers(map); // see baselayers.js
 L.control.layers(baseLayers, overlayMaps).addTo(map);
-L.control.coordinates({
-    position: "bottomright",
-    decimals: 3,
-    labelTemplateLat: "Latitude: {y}",
-    labelTemplateLng: "Longitude: {x}",
-    useDMS: true,
-    enableUserInput: false
-}).addTo(map);
 
 sapoHeightTimeLayer.addTo(map);
 sapoPeakDirectionTimeLayer.addTo(map);

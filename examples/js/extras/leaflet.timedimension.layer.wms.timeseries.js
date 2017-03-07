@@ -20,7 +20,7 @@ L.TimeDimension.Layer.WMS.TimeSeries = L.TimeDimension.Layer.WMS.extend({
         } else {
             this._loadUnits();
         }
-        this._circleLabelMarkers = [];        
+        this._circleLabelMarkers = [];                
     },
 
     addTo: function(map) {
@@ -36,6 +36,8 @@ L.TimeDimension.Layer.WMS.TimeSeries = L.TimeDimension.Layer.WMS.extend({
                 return false;
             }).bind(this));
         }
+        this._setDateRanges();
+        this._addMarkers();
         return this;
     },
 
@@ -208,6 +210,9 @@ L.TimeDimension.Layer.WMS.TimeSeries = L.TimeDimension.Layer.WMS.extend({
             return;
         }
         var times = this._timeDimension.getAvailableTimes();
+        if (times.length == 0){
+            return;
+        }
         this._dateRange = {
             min: new Date(times[0]),
             max: new Date(times[times.length - 1])

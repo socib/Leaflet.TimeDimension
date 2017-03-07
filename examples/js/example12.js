@@ -1,3 +1,6 @@
+Date.prototype.format = function (mask, utc) {
+    return dateFormat(this, mask, utc);
+};
 
 // Attibution: SODA API requests based on this example: https://github.com/chriswhong/soda-leaflet
 

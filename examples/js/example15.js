@@ -69,15 +69,6 @@ var map = L.map('map', {
     center: [39.6145, 1.99363]
 });
 
-L.control.coordinates({
-    position: "bottomright",
-    decimals: 3,
-    labelTemplateLat: "Latitude: {y}",
-    labelTemplateLng: "Longitude: {x}",
-    useDMS: true,
-    enableUserInput: false
-}).addTo(map);
-
 $.getJSON('data/spill.json', function(data) {
     var cdriftLayer = L.geoJson(data, {
         style: function(feature) {

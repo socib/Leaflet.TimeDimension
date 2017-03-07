@@ -83,14 +83,6 @@ var overlayMaps = {
 var baseLayers = getCommonBaseLayers(map); // see baselayers.js
 var layersControl = L.control.layers(baseLayers, overlayMaps);
 layersControl.addTo(map);
-L.control.coordinates({
-    position: "bottomright",
-    decimals: 3,
-    labelTemplateLat: "Latitude: {y}",
-    labelTemplateLng: "Longitude: {x}",
-    useDMS: true,
-    enableUserInput: false
-}).addTo(map);
 
 wmopVelocityTimeLayer.addTo(map);
 
