@@ -75,6 +75,7 @@ L.TimeDimension.Layer.WMS = L.TimeDimension.Layer.extend({
     _update: function() {
         if (!this._map)
             return;
+        this._timeDimension.fire('timeloading', {});
         var time = this._timeDimension.getCurrentTime();
         // It will get the layer for this time (create or get)
         // Then, the layer will be loaded if necessary, adding it to the map (and show it after loading).
@@ -183,9 +184,8 @@ L.TimeDimension.Layer.WMS = L.TimeDimension.Layer.extend({
         if (this._layers.hasOwnProperty(nearestTime)) {
             return this._layers[nearestTime];
         }
-
-        var newLayer = this._createLayerForTime(nearestTime);
        
+        var newLayer = this._createLayerForTime(nearestTime);
         this._layers[time] = newLayer;
 
         newLayer.on('load', (function(layer, time) {
@@ -212,10 +212,15 @@ L.TimeDimension.Layer.WMS = L.TimeDimension.Layer.extend({
         }).bind(newLayer);
         return newLayer;
     },
-    
-    _createLayerForTime:function(time){
+
+    _createLayerForTime: function(time) {
         var wmsParams = this._baseLayer.options;
-        wmsParams.time = new Date(time).toISOString();
+        if (this._timeDimension.getfixedStartTimeValue()) {
+            wmsParams.time = new Date(this._timeDimension.getfixedStartTimeValue()).toISOString() + "/" + new Date(time).toISOString();
+        }
+        else {
+            wmsParams.time = new Date(time).toISOString();
+        }
         return new this._baseLayer.constructor(this._baseLayer.getURL(), wmsParams);
     },
 
@@ -253,7 +258,7 @@ L.TimeDimension.Layer.WMS = L.TimeDimension.Layer.extend({
         var url = this._getCapabilitiesUrl();
         if (this._proxy) {
             url = this._proxy + '?url=' + encodeURIComponent(url);
-        }         
+        }
         $.get(url, (function(data) {
             this._defaultTime = Date.parse(this._getDefaultTimeFromCapabilities(data));
             this._setDefaultTime = this._setDefaultTime || (this._timeDimension && this._timeDimension.getAvailableTimes().length == 0);
@@ -261,6 +266,11 @@ L.TimeDimension.Layer.WMS = L.TimeDimension.Layer.extend({
             if (this._setDefaultTime && this._timeDimension) {
                 this._timeDimension.setCurrentTime(this._defaultTime);
             }
+            //hack to recreate baselayer with correct time range
+            if (this._timeDimension.getfixedStartTimeValue()) {
+                this._baseLayer = this._createLayerForTime(this._defaultTime);
+                this._timeDimension.setCurrentTimeIndex(this._availableTimes.length - 1);
+             }
         }).bind(this));
     },
 
@@ -269,9 +279,9 @@ L.TimeDimension.Layer.WMS = L.TimeDimension.Layer.extend({
         if (this._getCapabilitiesAlternateUrl)
             url = this._getCapabilitiesAlternateUrl;
         var params = L.extend({}, this._getCapabilitiesParams, {
-          'request': 'GetCapabilities',
-          'service': 'WMS',
-          'version': this._wmsVersion
+            'request': 'GetCapabilities',
+            'service': 'WMS',
+            'version': this._wmsVersion
         });
         url = url + L.Util.getParamString(params, url, params.uppercase);
         return url;
@@ -414,7 +424,10 @@ L.NonTiledLayer.include({
     },
 
     isLoaded: function() {
-        return this._loaded;
+        if (this.options.bounds)
+            return map.getBounds().contains(this.options.bounds) ? this._loaded : true;
+        else
+            return this._loaded;
     },
 
     hide: function() {
@@ -451,7 +464,10 @@ L.TileLayer.include({
     },
 
     isLoaded: function() {
-        return this._loaded;
+        if (this.options.bounds)
+            return map.getBounds().contains(this.options.bounds) ? this._loaded : true;
+        else
+            return this._loaded;
     },
 
     hide: function() {

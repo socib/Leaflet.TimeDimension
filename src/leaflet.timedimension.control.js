@@ -308,7 +308,7 @@ L.Control.TimeDimension = L.Control.extend({
             var date = new Date(this._timeDimension.getCurrentTime());
             if (this._displayDate) {
                 L.DomUtil.removeClass(this._displayDate, 'loading');
-                this._displayDate.innerHTML = this._getDisplayDateFormat(date);
+                this._setDisplayDateValue(date);                     
             }
             if (this._sliderTime && !this._slidingTimeSlider) {
                 this._sliderTime.setValue(this._timeDimension.getCurrentTimeIndex());
@@ -377,7 +377,7 @@ L.Control.TimeDimension = L.Control.extend({
             if (time) {
                 var date = new Date(time);
                 if (this._displayDate) {
-                  this._displayDate.innerHTML = this._getDisplayDateFormat(date);
+                    this._setDisplayDateValue(date);
                 }
                 if (this.options.timeSliderDragUpdate){
                     this._sliderTimeValueChanged(e.target.getValue());
@@ -609,6 +609,19 @@ L.Control.TimeDimension = L.Control.extend({
     },
     _getDisplayNoTimeError: function() {
         return 'Time not available';
+    },
+
+    _setDisplayDateValue: function(date){
+        if (this._timeDimension.getfixedStartTimeValue())
+        {                    
+            this._displayDate.innerHTML = this._getDisplayDateFormat(new Date(this._timeDimension.getfixedStartTimeValue())) +
+                '<span class="timecontrol-dateseparator"></span>' + 
+                this._getDisplayDateFormat(date);
+        }
+        else
+        {
+            this._displayDate.innerHTML = this._getDisplayDateFormat(date);
+        }
     }
 
 });
