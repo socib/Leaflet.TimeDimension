@@ -98,6 +98,16 @@
     background-color: #fff;
     /*opacity: 0.5;*/
 }
+.timecontrol-slider .slider.has-limits .range.rangeNoLower {
+    margin-right: -2px;
+}
+.timecontrol-slider .slider.has-limits .range.rangeNoUpper {
+    margin-left: -2px;
+}
+.timecontrol-slider .slider.has-limits .range.rangeNoLowerNoUpper {
+    max-width: 100%;
+}
+
 .timecontrol-slider .knob {
     position: absolute;
     width: 8px;
@@ -132,6 +142,12 @@
     border: none;
     background-color: transparent;
 }
+
+.timecontrol-slider .knob.upper.hidden,
+.timecontrol-slider .knob.lower.hidden {
+    display: none;
+}
+
 .timecontrol-slider .knob.upper {
     margin-top: -5px;
     margin-left: -1px;

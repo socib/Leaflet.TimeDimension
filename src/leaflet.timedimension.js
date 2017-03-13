@@ -28,12 +28,7 @@ L.TimeDimension = (L.Layer || L.Class).extend({
             this.setUpperLimit(this.options.upperLimitTime);
         }
         this._fixedStartTime = this.options.fixedStartTime || false;
-        this._fixedStartTimeValue = null;
-        if (this._fixedStartTime) {
-            if (this._availableTimes.length > 0) {
-                this._fixedStartTimeValue = this._availableTimes[0];
-            }
-        }
+        this._fixedStartTimeValue = null;        
     },
 
     getAvailableTimes: function () {
@@ -62,6 +57,11 @@ L.TimeDimension = (L.Layer || L.Class).extend({
     },
 
     getfixedStartTimeValue: function () {
+         if (this._fixedStartTime) {
+            if (this._availableTimes.length > 0) {
+                this._fixedStartTimeValue = this._availableTimes[this._lowerLimit || 0]
+            }
+        }
         return this._fixedStartTimeValue;
     },
 
@@ -95,6 +95,12 @@ L.TimeDimension = (L.Layer || L.Class).extend({
             }).bind(this, newIndex), this._loadingTimeout);
         }
 
+    },
+
+    removesyncedLayers: function (){
+        for (var i = 0, len = this._syncedLayers.length; i < len; i++) {
+            this._syncedLayers[i]._removeAllLayers();            
+        }
     },
 
     _newTimeIndexLoaded: function () {
@@ -362,6 +368,10 @@ L.TimeDimension = (L.Layer || L.Class).extend({
     },
     setLowerLimitIndex: function (index) {
         this._lowerLimit = Math.min(Math.max(index || 0, 0), this._upperLimit || this._availableTimes.length - 1);
+        if (this._fixedStartTime)
+        {
+            this._fixedStartTimeValue=this._availableTimes[this._lowerLimit];
+        }
         this.fire('limitschanged', {
             lowerLimit: this._lowerLimit,
             upperLimit: this._upperLimit

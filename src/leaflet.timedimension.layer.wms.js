@@ -74,8 +74,7 @@ L.TimeDimension.Layer.WMS = L.TimeDimension.Layer.extend({
 
     _update: function() {
         if (!this._map)
-            return;
-        this._timeDimension.fire('timeloading', {});
+            return;        
         var time = this._timeDimension.getCurrentTime();
         // It will get the layer for this time (create or get)
         // Then, the layer will be loaded if necessary, adding it to the map (and show it after loading).
@@ -244,6 +243,15 @@ L.TimeDimension.Layer.WMS = L.TimeDimension.Layer.extend({
         }
     },
 
+    _removeAllLayers: function(){
+         for (var itime in this._layers)
+         {
+             if (this._map)
+                this._map.removeLayer(this._layers[itime]);
+            delete this._layers[itime];
+         }
+    },
+
     setMinimumForwardCache: function(value) {
         if (value > this._timeCacheForward) {
             this._timeCacheForward = value;
@@ -255,7 +263,7 @@ L.TimeDimension.Layer.WMS = L.TimeDimension.Layer.extend({
             return;
         }
         this._capabilitiesRequested = true;
-        var url = this._getCapabilitiesUrl();
+        var url = this._getCapabilitiesUrl(); 
         if (this._proxy) {
             url = this._proxy + '?url=' + encodeURIComponent(url);
         }
@@ -269,6 +277,7 @@ L.TimeDimension.Layer.WMS = L.TimeDimension.Layer.extend({
             //hack to recreate baselayer with correct time range
             if (this._timeDimension.getfixedStartTimeValue()) {
                 this._baseLayer = this._createLayerForTime(this._defaultTime);
+                this._defaultTime = -1;
                 this._timeDimension.setCurrentTimeIndex(this._availableTimes.length - 1);
              }
         }).bind(this));
