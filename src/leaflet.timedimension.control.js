@@ -304,9 +304,8 @@ L.Control.TimeDimension = L.Control.extend({
         if (!this._timeDimension) {
             return;
         }
-        var time = this._timeDimension.getCurrentTime();
-        if (time > 0) {
-            var date = new Date(time);
+        if (this._timeDimension.getCurrentTimeIndex() >= 0) {
+            var date = new Date(this._timeDimension.getCurrentTime());
             if (this._displayDate) {
                 L.DomUtil.removeClass(this._displayDate, 'loading');
                 this._displayDate.innerHTML = this._getDisplayDateFormat(date);

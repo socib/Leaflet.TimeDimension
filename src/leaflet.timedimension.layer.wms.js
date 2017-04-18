@@ -10,6 +10,8 @@ L.TimeDimension.Layer.WMS = L.TimeDimension.Layer.extend({
         this._timeCacheForward = this.options.cacheForward || this.options.cache || 0;
         this._wmsVersion = this.options.wmsVersion || this.options.version || layer.options.version || "1.1.1";
         this._getCapabilitiesParams = this.options.getCapabilitiesParams || {};
+        this._getCapabilitiesAlternateUrl = this.options.getCapabilitiesUrl || null;
+        this._getCapabilitiesAlternateLayerName = this.options.getCapabilitiesLayerName || null;
         this._proxy = this.options.proxy || null;
         this._updateTimeDimension = this.options.updateTimeDimension || false;
         this._setDefaultTime = this.options.setDefaultTime || false;
@@ -264,6 +266,8 @@ L.TimeDimension.Layer.WMS = L.TimeDimension.Layer.extend({
 
     _getCapabilitiesUrl: function() {
         var url = this._baseLayer.getURL();
+        if (this._getCapabilitiesAlternateUrl)
+            url = this._getCapabilitiesAlternateUrl;
         var params = L.extend({}, this._getCapabilitiesParams, {
           'request': 'GetCapabilities',
           'service': 'WMS',
@@ -276,6 +280,8 @@ L.TimeDimension.Layer.WMS = L.TimeDimension.Layer.extend({
     _parseTimeDimensionFromCapabilities: function(xml) {
         var layers = $(xml).find('Layer[queryable="1"]');
         var layerName = this._baseLayer.wmsParams.layers;
+        if (this._getCapabilitiesAlternateLayerName)
+            layerName = this._getCapabilitiesAlternateLayerName;
         var layerNameElement = layers.find("Name").filter(function(index) {
             return $(this).text() === layerName;
         });
@@ -307,6 +313,8 @@ L.TimeDimension.Layer.WMS = L.TimeDimension.Layer.extend({
     _getDefaultTimeFromCapabilities: function(xml) {
         var layers = $(xml).find('Layer[queryable="1"]');
         var layerName = this._baseLayer.wmsParams.layers;
+        if (this._getCapabilitiesAlternateLayerName)
+            layerName = this._getCapabilitiesAlternateLayerName;
         var layerNameElement = layers.find("Name").filter(function(index) {
             return $(this).text() === layerName;
         });
