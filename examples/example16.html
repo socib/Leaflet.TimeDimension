@@ -1,71 +1,52 @@
-<!DOCTYPE html>
 <html>
     <head>
         <title>Leaflet TimeDimension</title>
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
         <link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.4/styles/default.min.css">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/leaflet.css">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.fullscreen/1.4.2/Control.FullScreen.min.css">
         <link rel="stylesheet" href="../src/leaflet.timedimension.control.css" />
         <link rel="stylesheet" href="css/style.css" />
-        <style>
-            .legend ul{
-                padding: 0; list-style: none;
-            }
-            .legend li{
-                padding: 5px;                
-            }
-            .legend li.p05{
-                background-color: #00FF00;
-                background-color: rgba(0, 255, 0, 0.3);
-            }
-            .legend li.p075{
-                background-color: #FFFF00;
-                background-color: rgba(255, 255, 0, 0.3);
-            }
-            .legend li.p09{
-                background-color: #FF0000;
-                background-color: rgba(255, 0, 0, 0.3);
-            }
-        </style>
     </head>
     <body>
         <div class="container">
             <div id="header">
-                <h1>Leaflet TimeDimension example Oil Spill</h1>                
-                <h2>Oil Spill simulation</h2>
+                <h1>Leaflet TimeDimension example 16</h1>                
+                <h2><a href="http://portus.puertos.es/Portus_RT/?locale=es">Portus</a> Wave forecast</h2>
             </div>
-            <div id="map" class="map">
-                <div class="animation-progress-bar"></div>                
-            </div>
+            <div id="map" class="map"></div>
+
             <h2>Information</h2>
             <div class="information">
-            <p>Simulation of the trajectory of a hypothetical oil spill. The contours correspond to the cumulative probability of all particles (50% green, yellow 75% and red 90%).</p>
-            <p>This simulation was made with a tool developed by SOCIB and IMEDEA.</p>
+            <p>This example use an extra Leaflet.TimeDimension class: <a href="js/extras/leaflet.timedimension.tilelayer.portus">L.TimeDimension.Layer.TileLayer.Portus</a>.</p>
+
+            <p>Portus wave forecast is served as different TileLayers with datetime as a part of the URL (in the format yyyymmddhh). The class is constructing a new TileLayer taking the URL of the base layer as a template (note the {d} and {t} placeholder).</p>
             </div>
 
             <h2>Code</h2>
             <pre><code class="javascript" id="code"></code></pre>            
+            <h2>Code of L.TimeDimension.Layer.TileLayer.Portus</h2>
+            <pre><code class="javascript" id="code-portus"></code></pre>            
 
             <div class="prev-example">
-                <a href="example14.html">Example 14: NOAA's nowCOAST weather radar</a>
+                <a href="example16.html">Example 15: Oil Spill simulation</a>
             </div>                 
             <div class="next-example">
-                <a href="example16.html">Example 16: Portus wave forecast</a>
+                <a href="index.html">Index</a>
             </div>
             <div id="footer">
                 <a class="leaflet-timedimension" href="index.html">Leaflet.TimeDimension examples</a>
                 <a class="github" href="https://github.com/socib/Leaflet.TimeDimension" title="Fork Leaflet.TimeDimension at GitHub!"><span>Fork Leaflet.TimeDimension at GitHub</span></a>
             </div>                          
         </div>
-
         <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
         <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/leaflet.js"></script>
         <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.fullscreen/1.4.2/Control.FullScreen.min.js"></script>
         <script type="text/javascript" src="https://rawgit.com/ptv-logistics/Leaflet.NonTiledLayer/master/dist/NonTiledLayer.js"></script>
         <script type="text/javascript" src="https://cdn.rawgit.com/nezasa/iso8601-js-period/master/iso8601.min.js"></script>
+
         <script type="text/javascript" src="../src/leaflet.timedimension.js"></script>
         <script type="text/javascript" src="../src/leaflet.timedimension.util.js"></script>
         <script type="text/javascript" src="../src/leaflet.timedimension.layer.js"></script>
@@ -73,15 +54,23 @@
         <script type="text/javascript" src="../src/leaflet.timedimension.layer.geojson.js"></script>
         <script type="text/javascript" src="../src/leaflet.timedimension.player.js"></script>
         <script type="text/javascript" src="../src/leaflet.timedimension.control.js"></script>
+        <script type="text/javascript" src="js/extras/leaflet.timedimension.tilelayer.portus.js"></script>
         <script type="text/javascript" src="js/baselayers.js"></script>
-        <script type="text/javascript" src="js/example15.js"></script>
+        <script type="text/javascript" src="js/example16.js"></script>
         <script src="http://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.4/highlight.min.js"></script>
         <script type="text/javascript">
             $(document).ready(function() {
-                $.ajax('js/example15.js', {dataType: 'script'})
+                $.ajax('js/example16.js', {dataType: 'script'})
                     .always(function(response) {                        
                         $("#code").text(response.responseText);
-                        $('pre code').each(function(i, block) {
+                        $('#code').each(function(i, block) {
+                            hljs.highlightBlock(block);
+                        });
+                    });
+                $.ajax('js/extras/leaflet.timedimension.tilelayer.portus.js', {dataType: 'script'})
+                    .always(function(response) {                        
+                        $("#code-portus").text(response);
+                        $('#code-portus').each(function(i, block) {
                             hljs.highlightBlock(block);
                         });
                     });
