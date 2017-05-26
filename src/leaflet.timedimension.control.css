@@ -284,3 +284,9 @@ a.timecontrol-play.loading:before {
 .leaflet-touch .timecontrol-slider .slider{
     margin-top: 10px;
 }
+
+.timecontrol-dateseparator:before{
+    content: "\e120";
+    font-family: "Glyphicons Halflings";
+    padding: 5px;
+}

@@ -27,6 +27,13 @@ L.TimeDimension = (L.Layer || L.Class).extend({
         if (this.options.upperLimitTime) {
             this.setUpperLimit(this.options.upperLimitTime);
         }
+        this._fixedStartTime = this.options.fixedStartTime || false;
+        this._fixedStartTimeValue = null;
+        if (this._fixedStartTime) {
+            if (this._availableTimes.length > 0) {
+                this._fixedStartTimeValue = this._availableTimes[0];
+            }
+        }
     },
 
     getAvailableTimes: function () {
@@ -52,6 +59,10 @@ L.TimeDimension = (L.Layer || L.Class).extend({
         } else {
             return null;
         }
+    },
+
+    getfixedStartTimeValue: function () {
+        return this._fixedStartTimeValue;
     },
 
     isLoading: function () {
@@ -328,6 +339,11 @@ L.TimeDimension = (L.Layer || L.Class).extend({
             availableTimes: this._availableTimes,
             currentTime: currentTime
         });
+        if (this._fixedStartTime) {
+            if (this._availableTimes.length > 0) {
+                this._fixedStartTimeValue = this._availableTimes[0];
+            }
+        }
         console.log('available times changed');
     },
     getLowerLimit: function () {
