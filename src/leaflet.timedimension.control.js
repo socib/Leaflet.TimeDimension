@@ -122,6 +122,8 @@ L.Control.TimeDimension = L.Control.extend({
         timeSlider: true,
         timeSliderDragUpdate: false,
         limitSliders: false,
+        lowerSlider: true,
+        upperSlider:true,
         limitMinimumRange: 5,
         speedSlider: true,
         minSpeed: 0.1,
@@ -308,7 +310,7 @@ L.Control.TimeDimension = L.Control.extend({
             var date = new Date(this._timeDimension.getCurrentTime());
             if (this._displayDate) {
                 L.DomUtil.removeClass(this._displayDate, 'loading');
-                this._displayDate.innerHTML = this._getDisplayDateFormat(date);
+                this._setDisplayDateValue(date);                     
             }
             if (this._sliderTime && !this._slidingTimeSlider) {
                 this._sliderTime.setValue(this._timeDimension.getCurrentTimeIndex());
@@ -377,7 +379,7 @@ L.Control.TimeDimension = L.Control.extend({
             if (time) {
                 var date = new Date(time);
                 if (this._displayDate) {
-                  this._displayDate.innerHTML = this._getDisplayDateFormat(date);
+                    this._setDisplayDateValue(date);
                 }
                 if (this.options.timeSliderDragUpdate){
                     this._sliderTimeValueChanged(e.target.getValue());
@@ -425,33 +427,52 @@ L.Control.TimeDimension = L.Control.extend({
     _createLimitKnobs: function(sliderbar) {
         L.DomUtil.addClass(sliderbar, 'has-limits');
         var max = this._timeDimension.getAvailableTimes().length - 1;
-        var rangeBar = L.DomUtil.create('div', 'range', sliderbar);
+        if (this.options.lowerSlider && this.options.upperSlider)
+            var rangeBar = L.DomUtil.create('div', 'range', sliderbar);
+        else if (this.options.upperSlider)
+            var rangeBar = L.DomUtil.create('div', 'range rangeNoLower', sliderbar);
+        else if (this.options.lowerSlider)
+            var rangeBar = L.DomUtil.create('div', 'range rangeNoUpper', sliderbar);
+        else
+            var rangeBar = L.DomUtil.create('div', 'range rangeNoLowerNoUpper', sliderbar);
         var lknob = new L.UI.Knob(sliderbar, {
-            className: 'knob lower',
+            className: 'knob lower' + (this.options.lowerSlider ? '' : ' hidden'),
             rangeMin: 0,
             rangeMax: max
         });
         var uknob = new L.UI.Knob(sliderbar, {
-            className: 'knob upper',
+            className: 'knob upper' + (this.options.upperSlider ? '' : ' hidden'),
             rangeMin: 0,
             rangeMax: max
-        });
-
-
+        });        
+   
         L.DomUtil.setPosition(rangeBar, 0);
         lknob.setPosition(0);
         uknob.setPosition(max);
 
-        //Add listeners for value changes
+        //Add listeners for value changes       
         lknob.on('dragend', function(e) {
             var value = e.target.getValue();
             this._sliderLimitsValueChanged(value, uknob.getValue());
+            if (this._timeDimension.getfixedStartTimeValue()){
+                this._timeDimension.removesyncedLayers();
+                this._timeDimension.setCurrentTimeIndex(this._timeDimension.getCurrentTimeIndex());
+            }
         }, this);
         uknob.on('dragend', function(e) {
             var value = e.target.getValue();
             this._sliderLimitsValueChanged(lknob.getValue(), value);
         }, this);
-
+        lknob.on('drag', function(e) {
+            //this._slidingTimeSlider = true;
+            var time = this._timeDimension.getAvailableTimes()[e.target.getValue()];
+            if (time) {
+                var date = new Date(time);
+                if (this._displayDate) {
+                    this._setDisplayDateValue(null,date);
+                }               
+            }
+        }, this);
         //Add listeners to position the range bar
         lknob.on('drag positionchanged', function() {
             L.DomUtil.setPosition(rangeBar, L.point(lknob.getPosition(), 0));
@@ -609,6 +630,23 @@ L.Control.TimeDimension = L.Control.extend({
     },
     _getDisplayNoTimeError: function() {
         return 'Time not available';
+    },
+
+    _setDisplayDateValue: function(date,ldate){
+        if (this._timeDimension.getfixedStartTimeValue())
+        {                    
+            if (!ldate)
+                ldate=new Date(this._timeDimension.getfixedStartTimeValue());
+            if (!date)
+                date=new Date(this._timeDimension.getCurrentTime());
+            this._displayDate.innerHTML = this._getDisplayDateFormat(ldate) +
+                '<span class="timecontrol-dateseparator"></span>' + 
+                this._getDisplayDateFormat(date);
+        }
+        else
+        {
+            this._displayDate.innerHTML = this._getDisplayDateFormat(date);
+        }
     }
 
 });
