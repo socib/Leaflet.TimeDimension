@@ -103,8 +103,7 @@ L.TimeDimension = (L.Layer || L.Class).extend({
         for (var i = 0, len = this._syncedLayers.length; i < len; i++) {
             if (this._syncedLayers[i].isReady) {
                 if (!this._syncedLayers[i].isReady(time)) {
-                    if (map.getBounds().contains(this._syncedLayers[i]._baseLayer.options.bounds))
-                        return false;                    
+					return false;                    
                 }
             }
         }
