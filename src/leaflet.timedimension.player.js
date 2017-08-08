@@ -154,7 +154,7 @@ L.TimeDimension.Player = (L.Layer || L.Class).extend({
         }
         if (this._intervalID) {
             this.stop();
-            this.start();
+            this.start(this._steps);
         }
         this.fire('speedchange', {
             transitionTime: transitionTime,
