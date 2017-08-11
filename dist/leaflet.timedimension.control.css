@@ -1,7 +1,7 @@
 /* 
- * Leaflet TimeDimension v1.0.6 - 2016-07-28 
+ * Leaflet TimeDimension v1.0.7 - 2017-08-11 
  * 
- * Copyright 2016 Biel Frontera (ICTS SOCIB) 
+ * Copyright 2017 Biel Frontera (ICTS SOCIB) 
  * datacenter@socib.es 
  * http://www.socib.es/ 
  * 
@@ -21,6 +21,7 @@
 }
 .leaflet-bar-timecontrol{
      background-color: #fff;
+     color: black;
 }
 .leaflet-bar-timecontrol * {
     box-sizing: border-box;

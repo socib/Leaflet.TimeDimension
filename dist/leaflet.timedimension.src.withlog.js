@@ -1,7 +1,7 @@
 /* 
- * Leaflet TimeDimension v1.0.6 - 2016-07-28 
+ * Leaflet TimeDimension v1.0.7 - 2017-08-11 
  * 
- * Copyright 2016 Biel Frontera (ICTS SOCIB) 
+ * Copyright 2017 Biel Frontera (ICTS SOCIB) 
  * datacenter@socib.es 
  * http://www.socib.es/ 
  * 
@@ -66,7 +66,7 @@ L.TimeDimension = (L.Layer || L.Class).extend({
         if (index >= 0) {
             return this._availableTimes[index];
         } else {
-            return 0;
+            return null;
         }
     },
 
@@ -728,6 +728,8 @@ L.TimeDimension.Layer.WMS = L.TimeDimension.Layer.extend({
         this._timeCacheForward = this.options.cacheForward || this.options.cache || 0;
         this._wmsVersion = this.options.wmsVersion || this.options.version || layer.options.version || "1.1.1";
         this._getCapabilitiesParams = this.options.getCapabilitiesParams || {};
+        this._getCapabilitiesAlternateUrl = this.options.getCapabilitiesUrl || null;
+        this._getCapabilitiesAlternateLayerName = this.options.getCapabilitiesLayerName || null;
         this._proxy = this.options.proxy || null;
         this._updateTimeDimension = this.options.updateTimeDimension || false;
         this._setDefaultTime = this.options.setDefaultTime || false;
@@ -982,6 +984,8 @@ L.TimeDimension.Layer.WMS = L.TimeDimension.Layer.extend({
 
     _getCapabilitiesUrl: function() {
         var url = this._baseLayer.getURL();
+        if (this._getCapabilitiesAlternateUrl)
+            url = this._getCapabilitiesAlternateUrl;
         var params = L.extend({}, this._getCapabilitiesParams, {
           'request': 'GetCapabilities',
           'service': 'WMS',
@@ -994,6 +998,8 @@ L.TimeDimension.Layer.WMS = L.TimeDimension.Layer.extend({
     _parseTimeDimensionFromCapabilities: function(xml) {
         var layers = $(xml).find('Layer[queryable="1"]');
         var layerName = this._baseLayer.wmsParams.layers;
+        if (this._getCapabilitiesAlternateLayerName)
+            layerName = this._getCapabilitiesAlternateLayerName;
         var layerNameElement = layers.find("Name").filter(function(index) {
             return $(this).text() === layerName;
         });
@@ -1025,6 +1031,8 @@ L.TimeDimension.Layer.WMS = L.TimeDimension.Layer.extend({
     _getDefaultTimeFromCapabilities: function(xml) {
         var layers = $(xml).find('Layer[queryable="1"]');
         var layerName = this._baseLayer.wmsParams.layers;
+        if (this._getCapabilitiesAlternateLayerName)
+            layerName = this._getCapabilitiesAlternateLayerName;
         var layerNameElement = layers.find("Name").filter(function(index) {
             return $(this).text() === layerName;
         });
@@ -1187,6 +1195,7 @@ L.TileLayer.include({
 L.timeDimension.layer.wms = function(layer, options) {
     return new L.TimeDimension.Layer.WMS(layer, options);
 };
+
 /*
  * L.TimeDimension.Layer.GeoJson:
  */
@@ -1213,6 +1222,12 @@ L.TimeDimension.Layer.GeoJson = L.TimeDimension.Layer.extend({
             this._loaded = true;
             this._setAvailableTimes();
         }
+        // reload available times if data is added to the base layer
+        this._baseLayer.on('layeradd', (function () {
+            if (this._loaded) {
+                this._setAvailableTimes();
+            }
+        }).bind(this));
     },
 
     onAdd: function(map) {
@@ -1305,7 +1320,6 @@ L.TimeDimension.Layer.GeoJson = L.TimeDimension.Layer.extend({
         }
         if (this._timeDimension && (this._updateTimeDimension || this._timeDimension.getAvailableTimes().length == 0)) {
             this._timeDimension.setAvailableTimes(this._availableTimes, this._updateTimeDimensionMode);
-            this._timeDimension.setCurrentTime(this._availableTimes[0]);
         }
     },
 
@@ -1419,6 +1433,10 @@ L.TimeDimension.Player = (L.Layer || L.Class).extend({
             this._waitingForBuffer = false; // reset buffer
         }).bind(this));
         this.setTransitionTime(this.options.transitionTime || 1000);
+        
+        this._timeDimension.on('limitschanged availabletimeschanged timeload', (function(data) {
+            this._timeDimension.prepareNextTimes(this._steps, this._minBufferReady, this._loop);
+        }).bind(this));
     },
 
 
@@ -1507,6 +1525,7 @@ L.TimeDimension.Player = (L.Layer || L.Class).extend({
         if (!this._intervalID) return;
         clearInterval(this._intervalID);
         this._intervalID = null;
+        this._waitingForBuffer = false;
         this.fire('stop');
     },
 
@@ -1550,7 +1569,7 @@ L.TimeDimension.Player = (L.Layer || L.Class).extend({
         }
         if (this._intervalID) {
             this.stop();
-            this.start();
+            this.start(this._steps);
         }
         this.fire('speedchange', {
             transitionTime: transitionTime,
@@ -1562,6 +1581,7 @@ L.TimeDimension.Player = (L.Layer || L.Class).extend({
         return this._steps;
     }
 });
+
 /*jshint indent: 4, browser:true*/
 /*global L*/
 
@@ -1729,9 +1749,8 @@ L.Control.TimeDimension = L.Control.extend({
             this._buttonLoop = this._createButton('Loop', container);
         }
         if (this.options.displayDate) {
-            this._displayDate = this._createDisplayDate(this.options.styleNS + ' timecontrol-date', container);
+            this._displayDate = this._createButton('Date', container);
         }
-
         if (this.options.timeSlider) {
             this._sliderTime = this._createSliderTime(this.options.styleNS + ' timecontrol-slider timecontrol-dateslider', container);
         }
@@ -1868,9 +1887,8 @@ L.Control.TimeDimension = L.Control.extend({
         if (!this._timeDimension) {
             return;
         }
-        var time = this._timeDimension.getCurrentTime();
-        if (time > 0) {
-            var date = new Date(time);
+        if (this._timeDimension.getCurrentTimeIndex() >= 0) {
+            var date = new Date(this._timeDimension.getCurrentTime());
             if (this._displayDate) {
                 L.DomUtil.removeClass(this._displayDate, 'loading');
                 this._displayDate.innerHTML = this._getDisplayDateFormat(date);
@@ -1894,18 +1912,6 @@ L.Control.TimeDimension = L.Control.extend({
             .addListener(link, 'click', L.DomEvent.stopPropagation)
             .addListener(link, 'click', L.DomEvent.preventDefault)
             .addListener(link, 'click', this['_button' + title.replace(/ /i, '') + 'Clicked'], this);
-
-        return link;
-    },
-
-    _createDisplayDate: function(className, container) {
-        var link = L.DomUtil.create('a', className + ' utc', container);
-        link.href = '#';
-        link.title = 'UTC Time';
-        L.DomEvent
-            .addListener(link, 'click', L.DomEvent.stopPropagation)
-            .addListener(link, 'click', L.DomEvent.preventDefault)
-            .addListener(link, 'click', this._toggleDateUTC, this);
 
         return link;
     },
@@ -2112,14 +2118,7 @@ L.Control.TimeDimension = L.Control.extend({
 
     _buttonPlayClicked: function() {
         if (this._player.isPlaying()) {
-            if (this._player.isWaiting()) {
-                // force restart
-                this._player.stop();
-                this._player.start(this._steps);
-
-            } else {
-                this._player.stop();
-            }
+            this._player.stop();
         } else {
             this._player.start(this._steps);
         }
@@ -2127,17 +2126,16 @@ L.Control.TimeDimension = L.Control.extend({
 
     _buttonPlayReverseClicked: function() {
         if (this._player.isPlaying()) {
-            if (this._player.isWaiting()) {
-                // force restart
-                this._player.stop();
-                this._player.start(this._steps * (-1));
-            } else {
-                this._player.stop();
-            }
+            this._player.stop();
         } else {
             this._player.start(this._steps * (-1));
         }
     },
+
+    _buttonDateClicked: function(){
+        this._toggleDateUTC();
+    },
+
     _sliderTimeValueChanged: function(newValue) {
         this._timeDimension.setCurrentTimeIndex(newValue);
     },
