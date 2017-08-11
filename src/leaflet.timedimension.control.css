@@ -5,6 +5,7 @@
 }
 .leaflet-bar-timecontrol{
      background-color: #fff;
+     color: black;
 }
 .leaflet-bar-timecontrol * {
     box-sizing: border-box;

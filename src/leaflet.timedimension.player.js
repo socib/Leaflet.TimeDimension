@@ -23,6 +23,10 @@ L.TimeDimension.Player = (L.Layer || L.Class).extend({
             this._waitingForBuffer = false; // reset buffer
         }).bind(this));
         this.setTransitionTime(this.options.transitionTime || 1000);
+        
+        this._timeDimension.on('limitschanged availabletimeschanged timeload', (function(data) {
+            this._timeDimension.prepareNextTimes(this._steps, this._minBufferReady, this._loop);
+        }).bind(this));
     },
 
 
@@ -111,6 +115,7 @@ L.TimeDimension.Player = (L.Layer || L.Class).extend({
         if (!this._intervalID) return;
         clearInterval(this._intervalID);
         this._intervalID = null;
+        this._waitingForBuffer = false;
         this.fire('stop');
     },
 

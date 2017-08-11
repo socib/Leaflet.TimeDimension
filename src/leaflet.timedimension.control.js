@@ -165,9 +165,8 @@ L.Control.TimeDimension = L.Control.extend({
             this._buttonLoop = this._createButton('Loop', container);
         }
         if (this.options.displayDate) {
-            this._displayDate = this._createDisplayDate(this.options.styleNS + ' timecontrol-date', container);
+            this._displayDate = this._createButton('Date', container);
         }
-
         if (this.options.timeSlider) {
             this._sliderTime = this._createSliderTime(this.options.styleNS + ' timecontrol-slider timecontrol-dateslider', container);
         }
@@ -329,18 +328,6 @@ L.Control.TimeDimension = L.Control.extend({
             .addListener(link, 'click', L.DomEvent.stopPropagation)
             .addListener(link, 'click', L.DomEvent.preventDefault)
             .addListener(link, 'click', this['_button' + title.replace(/ /i, '') + 'Clicked'], this);
-
-        return link;
-    },
-
-    _createDisplayDate: function(className, container) {
-        var link = L.DomUtil.create('a', className + ' utc', container);
-        link.href = '#';
-        link.title = 'UTC Time';
-        L.DomEvent
-            .addListener(link, 'click', L.DomEvent.stopPropagation)
-            .addListener(link, 'click', L.DomEvent.preventDefault)
-            .addListener(link, 'click', this._toggleDateUTC, this);
 
         return link;
     },
@@ -547,14 +534,7 @@ L.Control.TimeDimension = L.Control.extend({
 
     _buttonPlayClicked: function() {
         if (this._player.isPlaying()) {
-            if (this._player.isWaiting()) {
-                // force restart
-                this._player.stop();
-                this._player.start(this._steps);
-
-            } else {
-                this._player.stop();
-            }
+            this._player.stop();
         } else {
             this._player.start(this._steps);
         }
@@ -562,17 +542,16 @@ L.Control.TimeDimension = L.Control.extend({
 
     _buttonPlayReverseClicked: function() {
         if (this._player.isPlaying()) {
-            if (this._player.isWaiting()) {
-                // force restart
-                this._player.stop();
-                this._player.start(this._steps * (-1));
-            } else {
-                this._player.stop();
-            }
+            this._player.stop();
         } else {
             this._player.start(this._steps * (-1));
         }
     },
+
+    _buttonDateClicked: function(){
+        this._toggleDateUTC();
+    },
+
     _sliderTimeValueChanged: function(newValue) {
         this._timeDimension.setCurrentTimeIndex(newValue);
     },
