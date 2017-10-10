@@ -54,7 +54,7 @@
            oReq.addEventListener("load", (function(xhr) {
              var code = xhr.currentTarget.response;
              var codeBlock = document.getElementById("code");
-             codeBlock.innerHTML = code;
+             codeBlock.textContent = code;
              hljs.highlightBlock(codeBlock);
            }));
            oReq.open("GET", "js/example1.js");
