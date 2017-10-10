@@ -13,7 +13,7 @@
     <body>
         <div class="container">
             <div id="header">
-                <h1>Leaflet TimeDimension example 16</h1>                
+                <h1>Leaflet TimeDimension example 16</h1>
                 <h2><a href="http://portus.puertos.es/Portus_RT/?locale=es">Portus</a> Wave forecast</h2>
             </div>
             <div id="map" class="map"></div>
@@ -26,22 +26,22 @@
             </div>
 
             <h2>Code</h2>
-            <pre><code class="javascript" id="code"></code></pre>            
+            <pre><code class="javascript" id="code"></code></pre>
             <h2>Code of L.TimeDimension.Layer.TileLayer.Portus</h2>
-            <pre><code class="javascript" id="code-portus"></code></pre>            
+            <pre><code class="javascript" id="code-portus"></code></pre>
 
             <div class="prev-example">
                 <a href="example16.html">Example 15: Oil Spill simulation</a>
-            </div>                 
+            </div>
             <div class="next-example">
                 <a href="index.html">Index</a>
             </div>
             <div id="footer">
                 <a class="leaflet-timedimension" href="index.html">Leaflet.TimeDimension examples</a>
                 <a class="github" href="https://github.com/socib/Leaflet.TimeDimension" title="Fork Leaflet.TimeDimension at GitHub!"><span>Fork Leaflet.TimeDimension at GitHub</span></a>
-            </div>                          
+            </div>
         </div>
-        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
+
         <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/leaflet.js"></script>
         <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.fullscreen/1.4.2/Control.FullScreen.min.js"></script>
         <script type="text/javascript" src="js/vendor/NonTiledLayer.js"></script>
@@ -59,22 +59,24 @@
         <script type="text/javascript" src="js/example16.js"></script>
         <script src="http://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.4/highlight.min.js"></script>
         <script type="text/javascript">
-            $(document).ready(function() {
-                $.ajax('js/example16.js', {dataType: 'script'})
-                    .always(function(response) {                        
-                        $("#code").text(response.responseText);
-                        $('#code').each(function(i, block) {
-                            hljs.highlightBlock(block);
-                        });
-                    });
-                $.ajax('js/extras/leaflet.timedimension.tilelayer.portus.js', {dataType: 'script'})
-                    .always(function(response) {                        
-                        $("#code-portus").text(response);
-                        $('#code-portus').each(function(i, block) {
-                            hljs.highlightBlock(block);
-                        });
-                    });
-            });
-        </script>        
+            var oReq = new XMLHttpRequest();
+            oReq.addEventListener("load", (function(xhr) {
+                var code = xhr.currentTarget.response;
+                var codeBlock = document.getElementById("code");
+                codeBlock.innerHTML = code;
+                hljs.highlightBlock(codeBlock);
+            }));
+            oReq.open("GET", "js/example16.js");
+            oReq.send();
+            var oReq = new XMLHttpRequest();
+            oReq.addEventListener("load", (function(xhr) {
+                var code = xhr.currentTarget.response;
+                var codeBlock = document.getElementById("code-portus");
+                codeBlock.innerHTML = code;
+                hljs.highlightBlock(codeBlock);
+            }));
+            oReq.open("GET", "js/extras/leaflet.timedimension.tilelayer.portus.js");
+            oReq.send();
+        </script>
     </body>
 </html>

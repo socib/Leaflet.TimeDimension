@@ -14,7 +14,7 @@
     <body>
         <div class="container">
             <div id="header">
-                <h1>Leaflet TimeDimension example 9</h1>                
+                <h1>Leaflet TimeDimension example 9</h1>
                 <h2>GeoJSON layers with times property</h2>
             </div>
             <div id="map" class="map"></div>
@@ -24,21 +24,21 @@
             <pre><code class="javascript" id="code"></code></pre>
             <div class="disclaimer">
                 Running icon made by <a href="http://www.freepik.com" title="Freepik">Freepik</a> from <a href="http://www.flaticon.com" title="Flaticon">www.flaticon.com</a> is licensed under <a href="http://creativecommons.org/licenses/by/3.0/" title="Creative Commons BY 3.0">CC BY 3.0</a>
-            </div>            
+            </div>
 
             <div class="prev-example">
                 <a href="example8.html">Example 8: SOCIB HF Radar with surface drifters trajectories</a>
-            </div>   
+            </div>
             <div class="next-example">
                 <a href="example10.html">Example 10: ImageOverlay and custom control</a>
             </div>
             <div id="footer">
                 <a class="leaflet-timedimension" href="index.html">Leaflet.TimeDimension examples</a>
                 <a class="github" href="https://github.com/socib/Leaflet.TimeDimension" title="Fork Leaflet.TimeDimension at GitHub!"><span>Fork Leaflet.TimeDimension at GitHub</span></a>
-            </div>                          
+            </div>
         </div>
 
-        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
+
         <script type="text/javascript" src="https://cdn.rawgit.com/tryone144/dateFormat/master/date.format.js"></script>
         <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/leaflet.js"></script>
         <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.fullscreen/1.4.2/Control.FullScreen.min.js"></script>
@@ -57,15 +57,15 @@
         <script type="text/javascript" src="js/example9.js"></script>
         <script src="http://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.4/highlight.min.js"></script>
         <script type="text/javascript">
-            $(document).ready(function() {
-                $.ajax('js/example9.js', {dataType: 'script'})
-                    .always(function(response) {                        
-                        $("#code").text(response.responseText);
-                        $('pre code').each(function(i, block) {
-                            hljs.highlightBlock(block);
-                        });
-                    });
-            });
-        </script>        
+            var oReq = new XMLHttpRequest();
+            oReq.addEventListener("load", (function(xhr) {
+                var code = xhr.currentTarget.response;
+                var codeBlock = document.getElementById("code");
+                codeBlock.innerHTML = code;
+                hljs.highlightBlock(codeBlock);
+            }));
+            oReq.open("GET", "js/example9.js");
+            oReq.send();
+        </script>
     </body>
 </html>

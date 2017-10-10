@@ -20,14 +20,14 @@ L.TimeDimension.Layer.WMS.TimeSeries = L.TimeDimension.Layer.WMS.extend({
         } else {
             this._loadUnits();
         }
-        this._circleLabelMarkers = [];                
+        this._circleLabelMarkers = [];
     },
 
     addTo: function(map) {
         L.TimeDimension.Layer.WMS.prototype.addTo.call(this, map);
         if (this._enableNewMarkers && this._enabledNewMarkers === undefined) {
             this._enabledNewMarkers = true;
-            this._map.doubleClickZoom.disable();            
+            this._map.doubleClickZoom.disable();
             this._map.on('dblclick', (function(e) {
                 // e.originalEvent.preventDefault();
                 this.addPositionMarker({
@@ -57,7 +57,7 @@ L.TimeDimension.Layer.WMS.TimeSeries = L.TimeDimension.Layer.WMS.extend({
     },
 
 
-    // we need to overwrite this function, which is called when the layer has availabletimes loaded, 
+    // we need to overwrite this function, which is called when the layer has availabletimes loaded,
     // in order to initialize dates ranges (current min-max and layer min-max date ranges) and after that
     // add the default markers to the map
     _updateTimeDimensionAvailableTimes: function() {
@@ -65,7 +65,7 @@ L.TimeDimension.Layer.WMS.TimeSeries = L.TimeDimension.Layer.WMS.extend({
         if (this._dateRange === undefined) {
             this._setDateRanges();
             this._addMarkers();
-        }        
+        }
     },
 
     _getNextMarkerColor: function() {
@@ -127,7 +127,10 @@ L.TimeDimension.Layer.WMS.TimeSeries = L.TimeDimension.Layer.WMS.extend({
         url = url + '&TIME=' + min.toISOString() + '/' + max.toISOString();
 
         if (this._proxy) url = this._proxy + '?url=' + encodeURIComponent(url);
-        $.get(url, (function(data) {
+
+        var oReq = new XMLHttpRequest();
+        oReq.addEventListener("load", (function(xhr) {
+            var data = xhr.currentTarget.responseXML;
             var result = {
                 time: [],
                 values: []
@@ -137,9 +140,9 @@ L.TimeDimension.Layer.WMS.TimeSeries = L.TimeDimension.Layer.WMS.extend({
                 result.time.push(this._dateRange.min);
                 result.values.push(null);
             }
-            $(data).find('FeatureInfo').each(function() {
-                var this_time = $(this).find('time').text();
-                var this_data = $(this).find('value').text();
+            data.querySelectorAll('FeatureInfo').forEach(function(fi) {
+                var this_time = fi.querySelector('time').textContent;
+                var this_data = fi.querySelector('value').textContent;
                 try {
                     this_data = parseFloat(this_data);
                 } catch (e) {
@@ -153,20 +156,25 @@ L.TimeDimension.Layer.WMS.TimeSeries = L.TimeDimension.Layer.WMS.extend({
                 result.time.push(this._dateRange.max);
                 result.values.push(null);
             }
-            result.longitude = $(data).find('longitude').text();
+
+            result.longitude = data.querySelector('longitude').textContent;
             try {
                 result.longitude = parseFloat(result.longitude).toFixed(4);
             } catch (e) {}
-            result.latitude = $(data).find('latitude').text();
+            result.latitude = data.querySelector('latitude').textContent;
             try {
                 result.latitude = parseFloat(result.latitude).toFixed(4);
             } catch (e) {}
 
             result.url = url_without_time;
+
             if (callback !== undefined) {
                 callback(result);
             }
         }).bind(this));
+        oReq.overrideMimeType('application/xml');
+        oReq.open("GET", url);
+        oReq.send();
     },
 
     _checkLoadNewData: function(min, max) {
@@ -254,21 +262,31 @@ L.TimeDimension.Layer.WMS.TimeSeries = L.TimeDimension.Layer.WMS.extend({
         var url = this._baseLayer.getURL() + '?service=WMS&version=1.1.1&request=GetMetadata&item=layerDetails';
         url = url + '&layerName=' + this._baseLayer.options.layers;
         if (this._proxy) url = this._proxy + '?url=' + encodeURIComponent(url);
-        $.getJSON(url, (function(data) {
+        var oReq = new XMLHttpRequest();
+        oReq.addEventListener("load", (function(xhr) {
+            var response = xhr.currentTarget.response;
+            var data = JSON.parse(response);
             this._units = data.units;
         }).bind(this));
+        oReq.open("GET", url);
+        oReq.send();
     },
 
     _createChart: function() {
-        var chart_wrapper = $(this._map.getContainer()).parent().find('.chart-wrapper');
-        if (!chart_wrapper.length) {
-            $(this._map.getContainer()).parent().append("<div class='chart-wrapper'></div>");
-            chart_wrapper = $(this._map.getContainer()).parent().find('.chart-wrapper');
+        var mapContainerParent = this._map.getContainer().parentNode;
+        var chart_wrapper = mapContainerParent.querySelector('.chart-wrapper');
+        if (!chart_wrapper) {
+            var wrapper = document.createElement("div");
+            wrapper.setAttribute("class", "chart-wrapper");
+            mapContainerParent.appendChild(wrapper);
+            chart_wrapper = mapContainerParent.querySelector('.chart-wrapper');
         }
-        var chart_container = chart_wrapper.find('.chart-' + this._baseLayer.options.layers);
-        if (!chart_container.length) {
-            chart_wrapper.append("<div class='chart chart-" + this._baseLayer.options.layers + "'></div>");
-            chart_container = chart_wrapper.find('.chart-' + this._baseLayer.options.layers);
+        var chart_container = chart_wrapper.querySelector('.chart-' + this._baseLayer.options.layers);
+        if (!chart_container) {
+            var container = document.createElement("div");
+            container.setAttribute("class", "chart chart-" + this._baseLayer.options.layers);
+            chart_wrapper.appendChild(container);
+            chart_container = chart_wrapper.querySelector('.chart-' + this._baseLayer.options.layers);
         }
         var options = {
             legend: {
@@ -438,9 +456,12 @@ L.TimeDimension.Layer.WMS.TimeSeries = L.TimeDimension.Layer.WMS.extend({
             };
             // options['chart']['type'] = 'heatmap';
         };
-        options = $.extend({}, options, this._chartOptions);
-        chart_container.highcharts('StockChart', options);
-        this._chart = chart_container.highcharts();
+
+        var combinedHighChartsOptions = {};
+        for (var attrname in options) { combinedHighChartsOptions[attrname] = options[attrname]; }
+        for (var attrname in this._chartOptions) { combinedHighChartsOptions[attrname] = this._chartOptions[attrname]; }
+
+        this._chart = Highcharts.stockChart(chart_container, combinedHighChartsOptions);
         this._timeDimension.on('timeload', (function(data) {
             if (!this._chart){
                 return;
@@ -531,14 +552,17 @@ L.TimeDimension.Layer.WMS.TimeSeries = L.TimeDimension.Layer.WMS.extend({
         var max = new Date(this._getNearestTime(maxdate.getTime()));
         url = url + '&TIME=' + min.toISOString() + '/' + max.toISOString();
         if (this._proxy) url = this._proxy + '?url=' + encodeURIComponent(url);
-        $.get(url, (function(data) {
+
+        var oReq = new XMLHttpRequest();
+        oReq.addEventListener("load", (function(xhr) {
+            var data = xhr.currentTarget.responseXML;
             var result = {
                 time: [],
                 values: []
             };
-            $(data).find('FeatureInfo').each(function() {
-                var this_time = $(this).find('time').text();
-                var this_data = $(this).find('value').text();
+            data.querySelectorAll('FeatureInfo').forEach(function(fi) {
+                var this_time = fi.querySelector('time').textContent;
+                var this_data = fi.querySelector('value').textContent;
                 try {
                     this_data = parseFloat(this_data);
                 } catch (e) {
@@ -550,11 +574,19 @@ L.TimeDimension.Layer.WMS.TimeSeries = L.TimeDimension.Layer.WMS.extend({
             if (callback !== undefined) {
                 callback(result);
             }
-        }).bind(this)).fail(function() {
+        }).bind(this));
+        oReq.addEventListener("error", (function(xhr) {
             if (callback !== undefined) {
-                callback();
+                var result = {
+                    time: [],
+                    values: []
+                };
+                callback(result);
             }
-        });
+        }).bind(this));
+        oReq.overrideMimeType('application/xml');
+        oReq.open("GET", url);
+        oReq.send();
     },
 
 });

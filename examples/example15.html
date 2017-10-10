@@ -15,7 +15,7 @@
                 padding: 0; list-style: none;
             }
             .legend li{
-                padding: 5px;                
+                padding: 5px;
             }
             .legend li.p05{
                 background-color: #00FF00;
@@ -34,11 +34,11 @@
     <body>
         <div class="container">
             <div id="header">
-                <h1>Leaflet TimeDimension example Oil Spill</h1>                
+                <h1>Leaflet TimeDimension example Oil Spill</h1>
                 <h2>Oil Spill simulation</h2>
             </div>
             <div id="map" class="map">
-                <div class="animation-progress-bar"></div>                
+                <div class="animation-progress-bar"></div>
             </div>
             <h2>Information</h2>
             <div class="information">
@@ -47,21 +47,21 @@
             </div>
 
             <h2>Code</h2>
-            <pre><code class="javascript" id="code"></code></pre>            
+            <pre><code class="javascript" id="code"></code></pre>
 
             <div class="prev-example">
                 <a href="example14.html">Example 14: NOAA's nowCOAST weather radar</a>
-            </div>                 
+            </div>
             <div class="next-example">
                 <a href="example16.html">Example 16: Portus wave forecast</a>
             </div>
             <div id="footer">
                 <a class="leaflet-timedimension" href="index.html">Leaflet.TimeDimension examples</a>
                 <a class="github" href="https://github.com/socib/Leaflet.TimeDimension" title="Fork Leaflet.TimeDimension at GitHub!"><span>Fork Leaflet.TimeDimension at GitHub</span></a>
-            </div>                          
+            </div>
         </div>
 
-        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
+
         <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/leaflet.js"></script>
         <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.fullscreen/1.4.2/Control.FullScreen.min.js"></script>
         <script type="text/javascript" src="js/vendor/NonTiledLayer.js"></script>
@@ -77,15 +77,15 @@
         <script type="text/javascript" src="js/example15.js"></script>
         <script src="http://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.4/highlight.min.js"></script>
         <script type="text/javascript">
-            $(document).ready(function() {
-                $.ajax('js/example15.js', {dataType: 'script'})
-                    .always(function(response) {                        
-                        $("#code").text(response.responseText);
-                        $('pre code').each(function(i, block) {
-                            hljs.highlightBlock(block);
-                        });
-                    });
-            });
-        </script>        
+            var oReq = new XMLHttpRequest();
+            oReq.addEventListener("load", (function(xhr) {
+                var code = xhr.currentTarget.response;
+                var codeBlock = document.getElementById("code");
+                codeBlock.innerHTML = code;
+                hljs.highlightBlock(codeBlock);
+            }));
+            oReq.open("GET", "js/example15.js");
+            oReq.send();
+        </script>
     </body>
 </html>

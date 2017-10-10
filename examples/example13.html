@@ -9,12 +9,12 @@
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/leaflet.css">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.fullscreen/1.4.2/Control.FullScreen.min.css">
         <link rel="stylesheet" href="../src/leaflet.timedimension.control.css" />
-        <link rel="stylesheet" href="css/style.css" />      
+        <link rel="stylesheet" href="css/style.css" />
     </head>
     <body>
         <div class="container">
             <div id="header">
-                <h1>Leaflet TimeDimension example 13</h1>                
+                <h1>Leaflet TimeDimension example 13</h1>
                 <h2>TimeSeries in a point (for WMS layers provided through a THREDDS Data Server)</h2>
             </div>
             <div id="map" class="map"></div>
@@ -36,21 +36,21 @@
 
 
             <h2>Code</h2>
-            <pre><code class="javascript" id="code"></code></pre>            
+            <pre><code class="javascript" id="code"></code></pre>
 
             <div class="prev-example">
                 <a href="example12.html">Example 12: Noise-Commercial complaints from NYC OpenData</a>
-            </div>                 
+            </div>
             <div class="next-example">
                 <a href="example14.html">Example 14: NOAA's nowCOAST weather radar</a>
             </div>
             <div id="footer">
                 <a class="leaflet-timedimension" href="index.html">Leaflet.TimeDimension examples</a>
                 <a class="github" href="https://github.com/socib/Leaflet.TimeDimension" title="Fork Leaflet.TimeDimension at GitHub!"><span>Fork Leaflet.TimeDimension at GitHub</span></a>
-            </div>                          
+            </div>
         </div>
 
-        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
+
         <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/leaflet.js"></script>
         <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.fullscreen/1.4.2/Control.FullScreen.min.js"></script>
         <script type="text/javascript" src="js/vendor/NonTiledLayer.js"></script>
@@ -63,23 +63,23 @@
         <script type="text/javascript" src="../src/leaflet.timedimension.layer.wms.js"></script>
         <script type="text/javascript" src="../src/leaflet.timedimension.layer.geojson.js"></script>
         <script type="text/javascript" src="../src/leaflet.timedimension.player.js"></script>
-        <script type="text/javascript" src="../src/leaflet.timedimension.control.js"></script>        
-        <script type="text/javascript" src="js/extras/leaflet.timedimension.circlelabelmarker.js"></script>        
-        <script type="text/javascript" src="js/extras/leaflet.timedimension.layer.wms.timeseries.js"></script>        
+        <script type="text/javascript" src="../src/leaflet.timedimension.control.js"></script>
+        <script type="text/javascript" src="js/extras/leaflet.timedimension.circlelabelmarker.js"></script>
+        <script type="text/javascript" src="js/extras/leaflet.timedimension.layer.wms.timeseries.js"></script>
 
         <script type="text/javascript" src="js/baselayers.js"></script>
         <script type="text/javascript" src="js/example13.js"></script>
         <script src="http://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.4/highlight.min.js"></script>
         <script type="text/javascript">
-            $(document).ready(function() {
-                $.ajax('js/example13.js', {dataType: 'script'})
-                    .always(function(response) {                        
-                        $("#code").text(response.responseText);
-                        $('pre code').each(function(i, block) {
-                            hljs.highlightBlock(block);
-                        });
-                    });
-            });
-        </script>        
+            var oReq = new XMLHttpRequest();
+            oReq.addEventListener("load", (function(xhr) {
+                var code = xhr.currentTarget.response;
+                var codeBlock = document.getElementById("code");
+                codeBlock.innerHTML = code;
+                hljs.highlightBlock(codeBlock);
+            }));
+            oReq.open("GET", "js/example13.js");
+            oReq.send();
+        </script>
     </body>
 </html>

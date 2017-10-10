@@ -28,8 +28,8 @@
       "email": "datacenter@socib.es",
       "homepage": "http://www.socib.es/"
     },
-    { 
-      "name": "Sylvain Marcadal (Ram)", 
+    {
+      "name": "Sylvain Marcadal (Ram)",
       "email":"sylvain@marcadal.me"
     }
   ],
@@ -40,7 +40,6 @@
   },
   "dependencies": {
     "iso8601-js-period": "*",
-    "leaflet": "~0.7.4 || ~1.0.0",
-    "jquery": "1.x || 2.x"
+    "leaflet": "~0.7.4 || ~1.0.0"
   }
 }
