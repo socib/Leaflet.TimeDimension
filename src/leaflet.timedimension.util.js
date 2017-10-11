@@ -4,14 +4,14 @@
 
 L.TimeDimension.Util = {
     getTimeDuration: function(ISODuration) {
-        if (nezasa === undefined) {
+        if (typeof nezasa === 'undefined') {
             throw "iso8601-js-period library is required for Leatlet.TimeDimension: https://github.com/nezasa/iso8601-js-period";
         }
         return nezasa.iso8601.Period.parse(ISODuration, true);
     },
 
     addTimeDuration: function(date, duration, utc) {
-        if (utc === undefined) {
+        if (typeof utc === 'undefined') {
             utc = true;
         }
         if (typeof duration == 'string' || duration instanceof String) {
@@ -139,7 +139,7 @@ L.TimeDimension.Util = {
             var timeValue;
             for (var i=0, l=timeRanges.length; i<l; i++){
                 timeRange = timeRanges[i];
-                if (timeRange.split("/").length == 3) {                
+                if (timeRange.split("/").length == 3) {
                     result = result.concat(this.parseAndExplodeTimeRange(timeRange));
                 } else {
                     timeValue = Date.parse(timeRange);
