@@ -8,7 +8,7 @@
 //'use strict';
 L.TimeDimension.Player = (L.Layer || L.Class).extend({
 
-    includes: L.Mixin.Events,
+    includes: (L.Evented || L.Mixin.Events),
     initialize: function(options, timeDimension) {
         L.setOptions(this, options);
         this._timeDimension = timeDimension;

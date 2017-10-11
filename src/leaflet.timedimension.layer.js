@@ -7,7 +7,7 @@
 
 L.TimeDimension.Layer = (L.Layer || L.Class).extend({
 
-    includes: L.Mixin.Events,
+    includes: (L.Evented || L.Mixin.Events),
     options: {
         opacity: 1,
         zIndex: 1
