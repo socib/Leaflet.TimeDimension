@@ -15,7 +15,7 @@
     <body>
         <div class="container">
             <div id="header">
-                <h1>Leaflet TimeDimension example 3</h1>                
+                <h1>Leaflet TimeDimension example 3</h1>
                 <h2>SOCIB HF RADAR</h2>
             </div>
             <div id="map" class="map radar"></div>
@@ -25,7 +25,7 @@
                 <label for="start_time">Start time (local time)</label><br/><input id="dtp_start" name="start_time" type="text" >
                 </div>
                 <div style="float:left; margin-right: 10px;">
-                <label for="end_time">End time (local time)</label><br/><input id="dtp_end" name="end_time" type="text" >                
+                <label for="end_time">End time (local time)</label><br/><input id="dtp_end" name="end_time" type="text" >
                 </div>
                 <div style="float:left; padding-top: 100px;">
                     <button type="button" id="btn_timerange" class="btn" >Apply new time availables range</button><br /><br />
@@ -35,7 +35,7 @@
             <div style="clear: both;"></div>
 
             <h2>Code</h2>
-            <pre><code class="javascript" id="code"></code></pre>            
+            <pre><code class="javascript" id="code"></code></pre>
             <div class="prev-example">
                 <a href="example2.html">Example 2: Temperature from IBL Software Engineering</a>
             </div>
@@ -45,7 +45,7 @@
             <div id="footer">
                 <a class="leaflet-timedimension" href="index.html">Leaflet.TimeDimension examples</a>
                 <a class="github" href="https://github.com/socib/Leaflet.TimeDimension" title="Fork Leaflet.TimeDimension at GitHub!"><span>Fork Leaflet.TimeDimension at GitHub</span></a>
-            </div>                          
+            </div>
         </div>
 
         <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
@@ -59,21 +59,21 @@
         <script type="text/javascript" src="../src/leaflet.timedimension.layer.wms.js"></script>
         <script type="text/javascript" src="../src/leaflet.timedimension.player.js"></script>
         <script type="text/javascript" src="../src/leaflet.timedimension.control.js"></script>
-        
+
         <script type="text/javascript" src="js/example3.js"></script>
 
         <script src="http://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.4/highlight.min.js"></script>
         <script type="text/javascript">
-            $(document).ready(function() {
-                $.ajax('js/example3.js', {dataType: 'script'})
-                    .always(function(response) {                        
-                        $("#code").text(response.responseText);
-                        $('pre code').each(function(i, block) {
-                            hljs.highlightBlock(block);
-                        });
-                    });
-            });
-        </script>
+            var oReq = new XMLHttpRequest();
+            oReq.addEventListener("load", (function(xhr) {
+                var code = xhr.currentTarget.response;
+                var codeBlock = document.getElementById("code");
+                codeBlock.textContent = code;
+                hljs.highlightBlock(codeBlock);
+            }));
+            oReq.open("GET", "js/example3.js");
+            oReq.send();
+       </script>
 
     </body>
 </html>

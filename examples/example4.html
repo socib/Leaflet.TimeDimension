@@ -14,14 +14,14 @@
     <body>
         <div class="container">
             <div id="header">
-                <h1>Leaflet TimeDimension example 4</h1>                
+                <h1>Leaflet TimeDimension example 4</h1>
                 <h2>Radar precipitation measurements above the Netherlands (from <a href="http://www.knmi.nl/">KNMI</a>)</h2>
             </div>
             <div id="map" class="map"></div>
 
 
             <h2>Code</h2>
-            <pre><code class="javascript" id="code"></code></pre>            
+            <pre><code class="javascript" id="code"></code></pre>
 
             <div class="prev-example">
                 <a href="example3.html">Example 3: SOCIB HF Radar</a>
@@ -32,9 +32,8 @@
             <div id="footer">
                 <a class="leaflet-timedimension" href="index.html">Leaflet.TimeDimension examples</a>
                 <a class="github" href="https://github.com/socib/Leaflet.TimeDimension" title="Fork Leaflet.TimeDimension at GitHub!"><span>Fork Leaflet.TimeDimension at GitHub</span></a>
-            </div>              
+            </div>
         </div>
-        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
         <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.0.0-rc.2/leaflet.js"></script>
         <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.fullscreen/1.4.2/Control.FullScreen.min.js"></script>
         <script type="text/javascript" src="js/vendor/NonTiledLayer.js"></script>
@@ -45,19 +44,19 @@
         <script type="text/javascript" src="../src/leaflet.timedimension.layer.wms.js"></script>
         <script type="text/javascript" src="../src/leaflet.timedimension.player.js"></script>
         <script type="text/javascript" src="../src/leaflet.timedimension.control.js"></script>
-        
+
         <script type="text/javascript" src="js/example4.js"></script>
         <script src="http://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.4/highlight.min.js"></script>
         <script type="text/javascript">
-            $(document).ready(function() {
-                $.ajax('js/example4.js', {dataType: 'script'})
-                    .always(function(response) {                        
-                        $("#code").text(response.responseText);
-                        $('pre code').each(function(i, block) {
-                            hljs.highlightBlock(block);
-                        });
-                    });
-            });
-        </script>        
+            var oReq = new XMLHttpRequest();
+            oReq.addEventListener("load", (function(xhr) {
+                var code = xhr.currentTarget.response;
+                var codeBlock = document.getElementById("code");
+                codeBlock.textContent = code;
+                hljs.highlightBlock(codeBlock);
+            }));
+            oReq.open("GET", "js/example4.js");
+            oReq.send();
+        </script>
     </body>
 </html>

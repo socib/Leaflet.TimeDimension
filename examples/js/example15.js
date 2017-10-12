@@ -69,7 +69,10 @@ var map = L.map('map', {
     center: [39.6145, 1.99363]
 });
 
-$.getJSON('data/spill.json', function(data) {
+var oReq = new XMLHttpRequest();
+oReq.addEventListener("load", (function(xhr) {
+    var response = xhr.currentTarget.response;
+    var data = JSON.parse(response);
     var cdriftLayer = L.geoJson(data, {
         style: function(feature) {
             var color = "#FFF";
@@ -112,13 +115,17 @@ $.getJSON('data/spill.json', function(data) {
         if (data.time == map.timeDimension.getCurrentTime()) {
             var totalTimes = map.timeDimension.getAvailableTimes().length;
             var position = map.timeDimension.getAvailableTimes().indexOf(data.time);
-            $(map.getContainer()).find('.animation-progress-bar').width((position*100)/totalTimes + "%");
+            map.getContainer().querySelector('.animation-progress-bar').style.width = ((position*100)/totalTimes + "%");
             // update map bounding box
             map.fitBounds(cdriftTimeLayer.getBounds());
         }
     });
+}));
+oReq.open("GET", 'data/spill.json');
+oReq.send();
 
-});
+
+
 
 var sorrento = L.circleMarker([39.6145, 1.99363], {
     color: '#FFFFFF',

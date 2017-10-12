@@ -62,7 +62,7 @@ L.TimeDimension.Layer.ImageOverlay = L.TimeDimension.Layer.extend({
             return;
         }
         this._currentLayer = layer;
-        // Cache management        
+        // Cache management
         var times = this._getLoadedTimes();
         var strTime = String(time);
         var index = times.indexOf(strTime);

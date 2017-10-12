@@ -16,7 +16,6 @@ L.TimeDimension.Layer.SODAHeatMap = L.TimeDimension.Layer.extend({
             lngField: 'lng',
             valueField: 'count'
         };
-        heatmapCfg = $.extend({}, heatmapCfg, options.heatmatOptions || {});
         var layer = new HeatmapOverlay(heatmapCfg);
         L.TimeDimension.Layer.prototype.initialize.call(this, layer, options);
         this._currentLoadedTime = 0;
@@ -112,7 +111,7 @@ currentTime.setUTCDate(1, 0, 0, 0, 0);
 var map = L.map('map', {
     zoom: 12,
     fullscreenControl: true,
-    timeDimension: true,    
+    timeDimension: true,
     timeDimensionOptions: {
         timeInterval: "2010-01-01/" + currentTime.toISOString(),
         period: "P1M",
@@ -133,7 +132,7 @@ map.attributionControl.addAttribution('<a href="https://nycopendata.socrata.com/
 L.Control.TimeDimensionCustom = L.Control.TimeDimension.extend({
     _getDisplayDateFormat: function(date){
         return date.format("mmmm yyyy");
-    }    
+    }
 });
 var timeDimensionControl = new L.Control.TimeDimensionCustom({
     playerOptions: {

@@ -14,12 +14,12 @@
     <body>
         <div class="container">
             <div id="header">
-                <h1>Leaflet TimeDimension example 10</h1>                
+                <h1>Leaflet TimeDimension example 10</h1>
                 <h2>ImageOverlay and custom control</h2>
             </div>
-            <div id="map-wrapper"> 
+            <div id="map-wrapper">
                 <div id="map" class="map sirena"></div>
-                <div id="mapcontrol" class="sidecontrol">                    
+                <div id="mapcontrol" class="sidecontrol">
                     <span class="title"><a href="http://socib.es/?seccion=observingFacilities&facility=mooring&id=36" title="Mobims Cala Millor">Beach Monitoring at Cala Millor</a></span>
                     <span class="date">&nbsp;</span>
                     <span class="time">&nbsp;</span>
@@ -36,22 +36,21 @@
 
             <h2>Description</h2>
             <p>This is a <i>proof-of-concept</i>. We have implemented a new L.TimeDimension.Layer class to manage ImageOverlays and a basic custom control to manage the TimeDimension.</p>
-            <p>The chart shows the daily wind average observed at the weather station installed in Cala Millor by SOCIB. If you click in any point of the chart, it will show the image of the selected date at 12:00h.</p>            
+            <p>The chart shows the daily wind average observed at the weather station installed in Cala Millor by SOCIB. If you click in any point of the chart, it will show the image of the selected date at 12:00h.</p>
             <h2>Code</h2>
-            <pre><code class="javascript" id="code"></code></pre>            
+            <pre><code class="javascript" id="code"></code></pre>
 
             <div class="prev-example">
                 <a href="example9.html">Example 9: GeoJSON layers with times property</a>
-            </div>   
+            </div>
             <div class="next-example">
                 <a href="example11.html">Example 11: NOAA Operational Climate Data Records (SST)</a>
             </div>
             <div id="footer">
                 <a class="leaflet-timedimension" href="index.html">Leaflet.TimeDimension examples</a>
                 <a class="github" href="https://github.com/socib/Leaflet.TimeDimension" title="Fork Leaflet.TimeDimension at GitHub!"><span>Fork Leaflet.TimeDimension at GitHub</span></a>
-            </div>            
+            </div>
         </div>
-
         <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
         <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.0.0-rc.2/leaflet.js"></script>
         <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.fullscreen/1.4.2/Control.FullScreen.min.js"></script>
@@ -71,15 +70,15 @@
         <script type="text/javascript" src="js/example10.js"></script>
         <script src="http://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.4/highlight.min.js"></script>
         <script type="text/javascript">
-            $(document).ready(function() {
-                $.ajax('js/example10.js', {dataType: 'script'})
-                    .always(function(response) {                        
-                        $("#code").text(response.responseText);
-                        $('pre code').each(function(i, block) {
-                            hljs.highlightBlock(block);
-                        });
-                    });
-            });
-        </script>        
+            var oReq = new XMLHttpRequest();
+            oReq.addEventListener("load", (function(xhr) {
+                var code = xhr.currentTarget.response;
+                var codeBlock = document.getElementById("code");
+                codeBlock.textContent = code;
+                hljs.highlightBlock(codeBlock);
+            }));
+            oReq.open("GET", "js/example10.js");
+            oReq.send();
+        </script>
     </body>
 </html>

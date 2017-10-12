@@ -1,5 +1,5 @@
 /*
- * L.TimeDimension.CircleLabelMarker: circleMarker + divIcon containing 
+ * L.TimeDimension.CircleLabelMarker: circleMarker + divIcon containing
  * the numerical value of the baseLayer (from a THREDDS server).
  */
 
@@ -24,7 +24,7 @@ L.TimeDimension.Layer.CircleLabelMarker = L.TimeDimension.Layer.extend({
                 this._update();
             }).bind(this));
         }else{
-            this._update();            
+            this._update();
         }
 
         return this;
@@ -52,7 +52,7 @@ L.TimeDimension.Layer.CircleLabelMarker = L.TimeDimension.Layer.extend({
         return;
     },
 
-    isReady: function(time) {        
+    isReady: function(time) {
         return this._existsValueForTime(time);
     },
 
@@ -125,7 +125,7 @@ L.TimeDimension.Layer.CircleLabelMarker = L.TimeDimension.Layer.extend({
         if (!this._dataLayer || !this._map || !this._map.getBounds().contains(this._position)){
             if (callback !== undefined) {
                 callback(null);
-            }            
+            }
             return;
         }
         var point = this._map.latLngToContainerPoint(this._position);
@@ -142,10 +142,12 @@ L.TimeDimension.Layer.CircleLabelMarker = L.TimeDimension.Layer.extend({
 
         if (this._proxy) url = this._proxy + '?url=' + encodeURIComponent(url);
 
-        $.get(url, (function(data) {
+        var oReq = new XMLHttpRequest();
+        oReq.addEventListener("load", (function(xhr) {
+            var data = xhr.currentTarget.responseXML;
             var result = null;
-            $(data).find('FeatureInfo').each(function() {
-                var this_data = $(this).find('value').text();
+            data.querySelectorAll('FeatureInfo').forEach(function(fi) {
+                var this_data = fi.querySelector('value').textContent;
                 try {
                     this_data = parseFloat(this_data);
                 } catch (e) {
@@ -158,6 +160,9 @@ L.TimeDimension.Layer.CircleLabelMarker = L.TimeDimension.Layer.extend({
                 callback(result);
             }
         }).bind(this));
+        oReq.overrideMimeType('application/xml');
+        oReq.open("GET", url);
+        oReq.send();
     }
 });
 
