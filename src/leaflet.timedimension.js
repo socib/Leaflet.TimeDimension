@@ -98,18 +98,18 @@ L.TimeDimension = (L.Layer || L.Class).extend({
         });
         this._loadingTimeIndex = -1;
     },
-
+    
     _checkSyncedLayersReady: function (time) {
         for (var i = 0, len = this._syncedLayers.length; i < len; i++) {
             if (this._syncedLayers[i].isReady) {
                 if (!this._syncedLayers[i].isReady(time)) {
-                    return false;
+					return false;                    
                 }
             }
         }
         return true;
     },
-
+    
     setCurrentTime: function (time) {
         var newIndex = this._seekNearestTimeIndex(time);
         this.setCurrentTimeIndex(newIndex);

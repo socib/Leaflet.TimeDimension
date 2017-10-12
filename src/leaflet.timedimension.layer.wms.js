@@ -60,6 +60,9 @@ L.TimeDimension.Layer.WMS = L.TimeDimension.Layer.extend({
 
     isReady: function(time) {
         var layer = this._getLayerForTime(time);
+        if (this.options.bounds && this._map)
+            if (!this._map.getBounds().contains(this.options.bounds))
+                return true;
         return layer.isLoaded();
     },
 
