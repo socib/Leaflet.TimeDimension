@@ -8,7 +8,7 @@
 
 L.TimeDimension = (L.Layer || L.Class).extend({
 
-    includes: L.Mixin.Events,
+    includes: (L.Evented || L.Mixin.Events),
 
     initialize: function (options) {
         L.setOptions(this, options);
