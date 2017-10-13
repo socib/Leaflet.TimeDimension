@@ -2,20 +2,13 @@ Date.prototype.format = function (mask, utc) {
     return dateFormat(this, mask, utc);
 };
 
-// Attibution: SODA API requests based on this example: https://github.com/chriswhong/soda-leaflet
 
+
+// Attibution: SODA API requests based on this example: https://github.com/chriswhong/soda-leaflet
 L.TimeDimension.Layer.SODAHeatMap = L.TimeDimension.Layer.extend({
 
     initialize: function(options) {
-        var heatmapCfg = {
-            radius: 15,
-            maxOpacity: .8,
-            scaleRadius: false,
-            useLocalExtrema: false,
-            latField: 'lat',
-            lngField: 'lng',
-            valueField: 'count'
-        };
+        var heatmapCfg = this._getHeatmapOptions(options.heatmatOptions || {});
         var layer = new HeatmapOverlay(heatmapCfg);
         L.TimeDimension.Layer.prototype.initialize.call(this, layer, options);
         this._currentLoadedTime = 0;
@@ -25,6 +18,26 @@ L.TimeDimension.Layer.SODAHeatMap = L.TimeDimension.Layer.extend({
         };
         this._baseURL = this.options.baseURL || null;
         this._period = this.options.period || "P1M";
+    },
+
+    _getHeatmapOptions: function(options) {
+        var config = {};
+        var defaultConfig = {
+            radius: 15,
+            maxOpacity: .8,
+            scaleRadius: false,
+            useLocalExtrema: false,
+            latField: 'lat',
+            lngField: 'lng',
+            valueField: 'count'
+        };
+        for (var attrname in defaultConfig) {
+            config[attrname] = defaultConfig[attrname]; 
+        }
+        for (var attrname in options) {
+            config[attrname] = options[attrname]; 
+        }
+        return config;
     },
 
     onAdd: function(map) {
@@ -54,7 +67,10 @@ L.TimeDimension.Layer.SODAHeatMap = L.TimeDimension.Layer.extend({
             return;
         }
         var url = this._constructQuery(time);
-        $.getJSON(url, (function(data) {
+        var oReq = new XMLHttpRequest();
+        oReq.addEventListener("load", (function(xhr) {
+            var response = xhr.currentTarget.response;
+            var data = JSON.parse(response);
             delete this._currentTimeData.data;
             this._currentTimeData.data = [];
             for (var i = 0; i < data.length; i++) {
@@ -75,6 +91,10 @@ L.TimeDimension.Layer.SODAHeatMap = L.TimeDimension.Layer.extend({
                 time: time
             });
         }).bind(this));
+
+        oReq.open("GET", url);
+        oReq.send();
+
     },
 
     _constructQuery: function(time) {
