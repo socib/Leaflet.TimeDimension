@@ -4,7 +4,7 @@ Add time dimension capabilities on a [Leaflet](http://leafletjs.com/) map.
 
 ![screenshot](https://raw.githubusercontent.com/socib/Leaflet.TimeDimension/master/examples/img/screenshot/screenshot-leaflet-timedimension.png "Screenshot of Leaflet.TimeDimension")
 
-- [Examples](#examples)
+- [Examples and basic usage](#examples-and-basic-usage)
 - [API](#api)
     - [L.Map](#lmap)
     - [L.TimeDimension](#ltimedimension)
@@ -15,14 +15,34 @@ Add time dimension capabilities on a [Leaflet](http://leafletjs.com/) map.
     - [L.TimeDimension.Player](#ltimedimensionplayer)
     - [TimeDimension update modes](#timedimension-update-modes)
 - [Requisites](#requisites)
+- [Talks](#talks)
 - [Bugs, issues and contributions](#bugs-issues-and-contributions)
 
-## Examples
+## Examples and basic usage
 
 Checkout the [Leaflet TimeDimension Demos](http://apps.socib.es/Leaflet.TimeDimension/examples/).
-Basic example:
+
+Basic usage:
+
+```html
+<html>
+    <head>
+        <title>Leaflet TimeDimension Demo</title>        
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.2.0/leaflet.css" />
+        <link rel="stylesheet" href="https://cdn.rawgit.com/socib/Leaflet.TimeDimension/master/dist/leaflet.timedimension.control.min.css" />
+    </head>
+    <body>
+        <div id="map" style="height: 100%; width: 100%"></div>
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.2.0/leaflet.js"></script>
+        <script type="text/javascript" src="https://cdn.rawgit.com/nezasa/iso8601-js-period/master/iso8601.min.js"></script>
+        <script type="text/javascript" src="https://cdn.rawgit.com/socib/Leaflet.TimeDimension/master/dist/leaflet.timedimension.min.js"></script>
+        <script type="text/javascript" src="example.js"></script>
+    </body>
+</html>
+```
 
 ```javascript
+// example.js
 var map = L.map('map', {
     zoom: 10,
     center: [38.705, 1.15],
@@ -34,21 +54,17 @@ var map = L.map('map', {
     timeDimensionControl: true,
 });
 
-var testWMS = "http://thredds.socib.es/thredds/wms/observational/hf_radar/hf_radar_ibiza-scb_codarssproc001_aggregation/dep0001_hf-radar-ibiza_scb-codarssproc001_L1_agg.nc"
-var testLayer = L.nonTiledLayer.wms(testWMS, {
+var wmsUrl = "http://thredds.socib.es/thredds/wms/observational/hf_radar/hf_radar_ibiza-scb_codarssproc001_aggregation/dep0001_hf-radar-ibiza_scb-codarssproc001_L1_agg.nc"
+var wmsLayer = L.tileLayer.wms(wmsUrl, {
     layers: 'sea_water_velocity',
     format: 'image/png',
     transparent: true,
-    styles: 'prettyvec/rainbow',
-    markerscale: 15,
-    markerspacing: 20,
-    abovemaxcolor: "extend",
-    belowmincolor: "extend",
-    colorscalerange: "0,0.4",
     attribution: 'SOCIB HF RADAR | sea_water_velocity'
 });
-var testTimeLayer = L.timeDimension.layer.wms(testLayer);
-testTimeLayer.addTo(map);
+
+// Create and add a TimeDimension Layer to the map
+var tdWmsLayer = L.timeDimension.layer.wms(wmsLayer);
+tdWmsLayer.addTo(map);
 ```
 
 For more control over each object creation, you can create timeDimension objects manually, see [Example 9](examples/js/example9.js#L11)
@@ -316,11 +332,22 @@ Update mode can be one of these values: `intersect`, `union`, `replace`, `extrem
 - `extremes` It can recompute periodic times according to [`options.period`](#timeDimensionOptions) and extreme values of the set.
 
 ## Requisites
-
-- jQuery
+- [leaflet](http://leafletjs.com/)
 - [iso8601-js-period](https://github.com/nezasa/iso8601-js-period)
 - For the TimeDimension Control:
     - Glyphicons Halflings
+
+## Talks
+- Leaflet.TimeDimension: ¡esto se anima!(esp)
+[10as Jornadas SIG libre. Girona 2016](http://www.sigte.udg.edu/jornadassiglibre2016/) |
+[Video](https://vimeo.com/172724621) | 
+[Slides](http://apps.socib.es/Leaflet.TimeDimension/slides/slides-siglibre10.html)
+
+- Leaflet.TimeDimension webinar (eng)
+[Interoperability and Technology/Tech Dive Webinar Series](http://wiki.esipfed.org/index.php/Interoperability_and_Technology/Tech_Dive_Webinar_Series) from [ESIP](http://www.esipfed.org/) |
+[Video](https://www.youtube.com/watch?v=US5FUUPqlww) | 
+[Slides](http://apps.socib.es/Leaflet.TimeDimension/slides/slides-esip.html)
+
 
 ## Bugs, issues and contributions
 
