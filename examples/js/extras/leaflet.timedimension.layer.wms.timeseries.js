@@ -23,12 +23,11 @@ L.TimeDimension.Layer.WMS.TimeSeries = L.TimeDimension.Layer.WMS.extend({
         this._circleLabelMarkers = [];
     },
 
-    addTo: function(map) {
-        L.TimeDimension.Layer.WMS.prototype.addTo.call(this, map);
+    onAdd: function(map) {
         if (this._enableNewMarkers && this._enabledNewMarkers === undefined) {
             this._enabledNewMarkers = true;
-            this._map.doubleClickZoom.disable();
-            this._map.on('dblclick', (function(e) {
+            map.doubleClickZoom.disable();
+            map.on('dblclick', (function(e) {
                 // e.originalEvent.preventDefault();
                 this.addPositionMarker({
                     position: [e.latlng.lat, e.latlng.lng]
@@ -37,8 +36,10 @@ L.TimeDimension.Layer.WMS.TimeSeries = L.TimeDimension.Layer.WMS.extend({
             }).bind(this));
         }
         this._setDateRanges();
-        this._addMarkers();
-        return this;
+        if (this._dateRange !== undefined) {
+            this._addMarkers();
+        }
+        return L.TimeDimension.Layer.WMS.prototype.onAdd.call(this, map);
     },
 
     eachLayer: function(method, context) {
