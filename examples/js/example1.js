@@ -6,7 +6,7 @@ var map = L.map('map', {
     center: [38.0, 15.0]
 });
 
-var avisoWMS = "http://thredds.socib.es/thredds/wms/observational/satellite/altimetry/aviso/madt/altimetry_aviso_madt_L4_agg/altimetry_aviso_madt_L4_agg_best.ncd";
+var avisoWMS = "http://thredds.socib.es/thredds/wms/observational/satellite/altimetry/aviso/madt/sealevel_med_phy_nrt_L4_agg/sealevel_med_phy_nrt_L4_agg_best.ncd";
 
 var heigthLayer = L.tileLayer.wms(avisoWMS, {
     layers: 'adt',
