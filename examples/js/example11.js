@@ -22,7 +22,7 @@ L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
 }).addTo(map);
 
 var proxy = 'server/proxy.php';
-var testWMS = "http://www.ncdc.noaa.gov/thredds/wms/OISST-V2-AVHRR_agg_combined"
+var testWMS = "https://www.ncei.noaa.gov/thredds/wms/ncFC/fc-oisst-daily-avhrr-only-dly/OISST_Daily_AVHRR-only_Feature_Collection_best.ncd"
 var testLayer = L.tileLayer.wms(testWMS, {
     layers: 'sst',
     format: 'image/png',
@@ -33,6 +33,7 @@ var testLayer = L.tileLayer.wms(testWMS, {
     belowmincolor: "extend",    
     attribution: '<a href="http://www.ncdc.noaa.gov">NOAAs National Climatic Data Center</a>'
 });
+
 var testTimeLayer = L.timeDimension.layer.wms(testLayer, {
     proxy: proxy,
     updateTimeDimension: false,
