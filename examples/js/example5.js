@@ -19,7 +19,7 @@ L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
 }).addTo(map);
 
 var proxy = 'server/proxy.php';
-var testWMS = "http://glues.pik-potsdam.de:8080/thredds/wms/pik_wcrp_cmip3/ncar_pcm1_sresb1_2006-2099_tmp.nc"
+var testWMS = "http://data2-glues.ufz.de/thredds/wms/pik_wcrp_cmip3/ncar_pcm1_sresb1_2006-2099_tmp.nc"
 var testLayer = L.tileLayer.wms(testWMS, {
     layers: 'tmp',
     format: 'image/png',
