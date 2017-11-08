@@ -12,6 +12,25 @@ module.exports = function(grunt) {
 
     grunt.initConfig({
         pkg: grunt.file.readJSON('package.json'),
+        umd: {
+          prefix: '(function (factory, window) {\n' +
+                    'if (typeof define === \'function\' && define.amd) {\n' +
+                    '  // define an AMD module that relies on leaflet\n' +
+                    '  define([\'leaflet\'], factory);\n' +
+                    '} else if (typeof exports === \'object\') {\n' +
+                    '  // define a Common JS module that relies on leaflet\n' +
+                    '  module.exports = factory(require(\'leaflet\'));\n' +
+                    '}\n' +
+                    'if (typeof window !== \'undefined\' && window.L) {\n' +
+                    '  // attach your plugin to the global L variable\n' +
+                    '  window.L.TimeDimension = factory(L);\n' +
+                    '}\n' +
+                    '}(function (L) {\n'+
+                    '  // TimeDimension plugin implementation\n',
+          postfix:  '  \n'+
+                    '  return L.TimeDimension;\n'+
+                    '}, window));'
+        },
         meta: {
             banner: '/* \n' +
                 ' * Leaflet TimeDimension v<%= pkg.version %> - <%= grunt.template.today("yyyy-mm-dd") %> \n' +
@@ -52,7 +71,8 @@ module.exports = function(grunt) {
         concat: {
             js: {
                 options: {
-                    banner: '<%= meta.banner %>'
+                    banner: '<%= meta.banner %>\n<%= umd.prefix %>',
+                    footer: '<%= umd.postfix %>'
                 },
                 src: [
                     'src/leaflet.timedimension.js',
