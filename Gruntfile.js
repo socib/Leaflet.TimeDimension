@@ -21,7 +21,7 @@ module.exports = function(grunt) {
                     '  // define a Common JS module that relies on leaflet\n' +
                     '  module.exports = factory(require(\'leaflet\'));\n' +
                     '}\n' +
-                    'if (typeof window !== \'undefined\' && window.L) {\n' +
+                    'if (typeof window !== \'undefined\' && window.L && typeof L !== \'undefined\') {\n' +
                     '  // attach your plugin to the global L variable\n' +
                     '  window.L.TimeDimension = factory(L);\n' +
                     '}\n' +
@@ -71,7 +71,8 @@ module.exports = function(grunt) {
         concat: {
             js: {
                 options: {
-                    banner: '<%= meta.banner %>\n<%= umd.prefix %>',
+                    banner: '<%= meta.banner %>\n'+
+                            '<%= umd.prefix %>',
                     footer: '<%= umd.postfix %>'
                 },
                 src: [
