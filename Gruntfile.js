@@ -14,22 +14,22 @@ module.exports = function(grunt) {
         pkg: grunt.file.readJSON('package.json'),
         umd: {
           prefix: '(function (factory, window) {\n' +
-                    'if (typeof define === \'function\' && define.amd) {\n' +
-                    '  // define an AMD module that relies on leaflet\n' +
-                    '  define([\'leaflet\'], factory);\n' +
-                    '} else if (typeof exports === \'object\') {\n' +
-                    '  // define a Common JS module that relies on leaflet\n' +
-                    '  module.exports = factory(require(\'leaflet\'));\n' +
-                    '}\n' +
-                    'if (typeof window !== \'undefined\' && window.L && typeof L !== \'undefined\') {\n' +
-                    '  // attach your plugin to the global L variable\n' +
-                    '  window.L.TimeDimension = factory(L);\n' +
-                    '}\n' +
-                    '}(function (L) {\n'+
-                    '  // TimeDimension plugin implementation\n',
-          postfix:  '  \n'+
-                    '  return L.TimeDimension;\n'+
-                    '}, window));'
+                    '  if (typeof define === \'function\' && define.amd) {\n' +
+                    '    // define an AMD module that relies on leaflet\n' +
+                    '    define([\'leaflet\'], factory);\n' +
+                    '  } else if (typeof exports === \'object\') {\n' +
+                    '    // define a Common JS module that relies on leaflet\n' +
+                    '    module.exports = factory(require(\'leaflet\'));\n' +
+                    '  } else if (typeof window !== \'undefined\' && window.L && typeof L !== \'undefined\') {\n' +
+                    '    // attach your plugin to the global L variable\n' +
+                    '    window.L.TimeDimension = factory(L);\n' +
+                    '  }\n' +
+                    '  }(function (L) {\n'+
+                    '    // TimeDimension plugin implementation\n',
+          postfix:  '    \n'+
+                    '    return L.TimeDimension;\n'+
+                    '  }, window)\n'+
+                    ');'
         },
         meta: {
             banner: '/* \n' +
