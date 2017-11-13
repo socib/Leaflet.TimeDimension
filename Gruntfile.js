@@ -21,15 +21,15 @@ module.exports = function(grunt) {
                     '    // define a Common JS module that relies on leaflet\n' +
                     '    module.exports = factory(require(\'leaflet\'), require(\'iso8601-js-period\'));\n' +
                     '  } else if (typeof window !== \'undefined\' && window.L && typeof L !== \'undefined\') {\n' +
-                    '    // get the iso8601 from the expected to be global nezesa scope\n' +
-                    '    var iso8601 = nezesa.iso8601;\n' +
+                    '    // get the iso8601 from the expected to be global nezasa scope\n' +
+                    '    var iso8601 = nezasa.iso8601;\n' +
                     '    // attach your plugin to the global L variable\n' +
                     '    window.L.TimeDimension = factory(L, iso8601);\n' +
                     '  }\n' +
                     '  }(function (L, iso8601) {\n'+
-                    '    // make sure iso8601 module js period module is available under the nezesa scope\n'+
-                    '    if (typeof nezesa === \'undefined\') {\n'+
-                    '      var nezesa = { iso8601: iso8601 };\n'+
+                    '    // make sure iso8601 module js period module is available under the nezasa scope\n'+
+                    '    if (typeof nezasa === \'undefined\') {\n'+
+                    '      var nezasa = { iso8601: iso8601 };\n'+
                     '    }\n'+
                     '    // TimeDimension plugin implementation\n',
           postfix:  '    \n'+
