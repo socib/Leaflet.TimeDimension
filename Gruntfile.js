@@ -16,15 +16,21 @@ module.exports = function(grunt) {
           prefix: '(function (factory, window) {\n' +
                     '  if (typeof define === \'function\' && define.amd) {\n' +
                     '    // define an AMD module that relies on leaflet\n' +
-                    '    define([\'leaflet\'], factory);\n' +
+                    '    define([\'leaflet\', \'iso8601-js-period\'], factory);\n' +
                     '  } else if (typeof exports === \'object\') {\n' +
                     '    // define a Common JS module that relies on leaflet\n' +
-                    '    module.exports = factory(require(\'leaflet\'));\n' +
+                    '    module.exports = factory(require(\'leaflet\'), require(\'iso8601-js-period\'));\n' +
                     '  } else if (typeof window !== \'undefined\' && window.L && typeof L !== \'undefined\') {\n' +
+                    '    // get the iso8601 from the expected to be global nezesa scope\n' +
+                    '    var iso8601 = nezesa.iso8601;\n' +
                     '    // attach your plugin to the global L variable\n' +
-                    '    window.L.TimeDimension = factory(L);\n' +
+                    '    window.L.TimeDimension = factory(L, iso8601);\n' +
                     '  }\n' +
-                    '  }(function (L) {\n'+
+                    '  }(function (L, iso8601) {\n'+
+                    '    // make sure iso8601 module js period module is available under the nezesa scope\n'+
+                    '    if (typeof nezesa === \'undefined\') {\n'+
+                    '      var nezesa = { iso8601: iso8601 };\n'+
+                    '    }\n'+
                     '    // TimeDimension plugin implementation\n',
           postfix:  '    \n'+
                     '    return L.TimeDimension;\n'+
