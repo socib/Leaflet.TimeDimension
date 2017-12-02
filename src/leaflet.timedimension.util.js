@@ -193,6 +193,16 @@ L.TimeDimension.Util = {
             result = result.concat(b);
         }
         return result;
+    },
+
+    sort_and_deduplicate: function(arr) {
+        arr = arr.slice(0).sort();
+        var result = arr.slice(0, 1);
+        for (var i = 1, l = arr.length; i < l; i++) {
+            if (arr[i] !== result[i-1])
+                result.push(arr[i]);
+        }
+        return result;
     }
 
 };
