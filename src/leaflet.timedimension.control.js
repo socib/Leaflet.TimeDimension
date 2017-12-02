@@ -131,12 +131,13 @@ L.Control.TimeDimension = L.Control.extend({
         autoPlay: false,
         playerOptions: {
             transitionTime: 1000
-        }
+        },
+        timeZones: ['UTC', 'Local']
     },
 
     initialize: function(options) {
         L.Control.prototype.initialize.call(this, options);
-        this._dateUTC = true;
+        this._timeZoneIndex = 0;
         this._timeDimension = this.options.timeDimension || null;
     },
 
@@ -549,7 +550,7 @@ L.Control.TimeDimension = L.Control.extend({
     },
 
     _buttonDateClicked: function(){
-        this._toggleDateUTC();
+        this._switchTimeZone();
     },
 
     _sliderTimeValueChanged: function(newValue) {
@@ -565,20 +566,37 @@ L.Control.TimeDimension = L.Control.extend({
         this._player.setTransitionTime(1000 / newValue);
     },
 
-    _toggleDateUTC: function() {
-        if (this._dateUTC) {
+    _getCurrentTimeZone: function() {
+        return this.options.timeZones[this._timeZoneIndex];
+    },
+
+    _switchTimeZone: function() {
+        if (this._getCurrentTimeZone().toLowerCase() == 'utc') {
             L.DomUtil.removeClass(this._displayDate, 'utc');
-            this._displayDate.title = 'Local Time';
-        } else {
+        }
+        this._timeZoneIndex = (this._timeZoneIndex + 1) % this.options.timeZones.length;
+        var timeZone = this._getCurrentTimeZone();
+        if (timeZone.toLowerCase() == 'utc') {
             L.DomUtil.addClass(this._displayDate, 'utc');
             this._displayDate.title = 'UTC Time';
+        } else if (timeZone.toLowerCase() == 'local') {
+            this._displayDate.title = 'Local Time';
+        } else {
+            this._displayDate.title = timeZone;
         }
-        this._dateUTC = !this._dateUTC;
+
         this._update();
     },
 
     _getDisplayDateFormat: function(date) {
-        return this._dateUTC ? date.toISOString() : date.toLocaleString();
+        var timeZone = this._getCurrentTimeZone();
+        if (timeZone.toLowerCase() == 'utc') {
+            return date.toISOString();
+        }
+        if (timeZone.toLowerCase() == 'local') {
+            return date.toLocaleString();
+        }
+        return date.toLocaleString([], {timeZone: timeZone, timeZoneName: "short"});
     },
     _getDisplaySpeed: function(fps) {
         return fps + 'fps';
