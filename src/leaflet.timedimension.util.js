@@ -197,10 +197,13 @@ L.TimeDimension.Util = {
 
     sort_and_deduplicate: function(arr) {
         arr = arr.slice(0).sort();
-        var result = arr.slice(0, 1);
-        for (var i = 1, l = arr.length; i < l; i++) {
-            if (arr[i] !== result[i-1])
+        var result = [];
+        var last = null;
+        for (var i = 0, l = arr.length; i < l; i++) {
+            if (arr[i] !== last){
                 result.push(arr[i]);
+                last = arr[i];
+            }
         }
         return result;
     }
