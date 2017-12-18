@@ -102,68 +102,62 @@ L.TimeDimension.Layer.GeoJson = L.TimeDimension.Layer.extend({
 
     _setAvailableTimes: function() {
         var times = [];
-        this._availableTimes = [];
         var layers = this._baseLayer.getLayers();
         for (var i = 0, l = layers.length; i < l; i++) {
             if (layers[i].feature) {
-                times = L.TimeDimension.Util.union_arrays(
-                    times,
-                    this._getFeatureTimes(layers[i].feature)
-                );
+                var featureTimes = this._getFeatureTimes(layers[i].feature);
+                for (var j = 0, m = featureTimes.length; j < m; j++) {
+                    times.push(featureTimes[j]);
+                }
             }
         }
-        // String dates to ms
-        for (var i = 0, l = times.length; i < l; i++) {
-            var time = times[i]
-            if (typeof time == 'string' || time instanceof String) {
-                time = Date.parse(time.trim());
-            }
-            this._availableTimes.push(time);
-        }
+        this._availableTimes = L.TimeDimension.Util.sort_and_deduplicate(times);
         if (this._timeDimension && (this._updateTimeDimension || this._timeDimension.getAvailableTimes().length == 0)) {
             this._timeDimension.setAvailableTimes(this._availableTimes, this._updateTimeDimensionMode);
         }
     },
 
     _getFeatureTimes: function(feature) {
-        if (!feature.properties) {
-            return [];
+        if (!feature.featureTimes) {
+            if (!feature.properties) {
+                feature.featureTimes = [];
+            } else if (feature.properties.hasOwnProperty('coordTimes')) {
+                feature.featureTimes = feature.properties.coordTimes;
+            } else if (feature.properties.hasOwnProperty('times')) {
+                feature.featureTimes = feature.properties.times;
+            } else if (feature.properties.hasOwnProperty('linestringTimestamps')) {
+                feature.featureTimes = feature.properties.linestringTimestamps;
+            } else if (feature.properties.hasOwnProperty('time')) {
+                feature.featureTimes = [feature.properties.time];
+            } else {
+                feature.featureTimes = [];
+            }
+            // String dates to ms
+            for (var i = 0, l = feature.featureTimes.length; i < l; i++) {
+                var time = feature.featureTimes[i];
+                if (typeof time == 'string' || time instanceof String) {
+                    time = Date.parse(time.trim());
+                    feature.featureTimes[i] = time;
+                }
+            }
         }
-        if (feature.properties.hasOwnProperty('coordTimes')) {
-            return feature.properties.coordTimes;
-        }
-        if (feature.properties.hasOwnProperty('times')) {
-            return feature.properties.times;
-        }
-        if (feature.properties.hasOwnProperty('linestringTimestamps')) {
-            return feature.properties.linestringTimestamps;
-        }
-        if (feature.properties.hasOwnProperty('time')) {
-            return [feature.properties.time];
-        }
-        return [];
+        return feature.featureTimes;
     },
 
     _getFeatureBetweenDates: function(feature, minTime, maxTime) {
-        var featureStringTimes = this._getFeatureTimes(feature);
-        if (featureStringTimes.length == 0) {
+        var featureTimes = this._getFeatureTimes(feature);
+        if (featureTimes.length == 0) {
             return feature;
         }
-        var featureTimes = [];
-        for (var i = 0, l = featureStringTimes.length; i < l; i++) {
-            var time = featureStringTimes[i]
-            if (typeof time == 'string' || time instanceof String) {
-                time = Date.parse(time.trim());
-            }
-            featureTimes.push(time);
-        }
+
+        var index_min = null,
+            index_max = null,
+            l = featureTimes.length;
 
         if (featureTimes[0] > maxTime || featureTimes[l - 1] < minTime) {
             return null;
         }
-        var index_min = null,
-            index_max = null,
-            l = featureTimes.length;
+
         if (featureTimes[l - 1] > minTime) {
             for (var i = 0; i < l; i++) {
                 if (index_min === null && featureTimes[i] > minTime) {
