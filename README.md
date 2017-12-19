@@ -270,6 +270,7 @@ Option                 | Type                       | Default                   
 `autoPlay`             | `Boolean`                  | `false`                         | Animate the map automatically
 `player`               | `<L.TimeDimension.Player>` | `undefined`                     | Attach an existing player to that control
 `playerOptions`        | `Object`                   | `{transitionTime: 1000}`        | [Options](#timeDimensionPlayerOptions) for the TimeDimension Player object attached.(Cannot be used with `player` option)
+`timeZones`            | `Array of strings`         | `["UTC", "Local"]`              | Clicking on the date cycles between these
 
 
 ### L.TimeDimension.Player
