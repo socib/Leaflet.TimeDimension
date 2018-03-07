@@ -136,6 +136,7 @@ L.Control.TimeDimension = L.Control.extend({
     },
 
     initialize: function(options) {
+        L.setOptions(options);
         L.Control.prototype.initialize.call(this, options);
         this._timeZoneIndex = 0;
         this._timeDimension = this.options.timeDimension || null;
