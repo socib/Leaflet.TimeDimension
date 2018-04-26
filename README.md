@@ -195,6 +195,10 @@ Option                        | Type      | Default                             
 `getCapabilitiesLayerName`    | `String`  | `null`                               | Alternative layer name for the GetCapabilities request (useful if using a cache service like GeoWebCache)
 `setDefaultTime`              | `Boolean` | `false`                              | If true, it will change the current time to the default time of the layer (according to getCapabilities)
 `wmsVersion`                  | `String`  | `layer.options.version` or `"1.1.1"` | WMS version of the layer. Used to construct the getCapabilities request
+`fadeFrames`                  | `Number`  | `1`                                   | Number of animation frames over which to fade in and fade out layers, using css opacity.
+`fadeInFrames`                | `Number`  | `layer.options.fadeFrames`            | Number of animation frames over which to fade in and layers, using css opacity. 10 might be a good option.
+`fadeOutFrames`               | `Number`  | `layer.options.fadeFrames`            | Number of animation frames over which to fade out layers, using css opacity. 8 might be a good option.
+`interpolate`                 | `Boolean`  | `false`                              | Whether gradually fade through layers, using css opacity, over the duration. If using this feature, probably also set fadeOutFrames. (The interpolate option takes precedence over fadeInFrames, if both were specified).
 
 
 ### L.TimeDimension.Layer.GeoJSON
@@ -341,12 +345,12 @@ Update mode can be one of these values: `intersect`, `union`, `replace`, `extrem
 ## Talks
 - Leaflet.TimeDimension: ¡esto se anima!(esp)
 [10as Jornadas SIG libre. Girona 2016](http://www.sigte.udg.edu/jornadassiglibre2016/) |
-[Video](https://vimeo.com/172724621) | 
+[Video](https://vimeo.com/172724621) |
 [Slides](http://apps.socib.es/Leaflet.TimeDimension/slides/slides-siglibre10.html)
 
 - Leaflet.TimeDimension webinar (eng)
 [Interoperability and Technology/Tech Dive Webinar Series](http://wiki.esipfed.org/index.php/Interoperability_and_Technology/Tech_Dive_Webinar_Series) from [ESIP](http://www.esipfed.org/) |
-[Video](https://www.youtube.com/watch?v=US5FUUPqlww) | 
+[Video](https://www.youtube.com/watch?v=US5FUUPqlww) |
 [Slides](http://apps.socib.es/Leaflet.TimeDimension/slides/slides-esip.html)
 
 
