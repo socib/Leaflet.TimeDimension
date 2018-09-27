@@ -1,7 +1,7 @@
 /* 
- * Leaflet TimeDimension v1.1.0 - 2017-10-13 
+ * Leaflet TimeDimension v1.1.0 - 2018-09-27 
  * 
- * Copyright 2017 Biel Frontera (ICTS SOCIB) 
+ * Copyright 2018 Biel Frontera (ICTS SOCIB) 
  * datacenter@socib.es 
  * http://www.socib.es/ 
  * 
@@ -1025,17 +1025,12 @@ L.TimeDimension.Layer.WMS = L.TimeDimension.Layer.extend({
     },
 
     _getTimesFromLayerCapabilities: function(layer) {
-        var times = null;
-        var dimensions = layer.querySelectorAll("Dimension[name='time']");
-        if (dimensions && dimensions.length && dimensions[0].textContent.length) {
-            times = dimensions[0].textContent.trim();
-        } else {
-            var extents = layer.querySelectorAll("Extent[name='time']");
-            if (extents && extents.length && extents[0].textContent.length) {
-                times = extents[0].textContent.trim();
-            }
-        }
-        return times;
+        var times = Array.from(layer.children).filter(function(c) {
+          return (c.nodeName === 'Extent' || c.nodeName === 'Dimension') &&
+                  c.getAttribute('name') === 'time' &&
+                  c.textContent.length;
+        });
+        return (times && times.length) ? times[0].textContent.trim() : 0;
     },
 
     _getDefaultTimeFromCapabilities: function(xml) {
@@ -1061,17 +1056,12 @@ L.TimeDimension.Layer.WMS = L.TimeDimension.Layer.extend({
     },
 
     _getDefaultTimeFromLayerCapabilities: function(layer) {
-        var defaultTime = 0;
-        var dimensions = layer.querySelectorAll("Dimension[name='time']");
-        if (dimensions && dimensions.length && dimensions[0].attributes.default) {
-            defaultTime = dimensions[0].attributes.default;
-        } else {
-            var extents = layer.querySelectorAll("Extent[name='time']");
-            if (extents && extents.length && extents[0].attributes.default) {
-                defaultTime = extents[0].attributes.default;
-            }
-        }
-        return defaultTime;
+        var times = Array.from(layer.children).filter(function(c) {
+          return (c.nodeName === 'Extent' || c.nodeName === 'Dimension') &&
+                  c.getAttribute('name') === 'time' &&
+                  c.textContent.length;
+        });
+        return (times && times.length) ? times[0].attributes.default : 0;
     },
 
     setAvailableTimes: function(times) {
