@@ -194,6 +194,7 @@ Option                        | Type      | Default                             
 `getCapabilitiesUrl`          | `String`  | `null`                               | Alternative URL for the GetCapabilities request (useful if using a cache service like GeoWebCache)
 `getCapabilitiesLayerName`    | `String`  | `null`                               | Alternative layer name for the GetCapabilities request (useful if using a cache service like GeoWebCache)
 `setDefaultTime`              | `Boolean` | `false`                              | If true, it will change the current time to the default time of the layer (according to getCapabilities)
+`period`                      | `String`  | `null`                               | Duration between times that will be used to generate the available times of the layer from a time interval. It overwrites the value received in getCapabilities (if not null). Format: [ISO8601 Duration](https://en.wikipedia.org/wiki/ISO_8601#Durations)
 `wmsVersion`                  | `String`  | `layer.options.version` or `"1.1.1"` | WMS version of the layer. Used to construct the getCapabilities request
 
 

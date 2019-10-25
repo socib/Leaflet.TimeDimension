@@ -16,6 +16,7 @@ L.TimeDimension.Layer.WMS = L.TimeDimension.Layer.extend({
         this._updateTimeDimension = this.options.updateTimeDimension || false;
         this._setDefaultTime = this.options.setDefaultTime || false;
         this._updateTimeDimensionMode = this.options.updateTimeDimensionMode || 'intersect'; // 'union' or 'replace'
+        this._period = this.options.period || null;
         this._layers = {};
         this._defaultTime = 0;
         this._availableTimes = [];
@@ -357,7 +358,7 @@ L.TimeDimension.Layer.WMS = L.TimeDimension.Layer.extend({
     },
 
     setAvailableTimes: function(times) {
-        this._availableTimes = L.TimeDimension.Util.parseTimesExpression(times);
+        this._availableTimes = L.TimeDimension.Util.parseTimesExpression(times, this._period);
         this._updateTimeDimensionAvailableTimes();
     },
 
