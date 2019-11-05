@@ -261,11 +261,13 @@ L.TimeDimension.Layer.WMS = L.TimeDimension.Layer.extend({
         var oReq = new XMLHttpRequest();
         oReq.addEventListener("load", (function(xhr) {
             var data = xhr.currentTarget.responseXML;
-            this._defaultTime = Date.parse(this._getDefaultTimeFromCapabilities(data));
-            this._setDefaultTime = this._setDefaultTime || (this._timeDimension && this._timeDimension.getAvailableTimes().length == 0);
-            this.setAvailableTimes(this._parseTimeDimensionFromCapabilities(data));
-            if (this._setDefaultTime && this._timeDimension) {
-                this._timeDimension.setCurrentTime(this._defaultTime);
+            if (data !== null){
+                this._defaultTime = Date.parse(this._getDefaultTimeFromCapabilities(data));
+                this._setDefaultTime = this._setDefaultTime || (this._timeDimension && this._timeDimension.getAvailableTimes().length == 0);
+                this.setAvailableTimes(this._parseTimeDimensionFromCapabilities(data));
+                if (this._setDefaultTime && this._timeDimension) {
+                    this._timeDimension.setCurrentTime(this._defaultTime);
+                }
             }
         }).bind(this));
         oReq.overrideMimeType('application/xml');
