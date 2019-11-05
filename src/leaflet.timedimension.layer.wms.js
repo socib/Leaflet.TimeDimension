@@ -308,19 +308,22 @@ L.TimeDimension.Layer.WMS = L.TimeDimension.Layer.extend({
     },
 
     _getTimesFromLayerCapabilities: function(layer) {
-        var times = Array.from(layer.children).filter(function(c) {
-          return (c.nodeName === 'Extent' || c.nodeName === 'Dimension') &&
-                  c.getAttribute('name') === 'time' &&
-                  c.textContent.length;
-        });
-        return (times && times.length) ? times[0].textContent.trim() : 0;
+        var times = null;
+        var nodes = layer.children;
+        for (var i=0, l=nodes.length; i<l; i++){
+            if (nodes[i].nodeName !== 'Extent' && nodes[i].nodeName !== 'Dimension') continue;
+            if (nodes[i].getAttribute('name') !== 'time') continue;
+            if (!nodes[i].textContent.length) continue;
+            times = nodes[i].textContent.trim();
+            break;
+        };
+        return times;
     },
 
     _getDefaultTimeFromCapabilities: function(xml) {
         var layers = xml.querySelectorAll('Layer[queryable="1"]');
         var layerName = this._baseLayer.wmsParams.layers;
         var layer = null;
-        var times = null;
 
         layers.forEach(function(current) {
             if (current.querySelector("Name").innerHTML === layerName) {
@@ -339,12 +342,17 @@ L.TimeDimension.Layer.WMS = L.TimeDimension.Layer.extend({
     },
 
     _getDefaultTimeFromLayerCapabilities: function(layer) {
-        var times = Array.from(layer.children).filter(function(c) {
-          return (c.nodeName === 'Extent' || c.nodeName === 'Dimension') &&
-                  c.getAttribute('name') === 'time' &&
-                  c.textContent.length;
-        });
-        return (times && times.length) ? times[0].attributes.default : 0;
+        var defaultTime = 0;
+        var nodes = layer.children;
+        for (var i=0, l=nodes.length; i<l; i++) {
+            if (nodes[i].nodeName !== 'Extent' && nodes[i].nodeName !== 'Dimension') continue;
+            if (nodes[i].getAttribute('name') !== 'time') continue;
+            if (!nodes[i].attributes.default) continue;
+            if (!nodes[i].attributes.default.textContent.length) continue;
+            defaultTime = nodes[i].attributes.default.textContent.trim();
+            break;
+        };
+        return defaultTime;
     },
 
     setAvailableTimes: function(times) {
