@@ -318,7 +318,7 @@ L.TimeDimension.Layer.WMS = L.TimeDimension.Layer.extend({
             if (!nodes[i].textContent.length) continue;
             times = nodes[i].textContent.trim();
             break;
-        };
+        }
         return times;
     },
 
@@ -353,7 +353,7 @@ L.TimeDimension.Layer.WMS = L.TimeDimension.Layer.extend({
             if (!nodes[i].attributes.default.textContent.length) continue;
             defaultTime = nodes[i].attributes.default.textContent.trim();
             break;
-        };
+        }
         return defaultTime;
     },
 
