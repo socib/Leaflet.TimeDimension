@@ -1,7 +1,7 @@
 /* 
- * Leaflet TimeDimension v1.1.0 - 2017-10-13 
+ * Leaflet TimeDimension v1.1.1 - 2019-11-05 
  * 
- * Copyright 2017 Biel Frontera (ICTS SOCIB) 
+ * Copyright 2019 Biel Frontera (ICTS SOCIB) 
  * datacenter@socib.es 
  * http://www.socib.es/ 
  * 
@@ -14,6 +14,26 @@
  * git://github.com/socib/Leaflet.TimeDimension.git 
  * 
  */
+
+(function (factory, window) {
+  if (typeof define === 'function' && define.amd) {
+    // define an AMD module that relies on leaflet
+    define(['leaflet', 'iso8601-js-period'], factory);
+  } else if (typeof exports === 'object') {
+    // define a Common JS module that relies on leaflet
+    module.exports = factory(require('leaflet'), require('iso8601-js-period'));
+  } else if (typeof window !== 'undefined' && window.L && typeof L !== 'undefined') {
+    // get the iso8601 from the expected to be global nezasa scope
+    var iso8601 = nezasa.iso8601;
+    // attach your plugin to the global L variable
+    window.L.TimeDimension = factory(L, iso8601);
+  }
+  }(function (L, iso8601) {
+    // make sure iso8601 module js period module is available under the nezasa scope
+    if (typeof nezasa === 'undefined') {
+      var nezasa = { iso8601: iso8601 };
+    }
+    // TimeDimension plugin implementation
 /*jshint indent: 4, browser:true*/
 /*global L*/
 /*
@@ -450,13 +470,15 @@ L.TimeDimension.Util = {
         this.addTimeDuration(date, subDuration, utc);
     },
 
-    parseAndExplodeTimeRange: function(timeRange) {
+    parseAndExplodeTimeRange: function(timeRange, overwritePeriod) {
         var tr = timeRange.split('/');
         var startTime = new Date(Date.parse(tr[0]));
         var endTime = new Date(Date.parse(tr[1]));
-        var duration = tr.length > 2 ? tr[2] : "P1D";
-
-        return this.explodeTimeRange(startTime, endTime, duration);
+        var period = (tr.length > 2 && tr[2].length) ? tr[2] : "P1D";
+        if (overwritePeriod !== undefined && overwritePeriod !== null){
+            period = overwritePeriod;
+        }
+        return this.explodeTimeRange(startTime, endTime, period);
     },
 
     explodeTimeRange: function(startTime, endTime, ISODuration, validTimeRange) {
@@ -522,7 +544,7 @@ L.TimeDimension.Util = {
         return [startTime, endTime];
     },
 
-    parseTimesExpression: function(times) {
+    parseTimesExpression: function(times, overwritePeriod) {
         var result = [];
         if (!times) {
             return result;
@@ -534,7 +556,7 @@ L.TimeDimension.Util = {
             for (var i=0, l=timeRanges.length; i<l; i++){
                 timeRange = timeRanges[i];
                 if (timeRange.split("/").length == 3) {
-                    result = result.concat(this.parseAndExplodeTimeRange(timeRange));
+                    result = result.concat(this.parseAndExplodeTimeRange(timeRange, overwritePeriod));
                 } else {
                     timeValue = Date.parse(timeRange);
                     if (!isNaN(timeValue)) {
@@ -585,6 +607,19 @@ L.TimeDimension.Util = {
             result = result.concat(a);
         } else if (b.length > 0) {
             result = result.concat(b);
+        }
+        return result;
+    },
+
+    sort_and_deduplicate: function(arr) {
+        arr = arr.slice(0).sort();
+        var result = [];
+        var last = null;
+        for (var i = 0, l = arr.length; i < l; i++) {
+            if (arr[i] !== last){
+                result.push(arr[i]);
+                last = arr[i];
+            }
         }
         return result;
     }
@@ -734,6 +769,7 @@ L.TimeDimension.Layer.WMS = L.TimeDimension.Layer.extend({
         this._updateTimeDimension = this.options.updateTimeDimension || false;
         this._setDefaultTime = this.options.setDefaultTime || false;
         this._updateTimeDimensionMode = this.options.updateTimeDimensionMode || 'intersect'; // 'union' or 'replace'
+        this._period = this.options.period || null;
         this._layers = {};
         this._defaultTime = 0;
         this._availableTimes = [];
@@ -978,11 +1014,13 @@ L.TimeDimension.Layer.WMS = L.TimeDimension.Layer.extend({
         var oReq = new XMLHttpRequest();
         oReq.addEventListener("load", (function(xhr) {
             var data = xhr.currentTarget.responseXML;
-            this._defaultTime = Date.parse(this._getDefaultTimeFromCapabilities(data));
-            this._setDefaultTime = this._setDefaultTime || (this._timeDimension && this._timeDimension.getAvailableTimes().length == 0);
-            this.setAvailableTimes(this._parseTimeDimensionFromCapabilities(data));
-            if (this._setDefaultTime && this._timeDimension) {
-                this._timeDimension.setCurrentTime(this._defaultTime);
+            if (data !== null){
+                this._defaultTime = Date.parse(this._getDefaultTimeFromCapabilities(data));
+                this._setDefaultTime = this._setDefaultTime || (this._timeDimension && this._timeDimension.getAvailableTimes().length == 0);
+                this.setAvailableTimes(this._parseTimeDimensionFromCapabilities(data));
+                if (this._setDefaultTime && this._timeDimension) {
+                    this._timeDimension.setCurrentTime(this._defaultTime);
+                }
             }
         }).bind(this));
         oReq.overrideMimeType('application/xml');
@@ -1026,14 +1064,13 @@ L.TimeDimension.Layer.WMS = L.TimeDimension.Layer.extend({
 
     _getTimesFromLayerCapabilities: function(layer) {
         var times = null;
-        var dimensions = layer.querySelectorAll("Dimension[name='time']");
-        if (dimensions && dimensions.length && dimensions[0].textContent.length) {
-            times = dimensions[0].textContent.trim();
-        } else {
-            var extents = layer.querySelectorAll("Extent[name='time']");
-            if (extents && extents.length && extents[0].textContent.length) {
-                times = extents[0].textContent.trim();
-            }
+        var nodes = layer.children;
+        for (var i=0, l=nodes.length; i<l; i++){
+            if (nodes[i].nodeName !== 'Extent' && nodes[i].nodeName !== 'Dimension') continue;
+            if (nodes[i].getAttribute('name') !== 'time') continue;
+            if (!nodes[i].textContent.length) continue;
+            times = nodes[i].textContent.trim();
+            break;
         }
         return times;
     },
@@ -1042,7 +1079,6 @@ L.TimeDimension.Layer.WMS = L.TimeDimension.Layer.extend({
         var layers = xml.querySelectorAll('Layer[queryable="1"]');
         var layerName = this._baseLayer.wmsParams.layers;
         var layer = null;
-        var times = null;
 
         layers.forEach(function(current) {
             if (current.querySelector("Name").innerHTML === layerName) {
@@ -1062,20 +1098,20 @@ L.TimeDimension.Layer.WMS = L.TimeDimension.Layer.extend({
 
     _getDefaultTimeFromLayerCapabilities: function(layer) {
         var defaultTime = 0;
-        var dimensions = layer.querySelectorAll("Dimension[name='time']");
-        if (dimensions && dimensions.length && dimensions[0].attributes.default) {
-            defaultTime = dimensions[0].attributes.default;
-        } else {
-            var extents = layer.querySelectorAll("Extent[name='time']");
-            if (extents && extents.length && extents[0].attributes.default) {
-                defaultTime = extents[0].attributes.default;
-            }
+        var nodes = layer.children;
+        for (var i=0, l=nodes.length; i<l; i++) {
+            if (nodes[i].nodeName !== 'Extent' && nodes[i].nodeName !== 'Dimension') continue;
+            if (nodes[i].getAttribute('name') !== 'time') continue;
+            if (!nodes[i].attributes.default) continue;
+            if (!nodes[i].attributes.default.textContent.length) continue;
+            defaultTime = nodes[i].attributes.default.textContent.trim();
+            break;
         }
         return defaultTime;
     },
 
     setAvailableTimes: function(times) {
-        this._availableTimes = L.TimeDimension.Util.parseTimesExpression(times);
+        this._availableTimes = L.TimeDimension.Util.parseTimesExpression(times, this._period);
         this._updateTimeDimensionAvailableTimes();
     },
 
@@ -1312,68 +1348,62 @@ L.TimeDimension.Layer.GeoJson = L.TimeDimension.Layer.extend({
 
     _setAvailableTimes: function() {
         var times = [];
-        this._availableTimes = [];
         var layers = this._baseLayer.getLayers();
         for (var i = 0, l = layers.length; i < l; i++) {
             if (layers[i].feature) {
-                times = L.TimeDimension.Util.union_arrays(
-                    times,
-                    this._getFeatureTimes(layers[i].feature)
-                );
+                var featureTimes = this._getFeatureTimes(layers[i].feature);
+                for (var j = 0, m = featureTimes.length; j < m; j++) {
+                    times.push(featureTimes[j]);
+                }
             }
         }
-        // String dates to ms
-        for (var i = 0, l = times.length; i < l; i++) {
-            var time = times[i]
-            if (typeof time == 'string' || time instanceof String) {
-                time = Date.parse(time.trim());
-            }
-            this._availableTimes.push(time);
-        }
+        this._availableTimes = L.TimeDimension.Util.sort_and_deduplicate(times);
         if (this._timeDimension && (this._updateTimeDimension || this._timeDimension.getAvailableTimes().length == 0)) {
             this._timeDimension.setAvailableTimes(this._availableTimes, this._updateTimeDimensionMode);
         }
     },
 
     _getFeatureTimes: function(feature) {
-        if (!feature.properties) {
-            return [];
+        if (!feature.featureTimes) {
+            if (!feature.properties) {
+                feature.featureTimes = [];
+            } else if (feature.properties.hasOwnProperty('coordTimes')) {
+                feature.featureTimes = feature.properties.coordTimes;
+            } else if (feature.properties.hasOwnProperty('times')) {
+                feature.featureTimes = feature.properties.times;
+            } else if (feature.properties.hasOwnProperty('linestringTimestamps')) {
+                feature.featureTimes = feature.properties.linestringTimestamps;
+            } else if (feature.properties.hasOwnProperty('time')) {
+                feature.featureTimes = [feature.properties.time];
+            } else {
+                feature.featureTimes = [];
+            }
+            // String dates to ms
+            for (var i = 0, l = feature.featureTimes.length; i < l; i++) {
+                var time = feature.featureTimes[i];
+                if (typeof time == 'string' || time instanceof String) {
+                    time = Date.parse(time.trim());
+                    feature.featureTimes[i] = time;
+                }
+            }
         }
-        if (feature.properties.hasOwnProperty('coordTimes')) {
-            return feature.properties.coordTimes;
-        }
-        if (feature.properties.hasOwnProperty('times')) {
-            return feature.properties.times;
-        }
-        if (feature.properties.hasOwnProperty('linestringTimestamps')) {
-            return feature.properties.linestringTimestamps;
-        }
-        if (feature.properties.hasOwnProperty('time')) {
-            return [feature.properties.time];
-        }
-        return [];
+        return feature.featureTimes;
     },
 
     _getFeatureBetweenDates: function(feature, minTime, maxTime) {
-        var featureStringTimes = this._getFeatureTimes(feature);
-        if (featureStringTimes.length == 0) {
+        var featureTimes = this._getFeatureTimes(feature);
+        if (featureTimes.length == 0) {
             return feature;
         }
-        var featureTimes = [];
-        for (var i = 0, l = featureStringTimes.length; i < l; i++) {
-            var time = featureStringTimes[i]
-            if (typeof time == 'string' || time instanceof String) {
-                time = Date.parse(time.trim());
-            }
-            featureTimes.push(time);
-        }
+
+        var index_min = null,
+            index_max = null,
+            l = featureTimes.length;
 
         if (featureTimes[0] > maxTime || featureTimes[l - 1] < minTime) {
             return null;
         }
-        var index_min = null,
-            index_max = null,
-            l = featureTimes.length;
+
         if (featureTimes[l - 1] > minTime) {
             for (var i = 0; i < l; i++) {
                 if (index_min === null && featureTimes[i] > minTime) {
@@ -1727,12 +1757,14 @@ L.Control.TimeDimension = L.Control.extend({
         autoPlay: false,
         playerOptions: {
             transitionTime: 1000
-        }
+        },
+        timeZones: ['UTC', 'Local']
     },
 
     initialize: function(options) {
+        L.setOptions(options);
         L.Control.prototype.initialize.call(this, options);
-        this._dateUTC = true;
+        this._timeZoneIndex = 0;
         this._timeDimension = this.options.timeDimension || null;
     },
 
@@ -2145,7 +2177,7 @@ L.Control.TimeDimension = L.Control.extend({
     },
 
     _buttonDateClicked: function(){
-        this._toggleDateUTC();
+        this._switchTimeZone();
     },
 
     _sliderTimeValueChanged: function(newValue) {
@@ -2161,20 +2193,37 @@ L.Control.TimeDimension = L.Control.extend({
         this._player.setTransitionTime(1000 / newValue);
     },
 
-    _toggleDateUTC: function() {
-        if (this._dateUTC) {
+    _getCurrentTimeZone: function() {
+        return this.options.timeZones[this._timeZoneIndex];
+    },
+
+    _switchTimeZone: function() {
+        if (this._getCurrentTimeZone().toLowerCase() == 'utc') {
             L.DomUtil.removeClass(this._displayDate, 'utc');
-            this._displayDate.title = 'Local Time';
-        } else {
+        }
+        this._timeZoneIndex = (this._timeZoneIndex + 1) % this.options.timeZones.length;
+        var timeZone = this._getCurrentTimeZone();
+        if (timeZone.toLowerCase() == 'utc') {
             L.DomUtil.addClass(this._displayDate, 'utc');
             this._displayDate.title = 'UTC Time';
+        } else if (timeZone.toLowerCase() == 'local') {
+            this._displayDate.title = 'Local Time';
+        } else {
+            this._displayDate.title = timeZone;
         }
-        this._dateUTC = !this._dateUTC;
+
         this._update();
     },
 
     _getDisplayDateFormat: function(date) {
-        return this._dateUTC ? date.toISOString() : date.toLocaleString();
+        var timeZone = this._getCurrentTimeZone();
+        if (timeZone.toLowerCase() == 'utc') {
+            return date.toISOString();
+        }
+        if (timeZone.toLowerCase() == 'local') {
+            return date.toLocaleString();
+        }
+        return date.toLocaleString([], {timeZone: timeZone, timeZoneName: "short"});
     },
     _getDisplaySpeed: function(fps) {
         return fps + 'fps';
@@ -2198,3 +2247,7 @@ L.Map.addInitHook(function() {
 L.control.timeDimension = function(options) {
     return new L.Control.TimeDimension(options);
 };
+    
+    return L.TimeDimension;
+  }, window)
+);
