@@ -36,9 +36,7 @@ var radarWMS = L.nonTiledLayer.wms(wmsUrl, {
     attribution: 'nowCOAST'
 });
 
-var proxy = 'server/proxy.php';
 var testTimeLayer = L.timeDimension.layer.wms(radarWMS, {
-    proxy: proxy,
     updateTimeDimension: false,
     wmsVersion: '1.3.0'
 });
