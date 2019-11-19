@@ -198,7 +198,9 @@ L.TimeDimension.Util = {
     },
 
     sort_and_deduplicate: function(arr) {
-        arr = arr.slice(0).sort();
+        arr = arr.slice(0).sort(function (a, b) {
+            return a - b;
+        });
         var result = [];
         var last = null;
         for (var i = 0, l = arr.length; i < l; i++) {
