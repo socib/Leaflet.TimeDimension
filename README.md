@@ -227,6 +227,7 @@ Option                    | Type      | Default      | Description
 `waitForReady`            | `Boolean` | `false`      | If `true`, it will wait until the baseLayer is loaded to mark itself as ready. You can use it with layers created using [leaflet-omnivore](https://github.com/mapbox/leaflet-omnivore).
 `updateTimeDimension`     | `Boolean` | `false`      | Update the list of available times of the attached TimeDimension with the available times of this GeoJSON
 `updateTimeDimensionMode` | `String`  | `"extremes"` | Operation to merge the available times of the TimeDimension and the layer (intersect, union, replace or extremes)
+`updateCurrentTime`       | `Boolean`  | `updateTimeDimension` | Automatically change the current time of map to the first available time of the GeoJSON layer.
 
 
 ### L.Control.TimeDimension
