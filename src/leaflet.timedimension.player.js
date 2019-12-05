@@ -97,16 +97,19 @@ L.TimeDimension.Player = (L.Layer || L.Class).extend({
         if (this._intervalID) return;
         this._steps = numSteps || 1;
         this._waitingForBuffer = false;
+        var startedOver = false;
         if (this.options.startOver){
             if (this._timeDimension.getCurrentTimeIndex() === this._getMaxIndex()){
-                 this._timeDimension.setCurrentTimeIndex(this._timeDimension.getLowerLimitIndex() || 0);
+                this._timeDimension.setCurrentTimeIndex(this._timeDimension.getLowerLimitIndex() || 0);
+                startedOver = true;
             }
         }
         this.release();
         this._intervalID = window.setInterval(
             L.bind(this._tick, this),
             this._transitionTime);
-        this._tick();
+        if (!startedOver)
+            this._tick();
         this.fire('play');
         this.fire('running');
     },
