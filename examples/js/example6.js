@@ -13,9 +13,9 @@ var map = L.map('map', {
     },
     timeDimension: true,
     timeDimensionOptions: {
-        timeInterval: "2015-07-07/2015-07-12",
+        timeInterval: "2020-09-25/2020-09-30",
         period: "PT1H",
-        currentTime: Date.parse("2015-07-09T04:00:00Z")
+        currentTime: Date.parse("2020-09-25T12:00:00Z")
     },
     center: [39.3, 2.9]
 });
