@@ -3,16 +3,17 @@ Date.prototype.format = function (mask, utc) {
 };
 
 var currentMonth = new Date();
-currentMonth.setUTCDate(1, 0, 0, 0, 0);
+currentMonth.setUTCDate(1);
+currentMonth.setUTCHours(12, 0, 0, 0);
 
 var map = L.map('map', {
     zoom: 2,
     fullscreenControl: true,
     timeDimension: true,
     timeDimensionOptions:{
-        timeInterval: "1981-09/" + currentMonth.format("yyyy-mm"),
+        timeInterval: "P6M/" + currentMonth.format("yyyy-mm-dd\'T\'HH:MM:ss"),
         period: "P1M",
-        currentTime: Date.parse("1981-09-01T00:00:00Z")
+        currentTime: currentMonth
     },
     center: [20.0, 0.0],
 });
