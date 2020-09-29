@@ -10,19 +10,19 @@ L.TimeDimension.Layer.DrifterDeployment = L.TimeDimension.Layer.GeoJson.extend({
     onAdd: function(map) {
         L.TimeDimension.Layer.prototype.onAdd.call(this, map);
         var proxy = "server/proxy-datadiscovery.php";
-        var url = "http://apps.socib.es/DataDiscovery/deployment-info?" +
+        var url = "https://apps.socib.es/DataDiscovery/deployment-info?" +
             "id_platform=" + this._id_platform + "&id_deployment=" + this._id_deployment +
             "&sample=50";
         url = proxy + '?url=' + encodeURIComponent(url);
         var oReq = new XMLHttpRequest();
         oReq.addEventListener("load", (function(xhr) {
             var response = xhr.currentTarget.response;
-            var data = JSON.parse(response);            
+            var data = JSON.parse(response);
             this._baseLayer = this._createLayer(data);
             this._onReadyBaseLayer();
         }.bind(this)));
         oReq.open("GET", url);
-        oReq.send();        
+        oReq.send();
     },
 
     _createLayer: function(featurecollection) {
@@ -147,7 +147,7 @@ var map = L.map('map', {
     timeDimensionControlOptions: {
         autoPlay: true,
         playerOptions: {
-            buffer: 10,            
+            buffer: 10,
             transitionTime: 500,
             loop: true,
         }
@@ -155,7 +155,7 @@ var map = L.map('map', {
     center: [38.705, 1.15],
 });
 
-var Esri_WorldImagery = L.tileLayer('http://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+var Esri_WorldImagery = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
         attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, ' +
         'AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
     });
@@ -167,7 +167,7 @@ var baseLayers = {
 L.control.layers(baseLayers, {}).addTo(map);
 Esri_WorldImagery.addTo(map);
 
-var testWMS = "http://thredds.socib.es/thredds/wms/observational/hf_radar/hf_radar_ibiza-scb_codarssproc001_L1_agg/hf_radar_ibiza-scb_codarssproc001_L1_agg_best.ncd"
+var testWMS = "https://thredds.socib.es/thredds/wms/observational/hf_radar/hf_radar_ibiza-scb_codarssproc001_L1_agg/hf_radar_ibiza-scb_codarssproc001_L1_agg_best.ncd"
 var testLayer = L.nonTiledLayer.wms(testWMS, {
     layers: 'sea_water_velocity',
     format: 'image/png',

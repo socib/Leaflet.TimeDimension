@@ -13,12 +13,12 @@ var map = L.map('map', {
         timeInterval: "1981-09/" + currentMonth.format("yyyy-mm"),
         period: "P1M",
         currentTime: Date.parse("1981-09-01T00:00:00Z")
-    },    
+    },
     center: [20.0, 0.0],
 });
 
-L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
-    attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'    
+L.tileLayer('https://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; <a href="https://osm.org/copyright">OpenStreetMap</a> contributors'
 }).addTo(map);
 
 var proxy = 'server/proxy.php';
@@ -30,8 +30,8 @@ var testLayer = L.tileLayer.wms(testWMS, {
     style: 'boxfill/sst_36',
     colorscalerange: '-3,35',
     abovemaxcolor: "extend",
-    belowmincolor: "extend",    
-    attribution: '<a href="http://www.ncdc.noaa.gov">NOAAs National Climatic Data Center</a>'
+    belowmincolor: "extend",
+    attribution: '<a href="https://www.ncdc.noaa.gov">NOAAs National Climatic Data Center</a>'
 });
 
 var testTimeLayer = L.timeDimension.layer.wms(testLayer, {
@@ -55,7 +55,7 @@ testLegend.addTo(map);
 L.Control.TimeDimensionCustom = L.Control.TimeDimension.extend({
     _getDisplayDateFormat: function(date){
         return date.format("dS mmmm yyyy");
-    }    
+    }
 });
 var timeDimensionControl = new L.Control.TimeDimensionCustom({
     playerOptions: {

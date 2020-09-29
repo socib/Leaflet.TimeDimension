@@ -23,11 +23,11 @@ var map = L.map('map', {
     center: [38.705, 1.15],
 });
 
-L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
-    attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+L.tileLayer('https://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; <a href="https://osm.org/copyright">OpenStreetMap</a> contributors'
 }).addTo(map);
 
-var testWMS = "http://thredds.socib.es/thredds/wms/observational/hf_radar/hf_radar_ibiza-scb_codarssproc001_L1_agg/hf_radar_ibiza-scb_codarssproc001_L1_agg_best.ncd"
+var testWMS = "https://thredds.socib.es/thredds/wms/observational/hf_radar/hf_radar_ibiza-scb_codarssproc001_L1_agg/hf_radar_ibiza-scb_codarssproc001_L1_agg_best.ncd"
 var testLayer = L.tileLayer.wms(testWMS, {
     layers: 'sea_water_velocity',
     version: '1.3.0',
@@ -81,7 +81,7 @@ $("#btn_timerange").click(function(){
 
 $("#btn_limitrange").click(function(){
     var startTime = new Date($('#dtp_start').val());
-    var endTime = new Date($('#dtp_end').val());    
+    var endTime = new Date($('#dtp_end').val());
     map.timeDimension.setLowerLimit(startTime);
     map.timeDimension.setUpperLimit(endTime);
     map.timeDimension.setCurrentTime(startTime);

@@ -10,8 +10,8 @@ var map = L.map('map', {
         timeInterval: "PT4H/" + endDate.toISOString(),
         period: "PT4M",
         currentTime: endDate
-    },    
-    
+    },
+
     timeDimensionControlOptions: {
         autoPlay: false,
         playerOptions: {
@@ -23,8 +23,8 @@ var map = L.map('map', {
     center: [38.0, -90.50],
 });
 
-L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
-    attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+L.tileLayer('https://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; <a href="https://osm.org/copyright">OpenStreetMap</a> contributors'
 }).addTo(map);
 
 var wmsUrl = "https://nowcoast.noaa.gov/arcgis/services/nowcoast/radar_meteo_imagery_nexrad_time/MapServer/WMSServer"

@@ -19,15 +19,15 @@ var map = L.map('map', {
     center: [39.3, 2.9]
 });
 
-var portusLayer = L.tileLayer('http://portus.puertos.es/Portus//pathtiles/wave/MED/VHM0/{d}{h}/map//{z}/{x}/{y}.png', {
-    attribution: '&copy; <a href="http://portus.puertos.es/Portus_RT/">Agencia Estatal de Meteorología (AEMET) y Puertos del Estado (OPPE)</a>',
+var portusLayer = L.tileLayer('https://portus.puertos.es/Portus//pathtiles/wave/MED/VHM0/{d}{h}/map//{z}/{x}/{y}.png', {
+    attribution: '&copy; <a href="https://portus.puertos.es/Portus_RT/">Agencia Estatal de Meteorología (AEMET) y Puertos del Estado (OPPE)</a>',
     tms: true,
     maxZoom: 7,
 });
 var portusTimeLayer = L.timeDimension.layer.tileLayer.portus(portusLayer, {});
 
-var portusBalLayer = L.tileLayer('http://portus.puertos.es/Portus//pathtiles/wave/S12B/VHM0/{d}{h}/map//{z}/{x}/{y}.png', {
-    attribution: '&copy; <a href="http://portus.puertos.es/Portus_RT/">Agencia Estatal de Meteorología (AEMET) y Puertos del Estado (OPPE)</a>',
+var portusBalLayer = L.tileLayer('https://portus.puertos.es/Portus//pathtiles/wave/S12B/VHM0/{d}{h}/map//{z}/{x}/{y}.png', {
+    attribution: '&copy; <a href="https://portus.puertos.es/Portus_RT/">Agencia Estatal de Meteorología (AEMET) y Puertos del Estado (OPPE)</a>',
     tms: true,
     minZoom: 8
 });

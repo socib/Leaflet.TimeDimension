@@ -20,14 +20,14 @@ Add time dimension capabilities on a [Leaflet](http://leafletjs.com/) map.
 
 ## Examples and basic usage
 
-Checkout the [Leaflet TimeDimension Demos](http://apps.socib.es/Leaflet.TimeDimension/examples/).
+Checkout the [Leaflet TimeDimension Demos](https://apps.socib.es/Leaflet.TimeDimension/examples/).
 
 Basic usage:
 
 ```html
 <html>
     <head>
-        <title>Leaflet TimeDimension Demo</title>        
+        <title>Leaflet TimeDimension Demo</title>
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.5.1/dist/leaflet.css" />
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet-timedimension@1.1.1/dist/leaflet.timedimension.control.min.css" />
     </head>
@@ -54,7 +54,7 @@ var map = L.map('map', {
     timeDimensionControl: true,
 });
 
-var wmsUrl = "http://thredds.socib.es/thredds/wms/observational/hf_radar/hf_radar_ibiza-scb_codarssproc001_aggregation/dep0001_hf-radar-ibiza_scb-codarssproc001_L1_agg.nc"
+var wmsUrl = "https://thredds.socib.es/thredds/wms/observational/hf_radar/hf_radar_ibiza-scb_codarssproc001_aggregation/dep0001_hf-radar-ibiza_scb-codarssproc001_L1_agg.nc"
 var wmsLayer = L.tileLayer.wms(wmsUrl, {
     layers: 'sea_water_velocity',
     format: 'image/png',
@@ -343,13 +343,13 @@ Update mode can be one of these values: `intersect`, `union`, `replace`, `extrem
 ## Talks
 - Leaflet.TimeDimension: ¡esto se anima!(esp)
 [10as Jornadas SIG libre. Girona 2016](http://www.sigte.udg.edu/jornadassiglibre2016/) |
-[Video](https://vimeo.com/172724621) | 
-[Slides](http://apps.socib.es/Leaflet.TimeDimension/slides/slides-siglibre10.html)
+[Video](https://vimeo.com/172724621) |
+[Slides](https://apps.socib.es/Leaflet.TimeDimension/slides/slides-siglibre10.html)
 
 - Leaflet.TimeDimension webinar (eng)
 [Interoperability and Technology/Tech Dive Webinar Series](http://wiki.esipfed.org/index.php/Interoperability_and_Technology/Tech_Dive_Webinar_Series) from [ESIP](http://www.esipfed.org/) |
-[Video](https://www.youtube.com/watch?v=US5FUUPqlww) | 
-[Slides](http://apps.socib.es/Leaflet.TimeDimension/slides/slides-esip.html)
+[Video](https://www.youtube.com/watch?v=US5FUUPqlww) |
+[Slides](https://apps.socib.es/Leaflet.TimeDimension/slides/slides-esip.html)
 
 
 ## Bugs, issues and contributions

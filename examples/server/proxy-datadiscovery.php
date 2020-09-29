@@ -2,7 +2,7 @@
 
 $url = $_GET['url'];
 $result = "";
-if (strpos($url, "http://apps.socib.es/DataDiscovery/") == 0){
+if (strpos($url, "https://apps.socib.es/DataDiscovery/") == 0){
     $result = file_get_contents($url);
     $nlines = count($http_response_header);
     for ($i = $nlines-1; $i >= 0; $i--) {

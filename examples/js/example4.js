@@ -11,24 +11,24 @@ var map = L.map('map', {
         timeInterval: "P2W/" + endDate.toISOString(),
         period: "PT5M"
     },
-    timeDimensionControlOptions: {        
+    timeDimensionControlOptions: {
         playerOptions: {
             transitionTime: 250,
-        }        
+        }
     }
 });
 
-L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
-    attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+L.tileLayer('https://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; <a href="https://osm.org/copyright">OpenStreetMap</a> contributors'
 }).addTo(map);
 
 
 // http://geoservices.knmi.nl/adaguc_portal/?srs=EPSG%3A28992&bbox=-47780.898876404506,300000,342780.8988764045,630000&service=http%253A%252F%252Fgeoservices.knmi.nl%252Fcgi-bin%252FRADNL_OPER_R___25PCPRR_L3.cgi%253F&layer=RADNL_OPER_R___25PCPRR_L3_COLOR%2524image%252Fpng%2524true%2524default%25241%25240&selected=0&dims=time$current&baselayers=world_raster$nl_world_line
-var testWMS = "http://geoservices.knmi.nl/cgi-bin/RADNL_OPER_R___25PCPRR_L3.cgi"
+var testWMS = "https://geoservices.knmi.nl/cgi-bin/RADNL_OPER_R___25PCPRR_L3.cgi"
 var testLayer = L.nonTiledLayer.wms(testWMS, {
     layers: 'RADNL_OPER_R___25PCPRR_L3_COLOR',
     format: 'image/png',
-    transparent: true, 
+    transparent: true,
     attribution: 'KNMI'
 });
 var testTimeLayer = L.timeDimension.layer.wms(testLayer);

@@ -202,7 +202,7 @@ var map = L.map('map', {
 });
 
 // Add image layer
-var imageUrl = 'http://www.socib.es/users/mobims/imageArchive/clm/sirena/clm/c04/2014/01/11/clm_s_04_2014-01-01-12-00.png',
+var imageUrl = 'https://www.socib.es/users/mobims/imageArchive/clm/sirena/clm/c04/2014/01/11/clm_s_04_2014-01-01-12-00.png',
     imageBounds = [
         [38.69, 1.1675],
         [38.71, 1.1325]

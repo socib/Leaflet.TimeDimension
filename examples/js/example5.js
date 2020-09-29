@@ -10,14 +10,15 @@ var map = L.map('map', {
     timeDimensionControl: true,
     timeDimensionControlOptions:{
         timeSteps: 12
-    },    
+    },
     center: [20.0, 0.0],
 });
 
-L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
-    attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'    
+L.tileLayer('https://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; <a href="https://osm.org/copyright">OpenStreetMap</a> contributors'
 }).addTo(map);
 
+/*
 var proxy = 'server/proxy.php';
 var testWMS = "http://data2-glues.ufz.de/thredds/wms/pik_wcrp_cmip3/ncar_pcm1_sresb1_2006-2099_tmp.nc"
 var testLayer = L.tileLayer.wms(testWMS, {
@@ -40,5 +41,5 @@ testLegend.onAdd = function(map) {
     return div;
 };
 testLegend.addTo(map);
-
+*/
 

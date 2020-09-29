@@ -8,7 +8,7 @@
     "timedimension",
     "leaflet"
   ],
-  "homepage": "http://apps.socib.es/Leaflet.TimeDimension/",
+  "homepage": "https://apps.socib.es/Leaflet.TimeDimension/",
   "bugs": {
     "url": "https://github.com/socib/Leaflet.TimeDimension/issues"
   },
@@ -16,7 +16,7 @@
   "author": {
     "name": "Biel Frontera (ICTS SOCIB)",
     "email": "datacenter@socib.es",
-    "url": "http://www.socib.es/"
+    "url": "https://www.socib.es/"
   },
   "contributors": [
     {

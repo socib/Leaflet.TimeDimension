@@ -24,7 +24,7 @@ function addGeoJSONLayer(map, data) {
     });
 
     // Show both layers: the geoJSON layer to show the whole track
-    // and the timedimension layer to show the movement of the bus 
+    // and the timedimension layer to show the movement of the bus
     geoJSONLayer.addTo(map);
     geoJSONTDLayer.addTo(map);
 }
@@ -44,10 +44,10 @@ var map = L.map('map', {
     },
     timeDimension: true,
     center: [36.72, -4.43]
-}); 
+});
 
-var osmLayer = L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
-    attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+var osmLayer = L.tileLayer('https://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; <a href="https://osm.org/copyright">OpenStreetMap</a> contributors'
 });
 osmLayer.addTo(map);
 

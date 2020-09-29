@@ -6,7 +6,7 @@ var map = L.map('map', {
     center: [38.0, 15.0]
 });
 
-var avisoWMS = "http://thredds.socib.es/thredds/wms/observational/satellite/altimetry/aviso/madt/sealevel_med_phy_nrt_L4_agg/sealevel_med_phy_nrt_L4_agg_best.ncd";
+var avisoWMS = "https://thredds.socib.es/thredds/wms/observational/satellite/altimetry/aviso/madt/sealevel_med_phy_nrt_L4_agg/sealevel_med_phy_nrt_L4_agg_best.ncd";
 
 var heigthLayer = L.tileLayer.wms(avisoWMS, {
     layers: 'adt',
@@ -15,7 +15,7 @@ var heigthLayer = L.tileLayer.wms(avisoWMS, {
     colorscalerange: '-0.4,0.4',
     abovemaxcolor: "extend",
     belowmincolor: "extend",
-    numcolorbands: 100,    
+    numcolorbands: 100,
     styles: 'boxfill/rainbow'
 });
 var heigthContourLayer = L.tileLayer.wms(avisoWMS, {
@@ -23,7 +23,7 @@ var heigthContourLayer = L.tileLayer.wms(avisoWMS, {
     format: 'image/png',
     transparent: true,
     colorscalerange: '-0.5,0.5',
-    numcontours: 11,    
+    numcontours: 11,
     styles: 'contour/rainbow'
 });
 
@@ -36,7 +36,7 @@ var velocityLayer = L.nonTiledLayer.wms(avisoWMS, {
     markerspacing: 8,
     abovemaxcolor: "extend",
     belowmincolor: "extend",
-    numcolorbands: 100,    
+    numcolorbands: 100,
     styles: 'prettyvec/greyscale'
 });
 
@@ -87,7 +87,7 @@ map.on('overlayadd', function(eventLayer) {
         heigthLegend.addTo(this);
     } else if (eventLayer.name == 'AVISO - Surface geostrophic sea water velocity') {
         velocityLegend.addTo(this);
-    } 
+    }
 });
 
 map.on('overlayremove', function(eventLayer) {
@@ -95,7 +95,7 @@ map.on('overlayremove', function(eventLayer) {
         map.removeControl(heigthLegend);
     } else if (eventLayer.name == 'AVISO - Surface geostrophic sea water velocity') {
         map.removeControl(velocityLegend);
-    }     
+    }
 });
 
 var baseLayers = getCommonBaseLayers(map); // see baselayers.js
