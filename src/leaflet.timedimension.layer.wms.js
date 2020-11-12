@@ -290,22 +290,25 @@ L.TimeDimension.Layer.WMS = L.TimeDimension.Layer.extend({
 
     _parseTimeDimensionFromCapabilities: function(xml) {
         var layers = xml.querySelectorAll('Layer[queryable="1"]');
-        var layerName = this._baseLayer.wmsParams.layers;
-        var layer = null;
+        var layerNames = this._baseLayer.wmsParams.layers.split(',');
+        var layersFiltered = [];
         var times = null;
 
         layers.forEach(function(current) {
-            if (current.querySelector("Name").innerHTML === layerName) {
-                layer = current;
+            if (layerNames.includes(current.querySelector("Name").innerHTML)) {
+                layersFiltered.push(current);
             }
         })
-        if (layer) {
-            times = this._getTimesFromLayerCapabilities(layer);
-            if (!times) {
-                times = this._getTimesFromLayerCapabilities(layer.parentNode);
-            }
+        if (layersFiltered.length) {
+            times = layersFiltered.map(this._getTimesFromLayerCapabilities);
+            times = times.concat(layersFiltered.map((function(node){
+                return this._getTimesFromLayerCapabilities(node.parentNode);
+            }).bind(this)))
+            times = times.filter(function(time){
+                return time!=null;
+            })
         }
-
+        console.log(times);
         return times;
     },
 
