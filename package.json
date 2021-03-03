@@ -18,6 +18,9 @@
     "email": "datacenter@socib.es",
     "url": "https://www.socib.es/"
   },
+  "scripts": {
+    "build" : "grunt"
+  },
   "contributors": [
     {
       "name": "Sylvain Marcadal (Ram)",
