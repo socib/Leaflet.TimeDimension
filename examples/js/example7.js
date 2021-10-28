@@ -23,7 +23,7 @@ var map = L.map('map', {
     }
 });
 
-var wmopWMS = "https://thredds.socib.es/thredds/wms/operational_models/oceanographical/hydrodynamics/model_run_aggregation/wmop/wmop_best.ncd";
+var wmopWMS = "https://thredds.socib.es/thredds/wms/operational_models/oceanographical/hydrodynamics/model_run_aggregation/wmop_surface/wmop_surface_best.ncd";
 var wmopTemperatureLayer = L.tileLayer.wms(wmopWMS, {
     layers: 'temp',
     format: 'image/png',
