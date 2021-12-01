@@ -177,7 +177,7 @@ L.TimeDimension.Layer.WMS = L.TimeDimension.Layer.extend({
     },
 
     _getLayerForTime: function(time) {
-        if (time == 0 || time == this._defaultTime || time == null) {
+        if (time == this._defaultTime || time == null) {
             return this._baseLayer;
         }
         if (this._layers.hasOwnProperty(time)) {
