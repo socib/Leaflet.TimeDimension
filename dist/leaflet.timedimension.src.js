@@ -1,14 +1,14 @@
 /* 
- * Leaflet TimeDimension v1.1.1 - 2021-11-29 
+ * Leaflet TimeDimension v1.1.1 - 2019-11-05 
  * 
- * Copyright 2021 Biel Frontera (ICTS SOCIB) 
+ * Copyright 2019 Biel Frontera (ICTS SOCIB) 
  * datacenter@socib.es 
- * https://www.socib.es/ 
+ * http://www.socib.es/ 
  * 
  * Licensed under the MIT license. 
  * 
  * Demos: 
- * https://apps.socib.es/Leaflet.TimeDimension/ 
+ * http://apps.socib.es/Leaflet.TimeDimension/ 
  * 
  * Source: 
  * git://github.com/socib/Leaflet.TimeDimension.git 
@@ -612,9 +612,7 @@ L.TimeDimension.Util = {
     },
 
     sort_and_deduplicate: function(arr) {
-        arr = arr.slice(0).sort(function (a, b) {
-            return a - b;
-        });
+        arr = arr.slice(0).sort();
         var result = [];
         var last = null;
         for (var i = 0, l = arr.length; i < l; i++) {
@@ -932,7 +930,7 @@ L.TimeDimension.Layer.WMS = L.TimeDimension.Layer.extend({
     },
 
     _getLayerForTime: function(time) {
-        if (time == this._defaultTime || time == null) {
+        if (time == 0 || time == this._defaultTime || time == null) {
             return this._baseLayer;
         }
         if (this._layers.hasOwnProperty(time)) {
@@ -1259,7 +1257,7 @@ L.TimeDimension.Layer.GeoJson = L.TimeDimension.Layer.extend({
         this._duration = this.options.duration || null;
         this._addlastPoint = this.options.addlastPoint || false;
         this._waitForReady = this.options.waitForReady || false;
-        this._updateCurrentTime = this.options.updateCurrentTime || this._updateTimeDimension;        
+        this._defaultTime = 0;
         this._availableTimes = [];
         this._loaded = false;
         if (this._baseLayer.getLayers().length == 0) {
@@ -1360,12 +1358,8 @@ L.TimeDimension.Layer.GeoJson = L.TimeDimension.Layer.extend({
             }
         }
         this._availableTimes = L.TimeDimension.Util.sort_and_deduplicate(times);
-        this._updateCurrentTime = this._updateCurrentTime || (this._timeDimension && this._timeDimension.getAvailableTimes().length == 0);
         if (this._timeDimension && (this._updateTimeDimension || this._timeDimension.getAvailableTimes().length == 0)) {
             this._timeDimension.setAvailableTimes(this._availableTimes, this._updateTimeDimensionMode);
-        }
-        if (this._updateCurrentTime && this._timeDimension && this._availableTimes.length) {
-            this._timeDimension.setCurrentTime(this._availableTimes[0]);
         }
     },
 
@@ -1555,19 +1549,16 @@ L.TimeDimension.Player = (L.Layer || L.Class).extend({
         if (this._intervalID) return;
         this._steps = numSteps || 1;
         this._waitingForBuffer = false;
-        var startedOver = false;
         if (this.options.startOver){
             if (this._timeDimension.getCurrentTimeIndex() === this._getMaxIndex()){
-                this._timeDimension.setCurrentTimeIndex(this._timeDimension.getLowerLimitIndex() || 0);
-                startedOver = true;
+                 this._timeDimension.setCurrentTimeIndex(this._timeDimension.getLowerLimitIndex() || 0);
             }
         }
         this.release();
         this._intervalID = window.setInterval(
             L.bind(this._tick, this),
             this._transitionTime);
-        if (!startedOver)
-            this._tick();
+        this._tick();
         this.fire('play');
         this.fire('running');
     },
