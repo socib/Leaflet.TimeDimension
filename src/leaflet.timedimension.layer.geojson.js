@@ -162,10 +162,10 @@ L.TimeDimension.Layer.GeoJson = L.TimeDimension.Layer.extend({
             return null;
         }
 
-        if (featureTimes[l - 1] > minTime) {
+        if (featureTimes[l - 1] >= minTime) {
             for (var i = 0; i < l; i++) {
-                if (index_min === null && featureTimes[i] > minTime) {
-                    // set index_min the first time that current time is greater the minTime
+                if (index_min === null && featureTimes[i] >= minTime) {
+                    // set index_min the first time that current time is greater or equal to the minTime
                     index_min = i;
                 }
                 if (featureTimes[i] > maxTime) {
