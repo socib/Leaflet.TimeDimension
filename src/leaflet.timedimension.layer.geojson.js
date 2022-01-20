@@ -4,6 +4,12 @@
 
 L.TimeDimension.Layer.GeoJson = L.TimeDimension.Layer.extend({
 
+    /**
+     * Timedimension geoJson layer constructor
+     * @param {L.Layer} layer leaflet layer 
+     * @param {object} options Object with geoJson layer settings
+     * @returns Instance of timedimension geoJson layer
+     */
     initialize: function(layer, options) {
         L.TimeDimension.Layer.prototype.initialize.call(this, layer, options);
         this._updateTimeDimension = this.options.updateTimeDimension || false;
@@ -32,6 +38,10 @@ L.TimeDimension.Layer.GeoJson = L.TimeDimension.Layer.extend({
         }).bind(this));
     },
 
+    /**
+     * Method called when adding this layer to a map
+     * @param {L.Map} map Leaflet map
+     */
     onAdd: function(map) {
         L.TimeDimension.Layer.prototype.onAdd.call(this, map);
         if (this._loaded) {
@@ -39,6 +49,12 @@ L.TimeDimension.Layer.GeoJson = L.TimeDimension.Layer.extend({
         }
     },
 
+    /**
+     * Method called when searching across each layer on the map
+     * @param {function} method 
+     * @param {object} context 
+     * @returns Leaflet layer foreach superclass
+     */
     eachLayer: function(method, context) {
         if (this._currentLayer) {
             method.call(context, this._currentLayer);
@@ -46,10 +62,19 @@ L.TimeDimension.Layer.GeoJson = L.TimeDimension.Layer.extend({
         return L.TimeDimension.Layer.prototype.eachLayer.call(this, method, context);
     },
 
+    /**
+     * Method called when the layer is ready
+     * @param {number} time 
+     * @returns flag to check if the layer is loaded
+     */
     isReady: function(time) {
         return this._loaded;
     },
 
+    /**
+     * Method called to update the layer
+     * @returns Empty return
+     */
     _update: function() {
         if (!this._map)
             return;
@@ -100,6 +125,9 @@ L.TimeDimension.Layer.GeoJson = L.TimeDimension.Layer.extend({
         }
     },
 
+    /**
+     * Method called to set available times
+     */
     _setAvailableTimes: function() {
         var times = [];
         var layers = this._baseLayer.getLayers();
@@ -121,6 +149,11 @@ L.TimeDimension.Layer.GeoJson = L.TimeDimension.Layer.extend({
         }
     },
 
+    /**
+     * Get times based on a specific feature
+     * @param {object} feature feature with time
+     * @returns times featured
+     */
     _getFeatureTimes: function(feature) {
         if (!feature.featureTimes) {
             if (!feature.properties) {
@@ -148,6 +181,13 @@ L.TimeDimension.Layer.GeoJson = L.TimeDimension.Layer.extend({
         return feature.featureTimes;
     },
 
+    /**
+     * Get feature between dates
+     * @param {object} feature feature with time 
+     * @param {number} minTime minimal time
+     * @param {number} maxTime  maximal time
+     * @returns times featured
+     */
     _getFeatureBetweenDates: function(feature, minTime, maxTime) {
         var featureTimes = this._getFeatureTimes(feature);
         if (featureTimes.length == 0) {
@@ -196,6 +236,9 @@ L.TimeDimension.Layer.GeoJson = L.TimeDimension.Layer.extend({
         };
     },
 
+    /**
+     * Method called when the base layer is ready
+     */
     _onReadyBaseLayer: function() {
         this._loaded = true;
         this._setAvailableTimes();
@@ -204,6 +247,12 @@ L.TimeDimension.Layer.GeoJson = L.TimeDimension.Layer.extend({
 
 });
 
+/**
+ * New leaflet geoJson layer instance
+ * @param {L.Layer} layer leaflet layer
+ * @param {object} options controller options value
+ * @returns new instance
+ */
 L.timeDimension.layer.geoJson = function(layer, options) {
     return new L.TimeDimension.Layer.GeoJson(layer, options);
 };
