@@ -10,6 +10,11 @@ L.TimeDimension = (L.Layer || L.Class).extend({
 
     includes: (L.Evented || L.Mixin.Events),
 
+    /**
+     * timedimension layer constructor
+     * @param {object} options Object with timedimension layer settings
+     * @returns Instance of timedimension layer
+     */
     initialize: function (options) {
         L.setOptions(this, options);
         // _availableTimes is an array with all the available times in ms.
@@ -29,10 +34,18 @@ L.TimeDimension = (L.Layer || L.Class).extend({
         }
     },
 
+    /**
+     * Get available times
+     * @returns array of available times
+     */
     getAvailableTimes: function () {
         return this._availableTimes;
     },
 
+    /**
+     * Get current time index
+     * @returns Index of the current time 
+     */
     getCurrentTimeIndex: function () {
         if (this._currentTimeIndex === -1) {
             return this._availableTimes.length - 1;
@@ -40,6 +53,10 @@ L.TimeDimension = (L.Layer || L.Class).extend({
         return this._currentTimeIndex;
     },
 
+    /**
+     * Get current time
+     * @returns current time or null
+     */
     getCurrentTime: function () {
         var index = -1;
         if (this._loadingTimeIndex !== -1) {
@@ -54,10 +71,19 @@ L.TimeDimension = (L.Layer || L.Class).extend({
         }
     },
 
+    /**
+     * Verify if the data is loading
+     * @returns loading flag
+     */
     isLoading: function () {
         return (this._loadingTimeIndex !== -1);
     },
 
+    /**
+     * Set current time index
+     * @param {number} newIndex new current time index 
+     * @returns updated current time index
+     */
     setCurrentTimeIndex: function (newIndex) {
         var upperLimit = this._upperLimit || this._availableTimes.length - 1;
         var lowerLimit = this._lowerLimit || 0;
@@ -86,6 +112,9 @@ L.TimeDimension = (L.Layer || L.Class).extend({
 
     },
 
+    /**
+     * Load a new time index
+     */
     _newTimeIndexLoaded: function () {
         if (this._loadingTimeIndex === -1) {
             return;
@@ -99,6 +128,11 @@ L.TimeDimension = (L.Layer || L.Class).extend({
         this._loadingTimeIndex = -1;
     },
     
+    /**
+     * Check if a specific layer is synced
+     * @param {number} time time to be synchronized
+     * @returns synchronization of the time
+     */
     _checkSyncedLayersReady: function (time) {
         for (var i = 0, len = this._syncedLayers.length; i < len; i++) {
             if (this._syncedLayers[i].isReady) {
@@ -110,16 +144,30 @@ L.TimeDimension = (L.Layer || L.Class).extend({
         return true;
     },
     
+    /**
+     * Set current time
+     * @param {number} time new time 
+     */
     setCurrentTime: function (time) {
         var newIndex = this._seekNearestTimeIndex(time);
         this.setCurrentTimeIndex(newIndex);
     },
 
+    /**
+     * Seek nearest time
+     * @param {number} time time to be seeked 
+     * @returns nearest time
+     */
     seekNearestTime: function (time) {
         var index = this._seekNearestTimeIndex(time);
         return this._availableTimes[index];
     },
 
+    /**
+     * Set next current time index
+     * @param {number} numSteps steps to be jumped
+     * @param {boolean} loop check if it's looping
+     */
     nextTime: function (numSteps, loop) {
         if (!numSteps) {
             numSteps = 1;
@@ -149,6 +197,12 @@ L.TimeDimension = (L.Layer || L.Class).extend({
         this.setCurrentTimeIndex(newIndex);
     },
 
+    /**
+     * Load the next times into the cache
+     * @param {number} numSteps steps to be jumped
+     * @param {number} howmany how many layers will be cached
+     * @param {boolean} loop check if it's looping
+     */
     prepareNextTimes: function (numSteps, howmany, loop) {
         if (!numSteps) {
             numSteps = 1;
@@ -196,6 +250,12 @@ L.TimeDimension = (L.Layer || L.Class).extend({
         }
     },
 
+    /**
+     * Get the next times into the cache
+     * @param {number} numSteps steps to be jumped
+     * @param {number} howmany how many layers will be cached
+     * @param {boolean} loop check if it's looping
+     */
     getNumberNextTimesReady: function (numSteps, howmany, loop) {
         if (!numSteps) {
             numSteps = 1;
@@ -238,15 +298,28 @@ L.TimeDimension = (L.Layer || L.Class).extend({
         return ready;
     },
 
+    /**
+     * Get previoust time
+     * @param {number} numSteps steps to be jumped
+     * @param {boolean} loop check if it's looping
+     */
     previousTime: function (numSteps, loop) {
         this.nextTime(numSteps*(-1), loop);
     },
 
+    /**
+     * Register leaflet synced layer
+     * @param {L.Layer} layer leayer to be registered
+     */
     registerSyncedLayer: function (layer) {
         this._syncedLayers.push(layer);
         layer.on('timeload', this._onSyncedLayerLoaded, this);
     },
 
+    /**
+     * Unregister leaflet synced layer
+     * @param {L.Layer} layer leayer to be unregistered
+     */
     unregisterSyncedLayer: function (layer) {
         var index = this._syncedLayers.indexOf(layer);
         if (index != -1) {
@@ -255,12 +328,20 @@ L.TimeDimension = (L.Layer || L.Class).extend({
         layer.off('timeload', this._onSyncedLayerLoaded, this);
     },
 
+    /**
+     * Method called when a synced layer is loaded
+     * @param {object} e 
+     */
     _onSyncedLayerLoaded: function (e) {
         if (e.time == this._availableTimes[this._loadingTimeIndex] && this._checkSyncedLayersReady(e.time)) {
             this._newTimeIndexLoaded();
         }
     },
 
+    /**
+     * Generate available times
+     * @returns array of available times
+     */
     _generateAvailableTimes: function () {
         if (this.options.times) {
             return L.TimeDimension.Util.parseTimesExpression(this.options.times);
@@ -274,11 +355,20 @@ L.TimeDimension = (L.Layer || L.Class).extend({
         }
     },
 
+    /**
+     * Get default current time
+     * @returns default current time
+     */
     _getDefaultCurrentTime: function () {
         var index = this._seekNearestTimeIndex(new Date().getTime());
         return this._availableTimes[index];
     },
 
+    /**
+     * Seek nearest time index
+     * @param {number} time 
+     * @returns nearest time index
+     */
     _seekNearestTimeIndex: function (time) {
         var newIndex = 0;
         var len = this._availableTimes.length;
@@ -294,6 +384,11 @@ L.TimeDimension = (L.Layer || L.Class).extend({
         return newIndex;
     },
 
+    /**
+     * Set available times based on the mode
+     * @param {number[]} times Date array to be available
+     * @param {string} mode mode type
+     */
     setAvailableTimes: function (times, mode) {
         var currentTime = this.getCurrentTime(),
             lowerLimitTime = this.getLowerLimit(),
@@ -330,20 +425,45 @@ L.TimeDimension = (L.Layer || L.Class).extend({
         });
         console.log('available times changed');
     },
+
+    /**
+     * Get lower limit
+     * @returns lower limit
+     */
     getLowerLimit: function () {
         return this._availableTimes[this.getLowerLimitIndex()];
     },
+
+    /**
+     * Get upper limit
+     * @returns upper limit
+     */
     getUpperLimit: function () {
         return this._availableTimes[this.getUpperLimitIndex()];
     },
+
+    /**
+     * Set lower limit
+     * @param {number} time new lower limit
+     */
     setLowerLimit: function (time) {
         var index = this._seekNearestTimeIndex(time);
         this.setLowerLimitIndex(index);
     },
+
+    /**
+     * Set upper limit
+     * @param {number} time new upper limit
+     */
     setUpperLimit: function (time) {
         var index = this._seekNearestTimeIndex(time);
         this.setUpperLimitIndex(index);
     },
+
+    /**
+     * Set lower limit index
+     * @param {number} index new lower limit 
+     */
     setLowerLimitIndex: function (index) {
         this._lowerLimit = Math.min(Math.max(index || 0, 0), this._upperLimit || this._availableTimes.length - 1);
         this.fire('limitschanged', {
@@ -351,6 +471,11 @@ L.TimeDimension = (L.Layer || L.Class).extend({
             upperLimit: this._upperLimit
         });
     },
+
+    /**
+     * Set upper limit index
+     * @param {number} index new upper limit 
+     */
     setUpperLimitIndex: function (index) {
         this._upperLimit = Math.max(Math.min(index, this._availableTimes.length - 1), this._lowerLimit || 0);
         this.fire('limitschanged', {
@@ -358,20 +483,38 @@ L.TimeDimension = (L.Layer || L.Class).extend({
             upperLimit: this._upperLimit
         });
     },
+
+    /**
+     * Get lower limit index
+     * @returns lower limit index
+     */
     getLowerLimitIndex: function () {
         return this._lowerLimit;
     },
+
+    /**
+     * Get upper limit index
+     * @returns upper limit index
+     */
     getUpperLimitIndex: function () {
         return this._upperLimit;
     }
 });
 
+/**
+ * Editing leaflet Map hooks
+ */
 L.Map.addInitHook(function () {
     if (this.options.timeDimension) {
         this.timeDimension = L.timeDimension(this.options.timeDimensionOptions || {});
     }
 });
 
+/**
+ * New leaflet timedimension instance
+ * @param {object} options timedimension options value
+ * @returns new instance
+ */
 L.timeDimension = function (options) {
     return new L.TimeDimension(options);
 };
