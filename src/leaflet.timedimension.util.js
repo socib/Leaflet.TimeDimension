@@ -3,6 +3,13 @@
  */
 
 L.TimeDimension.Util = {
+
+    /**
+     * Convert ISO-8601 period into a array of int
+     * @param {string} ISODuration ISO-8601 period
+     * @throws {error} nezasa dependency error
+     * @returns values as array of number (nezasa format)
+     */
     getTimeDuration: function(ISODuration) {
         if (typeof nezasa === 'undefined') {
             throw "iso8601-js-period library is required for Leatlet.TimeDimension: https://github.com/nezasa/iso8601-js-period";
@@ -10,6 +17,12 @@ L.TimeDimension.Util = {
         return nezasa.iso8601.Period.parse(ISODuration, true);
     },
 
+    /**
+     * Add duration to date
+     * @param {Date} date initial date
+     * @param {number[]} duration nezasa array of datetime properties
+     * @param {boolean} utc universal time as flag
+     */
     addTimeDuration: function(date, duration, utc) {
         if (typeof utc === 'undefined') {
             utc = true;
@@ -45,6 +58,12 @@ L.TimeDimension.Util = {
         }
     },
 
+    /**
+     * Subtract duration to date
+     * @param {Date} date initial date
+     * @param {number[]} duration nezasa array of datetime properties
+     * @param {boolean} utc universal time as flag
+     */
     subtractTimeDuration: function(date, duration, utc) {
         if (typeof duration == 'string' || duration instanceof String) {
             duration = this.getTimeDuration(duration);
@@ -56,6 +75,12 @@ L.TimeDimension.Util = {
         this.addTimeDuration(date, subDuration, utc);
     },
 
+    /**
+     * Get time range from time interval ISO string
+     * @param {string} timeRange time interval ISO string
+     * @param {string} overwritePeriod ISO-8601 period
+     * @returns range as array of time
+     */
     parseAndExplodeTimeRange: function(timeRange, overwritePeriod) {
         var tr = timeRange.split('/');
         var startTime = new Date(Date.parse(tr[0]));
@@ -67,6 +92,14 @@ L.TimeDimension.Util = {
         return this.explodeTimeRange(startTime, endTime, period);
     },
 
+    /**
+     * Get array of time based on time interval ISO string
+     * @param {Date} startTime initial time
+     * @param {Date} endTime final time
+     * @param {string} ISODuration time interval as duration ISO string
+     * @param {string} validTimeRange base time interval ISO string
+     * @returns range as array of time
+     */
     explodeTimeRange: function(startTime, endTime, ISODuration, validTimeRange) {
         var duration = this.getTimeDuration(ISODuration);
         var result = [];
@@ -99,6 +132,12 @@ L.TimeDimension.Util = {
         return result;
     },
 
+    /**
+     * Get date ranges from a timeInterval
+     * @param {string} timeInterval time interval ISO string
+     * @throws {error} Time interval malformed
+     * @returns array with range of interval
+     */
     parseTimeInterval: function(timeInterval) {
         var parts = timeInterval.split("/");
         if (parts.length != 2) {
@@ -130,6 +169,12 @@ L.TimeDimension.Util = {
         return [startTime, endTime];
     },
 
+    /**
+     * Get time range from time interval ISO string
+     * @param {string} time time interval ISO string
+     * @param {string} overwritePeriod ISO-8601 period
+     * @returns range as array of time
+     */
     parseTimesExpression: function(times, overwritePeriod) {
         var result = [];
         if (!times) {
@@ -158,6 +203,12 @@ L.TimeDimension.Util = {
         });
     },
 
+    /**
+     * Group array by intersection
+     * @param {number[]} arrayA first array
+     * @param {number[]} arrayB second array
+     * @returns new array with intersected values
+     */
     intersect_arrays: function(arrayA, arrayB) {
         var a = arrayA.slice(0);
         var b = arrayB.slice(0);
@@ -175,6 +226,12 @@ L.TimeDimension.Util = {
         return result;
     },
 
+    /**
+     * Group array by union
+     * @param {number[]} arrayA first array
+     * @param {number[]} arrayB second array
+     * @returns new array with united values
+     */
     union_arrays: function(arrayA, arrayB) {
         var a = arrayA.slice(0);
         var b = arrayB.slice(0);
@@ -197,6 +254,11 @@ L.TimeDimension.Util = {
         return result;
     },
 
+    /**
+     * Sort array and remove duplicated values
+     * @param {number[]} arr array to be sorted
+     * @returns array sorted and without duplicated values
+     */
     sort_and_deduplicate: function(arr) {
         arr = arr.slice(0).sort(function (a, b) {
             return a - b;
