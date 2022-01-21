@@ -9,6 +9,13 @@
 L.TimeDimension.Player = (L.Layer || L.Class).extend({
 
     includes: (L.Evented || L.Mixin.Events),
+
+    /**
+     * Timedimension player initializer
+     * @param {object} options player options 
+     * @param {Layer} timedimension timedimension layer
+     * @returns timedimension player
+     */
     initialize: function(options, timeDimension) {
         L.setOptions(this, options);
         this._timeDimension = timeDimension;
@@ -29,7 +36,10 @@ L.TimeDimension.Player = (L.Layer || L.Class).extend({
         }).bind(this));
     },
 
-
+    /**
+     * Method called uppon each tick of the player
+     * @returns Empty return
+     */
     _tick: function() {
         var maxIndex = this._getMaxIndex();
         var maxForward = (this._timeDimension.getCurrentTimeIndex() >= maxIndex) && (this._steps > 0);
@@ -88,11 +98,20 @@ L.TimeDimension.Player = (L.Layer || L.Class).extend({
         }
     },
     
+    /**
+     * Get maximum time intex
+     * @returns maximun time index
+     */
     _getMaxIndex: function(){
        return Math.min(this._timeDimension.getAvailableTimes().length - 1, 
                        this._timeDimension.getUpperLimitIndex() || Infinity);
     },
 
+    /**
+     * Method called when the player is started
+     * @param {number} numSteps number of steps previously activated
+     * @returns Empty return
+     */
     start: function(numSteps) {
         if (this._intervalID) return;
         this._steps = numSteps || 1;
@@ -114,6 +133,9 @@ L.TimeDimension.Player = (L.Layer || L.Class).extend({
         this.fire('running');
     },
 
+    /**
+     * Method called when the player is stopped
+     */
     stop: function() {
         if (!this._intervalID) return;
         clearInterval(this._intervalID);
@@ -122,29 +144,56 @@ L.TimeDimension.Player = (L.Layer || L.Class).extend({
         this.fire('stop');
     },
 
+    /**
+     * Method called when the player is paused
+     */
     pause: function() {
         this._paused = true;
     },
 
+    /**
+     * Method called when the player is unpaused
+     */
     release: function () {
         this._paused = false;
     },
 
+    /**
+     * Get transition time
+     * @returns transition time
+     */
     getTransitionTime: function() {
         return this._transitionTime;
     },
 
+    /**
+     * Check if the player is playing
+     * @returns flag to check if the player is playing
+     */
     isPlaying: function() {
         return this._intervalID ? true : false;
     },
 
+    /**
+     * Check if the player is waiting
+     * @returns flag to check if the player is waiting
+     */
     isWaiting: function() {
         return this._waitingForBuffer;
     },
+
+    /**
+     * Check if the player has looped
+     * @returns flag to check if the player is in loop
+     */
     isLooped: function() {
         return this._loop;
     },
 
+    /**
+     * Set if the player is looped
+     * @param {boolean} looped flag to define if the player is looped
+     */
     setLooped: function(looped) {
         this._loop = looped;
         this.fire('loopchange', {
@@ -152,6 +201,10 @@ L.TimeDimension.Player = (L.Layer || L.Class).extend({
         });
     },
 
+    /**
+     * Set transition time
+     * @param {number} transitionTime Transition time
+     */
     setTransitionTime: function(transitionTime) {
         this._transitionTime = transitionTime;
         if (typeof this._buffer === 'function') {
@@ -170,6 +223,10 @@ L.TimeDimension.Player = (L.Layer || L.Class).extend({
         });
     },
 
+    /**
+     * Get player steps
+     * @returns player steps
+     */
     getSteps: function() {
         return this._steps;
     }
