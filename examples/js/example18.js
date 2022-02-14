@@ -1,9 +1,36 @@
-// Set 6 hours earlier
+// Set 1 hour earlier
 var endDate = new Date();
-endDate.setUTCHours(endDate.getUTCHours() - 6);
+endDate.setUTCHours(endDate.getUTCHours() - 1);
 endDate.setUTCMinutes(0, 0, 0);
 
 L.TimeDimension.Layer.VelocityLayer.Radar = L.TimeDimension.Layer.VelocityLayer.extend({
+
+    initialize: function(options) {
+        L.TimeDimension.Layer.VelocityLayer.prototype.initialize.call(this, options);
+        this._socibDataSource = this.options.socibDataSource || null;
+        this._apiKey = this.options.apiKey || null;
+        this._proxy = this.options.proxy || null;
+
+        // Update availableTimes from datasource metadata
+        this._updateTimeDimension = this.options.updateTimeDimension || false;
+        this._updateTimeDimensionMode = this.options.updateTimeDimensionMode || 'intersect'; // 'union' or 'replace'
+        this._period = this.options.period || 'PT1H';
+        this._setDefaultTime = this.options.setDefaultTime || false;
+        this._availableTimes = [];
+        this._metadataRequested = false;
+        if (this._updateTimeDimension || this.options.requestTimeFromCapabilities) {
+            this._requestDataSourceMetadata();
+        }
+    },    
+
+    onAdd: function(map) {
+        L.TimeDimension.Layer.VelocityLayer.prototype.onAdd.call(this, map);
+        if (this._availableTimes.length == 0) {
+            this._requestDataSourceMetadata();
+        } else {
+            this._updateTimeDimensionAvailableTimes();
+        }
+    },
 
     _constructQuery: function(time) {
         var startDate = new Date(time);
@@ -11,11 +38,15 @@ L.TimeDimension.Layer.VelocityLayer.Radar = L.TimeDimension.Layer.VelocityLayer.
         L.TimeDimension.Util.addTimeDuration(endDate, "PT30M", false);
         var timeParams =
             "&initial_datetime=" +
-            startDate.format("yyyy-mm-dd'T'HH:MM:ss") +
+            startDate.toISOString().substring(0, 19) +
             "&end_datetime=" +
-            endDate.format("yyyy-mm-dd'T'HH:MM:ss");
-        var url = this._baseURL + timeParams;
-        this._proxy = "server/proxy-api.php";
+            endDate.toISOString().substring(0, 19);
+        var url = this._baseURL + this._socibDataSource +
+                    "/data/?max_qc_value=3&standard_name=northward_sea_water_velocity&standard_name=eastward_sea_water_velocity&processing_level=L1&format=json" + 
+                    timeParams;
+        if (this._apiKey) {
+            url = url + "&api_key=" + this._apiKey;
+        }
         if (this._proxy) {
             url = this._proxy + "?url=" + encodeURIComponent(url);
         }
@@ -77,7 +108,60 @@ L.TimeDimension.Layer.VelocityLayer.Radar = L.TimeDimension.Layer.VelocityLayer.
                 data: _.flatten(v.data[0])
             }
         ];
-    }
+    },
+
+    setAvailableTimes: function(startTime, endTime) {
+        this._availableTimes = L.TimeDimension.Util.explodeTimeRange(startTime, endTime, this._period);
+        this._updateTimeDimensionAvailableTimes();
+    },
+
+    _getDefaultTime: function() {
+        return this._availableTimes[this._availableTimes.length - 1];
+    },
+
+    _updateTimeDimensionAvailableTimes: function() {
+        if ((this._timeDimension && this._updateTimeDimension) ||
+            (this._timeDimension && this._timeDimension.getAvailableTimes().length == 0)) {
+            this._timeDimension.setAvailableTimes(this._availableTimes, this._updateTimeDimensionMode);
+            if (this._setDefaultTime) {
+                var defaultTime = this._getDefaultTime();
+                if (defaultTime !== this._timeDimension.getCurrentTime()){
+                    this._timeDimension.setCurrentTime(this._getDefaultTime());
+                }
+            }
+        }
+    },
+
+    _requestDataSourceMetadata: function() {
+        if (this._metadataRequested) {
+            return;
+        }
+        this._metadataRequested = true;
+        var url = this._baseURL + this._socibDataSource + "/?";
+        if (this._apiKey) {
+            url = url + "&api_key=" + this._apiKey;
+        }
+        if (this._proxy) {
+            url = this._proxy + "?url=" + encodeURIComponent(url);
+        }
+        var oReq = new XMLHttpRequest();
+        oReq.addEventListener("load", (function(xhr) {
+            var data = null;
+            try {
+                var response = xhr.currentTarget.response;
+                data = JSON.parse(response);
+            } catch(e) {
+                console.log("Error parsing API response", e);
+            }
+            if (data !== null){
+                var initial_datetime = new Date(Date.parse(data['initial_datetime']));
+                var end_datetime = new Date(Date.parse(data['end_datetime']));
+                this.setAvailableTimes(initial_datetime, end_datetime);
+            }
+        }).bind(this));        
+        oReq.open("GET", url);
+        oReq.send();
+    },     
 
 });
 
@@ -99,6 +183,7 @@ var map = L.map("map", {
     timeDimensionControlOptions: {
         autoPlay: false,
         playerOptions: {
+            minBufferReady: -1,
             transitionTime: 2000,
             loop: true
         }
@@ -106,7 +191,7 @@ var map = L.map("map", {
 });
 
 var Esri_WorldImagery = L.tileLayer(
-    "http://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+    "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
     {
         attribution:
             "Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, " +
@@ -134,8 +219,12 @@ L.control.layers(baseLayers, {}).addTo(map);
 Esri_WorldImagery.addTo(map);
 
 var testVelocityRadarLayer = L.timeDimension.layer.velocityLayer.radar({
-    baseURL:
-        "http://api.socib.es/data-sources/f8e2429729/data/?max_qc_value=3&standard_variable=northward_sea_water_velocity&standard_variable=eastward_sea_water_velocity&processing_level=L1&format=json",
+    baseURL: "https://api.socib.es/data-sources/",
+    socibDataSource: "f8e2429729",    
+    updateTimeDimension: true,
+    updateTimeDimensionMode: 'intersect',
+    setDefaultTime: true,
+    proxy: "server/proxy-api.php",    
     velocityLayerOptions: {
         particleAge: 30
     }

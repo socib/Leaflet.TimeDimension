@@ -98,8 +98,13 @@ L.TimeDimension.Layer.VelocityLayer = L.TimeDimension.Layer.extend({
         var url = this._constructQuery(time);
         var oReq = new XMLHttpRequest();
         oReq.addEventListener("load", (function(xhr) {
-            var response = xhr.currentTarget.response;
-            var data = JSON.parse(response);
+            var data = [];
+            try {
+                var response = xhr.currentTarget.response;
+                data = JSON.parse(response);
+            } catch(e) {
+                console.log("Error parsing API response", e);
+            }
             delete this._currentTimeData;
             this._currentTimeData = this._processLoadedData(data);
             this._currentLoadedTime = time;
