@@ -16,19 +16,21 @@ L.TimeDimension.Layer.VelocityLayer.Radar = L.TimeDimension.Layer.VelocityLayer.
         this._updateTimeDimensionMode = this.options.updateTimeDimensionMode || 'intersect'; // 'union' or 'replace'
         this._period = this.options.period || 'PT1H';
         this._setDefaultTime = this.options.setDefaultTime || false;
-        this._availableTimes = [];
+        this._endTime = this.options.endTime || null;
         this._metadataRequested = false;
-        if (this._updateTimeDimension || this.options.requestTimeFromCapabilities) {
+        if (this._updateTimeDimension) {
             this._requestDataSourceMetadata();
         }
     },    
 
     onAdd: function(map) {
         L.TimeDimension.Layer.VelocityLayer.prototype.onAdd.call(this, map);
-        if (this._availableTimes.length == 0) {
-            this._requestDataSourceMetadata();
-        } else {
-            this._updateTimeDimensionAvailableTimes();
+        if (this._updateTimeDimension) {
+            if (this._endTime === null) {
+                this._requestDataSourceMetadata();
+            } else {
+                this._updateTimeDimensionAvailableTimes();
+            }
         }
     },
 
@@ -110,19 +112,19 @@ L.TimeDimension.Layer.VelocityLayer.Radar = L.TimeDimension.Layer.VelocityLayer.
         ];
     },
 
-    setAvailableTimes: function(startTime, endTime) {
-        this._availableTimes = L.TimeDimension.Util.explodeTimeRange(startTime, endTime, this._period);
-        this._updateTimeDimensionAvailableTimes();
+    _setEndTime: function(endTime) {
+        this._endTime = endTime;        
     },
 
     _getDefaultTime: function() {
-        return this._availableTimes[this._availableTimes.length - 1];
+        return this._endTime;
     },
 
     _updateTimeDimensionAvailableTimes: function() {
-        if ((this._timeDimension && this._updateTimeDimension) ||
-            (this._timeDimension && this._timeDimension.getAvailableTimes().length == 0)) {
-            this._timeDimension.setAvailableTimes(this._availableTimes, this._updateTimeDimensionMode);
+        if (this._timeDimension && this._updateTimeDimension) {
+            var startTime = new Date(this._timeDimension.getAvailableTimes()[0]);
+            var times = L.TimeDimension.Util.explodeTimeRange(startTime, this._endTime, this._period);
+            this._timeDimension.setAvailableTimes(times, this._updateTimeDimensionMode);
             if (this._setDefaultTime) {
                 var defaultTime = this._getDefaultTime();
                 if (defaultTime !== this._timeDimension.getCurrentTime()){
@@ -154,9 +156,9 @@ L.TimeDimension.Layer.VelocityLayer.Radar = L.TimeDimension.Layer.VelocityLayer.
                 console.log("Error parsing API response", e);
             }
             if (data !== null){
-                var initial_datetime = new Date(Date.parse(data['initial_datetime']));
                 var end_datetime = new Date(Date.parse(data['end_datetime']));
-                this.setAvailableTimes(initial_datetime, end_datetime);
+                this._setEndTime(end_datetime);
+                this._updateTimeDimensionAvailableTimes();
             }
         }).bind(this));        
         oReq.open("GET", url);
@@ -190,29 +192,17 @@ var map = L.map("map", {
     }
 });
 
-var Esri_WorldImagery = L.tileLayer(
-    "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
-    {
-        attribution:
-            "Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, " +
-            "AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community"
-    }
-);
 
-var Esri_DarkGreyCanvas = L.tileLayer(
-    "https://{s}.sm.mapstack.stamen.com/" +
-        "(toner-lite,$fff[difference],$fff[@23],$fff[hsl-saturation@20])/" +
-        "{z}/{x}/{y}.png",
-    {
-        attribution:
-            "Tiles &copy; Esri &mdash; Esri, DeLorme, NAVTEQ, TomTom, Intermap, iPC, USGS, FAO, " +
-            "NPS, NRCAN, GeoBase, Kadaster NL, Ordnance Survey, Esri Japan, METI, Esri China (Hong Kong), and the GIS User Community"
+var GSHHS_h_L1 = L.tileLayer.wms(
+    "https://gis.socib.es/geoserver/gwc/service/wms?", {
+        layers: 'gshhs%3AGSHHS_h_L1',
+        transparent: true,
+        format: 'image/png'
     }
 );
 
 var baseLayers = {
-    Satellite: Esri_WorldImagery,
-    "Grey Canvas": Esri_DarkGreyCanvas
+    "Shoreline from GSHHG": GSHHS_h_L1
 };
 
 L.control.layers(baseLayers, {}).addTo(map);

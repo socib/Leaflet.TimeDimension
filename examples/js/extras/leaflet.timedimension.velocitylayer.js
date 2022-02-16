@@ -65,7 +65,6 @@ L.TimeDimension.Layer.VelocityLayer = L.TimeDimension.Layer.extend({
 
     onAdd: function(map) {
         L.TimeDimension.Layer.prototype.onAdd.call(this, map);
-        map.addLayer(this._baseLayer);
         if (this._timeDimension) {
             this._getDataForTime(this._timeDimension.getCurrentTime());
         }
@@ -82,10 +81,10 @@ L.TimeDimension.Layer.VelocityLayer = L.TimeDimension.Layer.extend({
 
     _update: function() {
         if (this._currentTimeData && this._currentTimeData.length > 0) {
-            map.addLayer(this._baseLayer);
+            this._map.addLayer(this._baseLayer);
             this._baseLayer.setData(this._currentTimeData);
         } else {
-            map.removeLayer(this._baseLayer);
+            this._map.removeLayer(this._baseLayer);
         }
 
         return true;

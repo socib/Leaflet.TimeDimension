@@ -153,6 +153,10 @@ ul.examples li a img{
     height: 597px;   
 }
 
+.map.dark-background{
+    background-color: #222;
+}
+
 #map-wrapper{
     width: 1170px;
     height: 597px;  
