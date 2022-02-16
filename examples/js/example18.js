@@ -206,7 +206,7 @@ var baseLayers = {
 };
 
 L.control.layers(baseLayers, {}).addTo(map);
-Esri_WorldImagery.addTo(map);
+GSHHS_h_L1.addTo(map);
 
 var testVelocityRadarLayer = L.timeDimension.layer.velocityLayer.radar({
     baseURL: "https://api.socib.es/data-sources/",
