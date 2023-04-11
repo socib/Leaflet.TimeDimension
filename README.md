@@ -336,7 +336,7 @@ Update mode can be one of these values: `intersect`, `union`, `replace`, `extrem
 
 ## Requisites
 - [leaflet](http://leafletjs.com/)
-- [iso8601-js-period](https://github.com/nezasa/iso8601-js-period)
+- [iso8601-js-period](https://github.com/mdartic/iso8601-js-period)
 - For the TimeDimension Control:
     - Glyphicons Halflings
 

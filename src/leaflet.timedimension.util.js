@@ -5,7 +5,7 @@
 L.TimeDimension.Util = {
     getTimeDuration: function(ISODuration) {
         if (typeof nezasa === 'undefined') {
-            throw "iso8601-js-period library is required for Leatlet.TimeDimension: https://github.com/nezasa/iso8601-js-period";
+            throw "iso8601-js-period library is required for Leatlet.TimeDimension: https://www.npmjs.com/package/iso8601-js-period";
         }
         return nezasa.iso8601.Period.parse(ISODuration, true);
     },
