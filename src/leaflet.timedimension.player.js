@@ -48,7 +48,7 @@ L.TimeDimension.Player = (L.Layer || L.Class).extend({
             return;
         }
         var numberNextTimesReady = 0,
-            buffer = this._bufferSize;
+            buffer = Math.min(this._bufferSize, this._getMaxIndex());
 
         if (this._minBufferReady > 0) {
             numberNextTimesReady = this._timeDimension.getNumberNextTimesReady(this._steps, buffer, this._loop);
