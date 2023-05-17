@@ -13,6 +13,12 @@ L.TimeDimension.Layer = (L.Layer || L.Class).extend({
         zIndex: 1
     },
 
+    /**
+     * Timedimension "Layer" initializer
+     * @param {Layer} layer default leaflet layer
+     * @param {object} options layer options 
+     * @returns timedimension layer
+     */
     initialize: function(layer, options) {
         L.setOptions(this, options || {});
         this._map = null;
@@ -21,11 +27,19 @@ L.TimeDimension.Layer = (L.Layer || L.Class).extend({
         this._timeDimension = this.options.timeDimension || null;
     },
 
+    /**
+     * Observable like method called when adding this layer to a map
+     * @param {L.Map} map Leaflet map
+     */
     addTo: function(map) {
         map.addLayer(this);
         return this;
     },
 
+    /**
+     * Method called when adding this layer to a map
+     * @param {L.Map} map Leaflet map
+     */
     onAdd: function(map) {
         this._map = map;
         if (!this._timeDimension && map.timeDimension) {
@@ -37,6 +51,10 @@ L.TimeDimension.Layer = (L.Layer || L.Class).extend({
         this._update();
     },
 
+    /**
+     * Method called when removing this layer to a map
+     * @param {L.Map} map Leaflet map
+     */
     onRemove: function(map) {
         this._timeDimension.unregisterSyncedLayer(this);
         this._timeDimension.off("timeloading", this._onNewTimeLoading, this);
@@ -45,11 +63,22 @@ L.TimeDimension.Layer = (L.Layer || L.Class).extend({
         this._map = null;
     },
 
+    /**
+     * Method called when searching each layer
+     * @param {function} method 
+     * @param {object} context 
+     * @returns self return
+     */
     eachLayer: function(method, context) {
         method.call(context, this._baseLayer);
         return this;
     },
 
+    /**
+     * Sez a new Z index
+     * @param {number} zIndex new z index 
+     * @returns self return
+     */
     setZIndex: function(zIndex) {
         this.options.zIndex = zIndex;
         if (this._baseLayer.setZIndex) {
@@ -61,6 +90,11 @@ L.TimeDimension.Layer = (L.Layer || L.Class).extend({
         return this;
     },
 
+    /**
+     * Set a new opacity
+     * @param {number} opacity new opacity
+     * @returns self return
+     */
     setOpacity: function(opacity) {
         this.options.opacity = opacity;
         if (this._baseLayer.setOpacity) {
@@ -72,6 +106,9 @@ L.TimeDimension.Layer = (L.Layer || L.Class).extend({
         return this;
     },
 
+    /**
+     * Method called to bring the layer to the back
+     */
     bringToBack: function() {
         if (!this._currentLayer) {
             return;
@@ -80,6 +117,9 @@ L.TimeDimension.Layer = (L.Layer || L.Class).extend({
         return this;
     },
 
+    /**
+     * Method called to bring the layer to the front
+     */
     bringToFront: function() {
         if (!this._currentLayer) {
             return;
@@ -88,6 +128,11 @@ L.TimeDimension.Layer = (L.Layer || L.Class).extend({
         return this;
     },
 
+    /**
+     * Method called when loading a new time
+     * @param {object} ev 
+     * @returns Empty return
+     */
     _onNewTimeLoading: function(ev) {
         // to be implemented for each type of layer
         this.fire('timeload', {
@@ -96,20 +141,37 @@ L.TimeDimension.Layer = (L.Layer || L.Class).extend({
         return;
     },
 
+    /**
+     * Method called to check if the layer is ready
+     * @param {number} time 
+     * @returns Always true
+     */
     isReady: function(time) {
         // to be implemented for each type of layer
         return true;
     },
 
+    /**
+     * Method called when updating the layer
+     * @returns Always true
+     */
     _update: function() {
         // to be implemented for each type of layer
         return true;
     },
 
+    /**
+     * Get base layer
+     * @returns Leaflet base layer
+     */
     getBaseLayer: function() {
         return this._baseLayer;
     },
 
+    /**
+     * Get layer bounds
+     * @returns layer bounds
+     */
     getBounds: function() {
         var bounds = new L.LatLngBounds();
         if (this._currentLayer) {
@@ -120,6 +182,12 @@ L.TimeDimension.Layer = (L.Layer || L.Class).extend({
 
 });
 
+/**
+ * Timedimension "Layer" initializer
+ * @param {Layer} layer default leaflet layer
+ * @param {object} options layer options 
+ * @returns new instance of timedimension layer
+ */
 L.timeDimension.layer = function(layer, options) {
     return new L.TimeDimension.Layer(layer, options);
 };

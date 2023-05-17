@@ -15,6 +15,13 @@ L.UI.Knob = L.Draggable.extend({
             //minValue : null,
             //maxValue : null
     },
+
+    /**
+     * UI slider constructor
+     * @param {DOM} slider Html slider DOM 
+     * @param {object} options Object with slider settings
+     * @returns Instance of timedimension slider
+     */
     initialize: function(slider, options) {
         L.setOptions(this, options);
         this._element = L.DomUtil.create('div', this.options.className || 'knob', slider);
@@ -37,17 +44,36 @@ L.UI.Knob = L.Draggable.extend({
         this.enable();
     },
 
+    /**
+     * Get projection coefficient
+     * @returns projection coefficient as number
+     */
     _getProjectionCoef: function() {
         return (this.options.rangeMax - this.options.rangeMin) / (this._container.offsetWidth || this._container.style.width);
     },
+
+    /**
+     * Update the slider UI
+     */
     _update: function() {
         this.setPosition(L.DomUtil.getPosition(this._element).x);
     },
+
+    /**
+     * Adjust slider x position based on user click 
+     * @param {number} x User click x position
+     * @returns adjusted value
+     */
     _adjustX: function(x) {
         var value = this._toValue(x) || this.getMinValue();
         return this._toX(this._adjustValue(value));
     },
 
+    /**
+     * Adjust internal slider x value
+     * @param {number} value Value x to be adjusted 
+     * @returns adjusted value
+     */
     _adjustValue: function(value) {
         value = Math.max(this.getMinValue(), Math.min(this.getMaxValue(), value)); //clamp value
         value = value - this.options.rangeMin; //offsets to zero
@@ -60,44 +86,84 @@ L.UI.Knob = L.Draggable.extend({
         return value;
     },
 
+    /**
+     * Adjust value close to X based on the projection coefficient
+     * @param {number} value value to be adjusted 
+     * @returns adjusted value
+     */
     _toX: function(value) {
         var x = (value - this.options.rangeMin) / this._getProjectionCoef();
         //console.log('toX', value, x);
         return x;
     },
 
+    /**
+     * Adjust value close to the value based on the projection coefficient
+     * @param {number} value value to be adjusted 
+     * @returns adjusted value
+     */
     _toValue: function(x) {
         var v = x * this._getProjectionCoef() + this.options.rangeMin;
         //console.log('toValue', x, v);
         return v;
     },
 
+    /**
+     * Get mininal slider value
+     * @returns minimal slider value
+     */
     getMinValue: function() {
         return this.options.minValue || this.options.rangeMin;
     },
+
+    /**
+     * Get maximal slider value
+     * @returns maximal slider value
+     */
     getMaxValue: function() {
         return this.options.maxValue || this.options.rangeMax;
     },
 
+    /**
+     * Set step value
+     * @param {number} step new step value
+     */
     setStep: function(step) {
         this.options.step = step;
         this._update();
     },
 
+    /**
+     * Set slider DOM position
+     * @param {number} x new slider position
+     */
     setPosition: function(x) {
         L.DomUtil.setPosition(this._element,
             L.point(this._adjustX(x), 0));
         this.fire('positionchanged');
     },
+
+    /**
+     * Get slider original x position
+     * @returns slider original x position
+     */
     getPosition: function() {
         return L.DomUtil.getPosition(this._element).x;
     },
 
+    /**
+     * Set slider position value
+     * @param {number} v new position value
+     */
     setValue: function(v) {
         //console.log('slider value', v);
         this.setPosition(this._toX(v));
     },
 
+    /**
+     * Get slider fixed position value
+     * @returns fixed position value
+     */
     getValue: function() {
         return this._adjustValue(this._toValue(this.getPosition()));
     }
@@ -135,6 +201,11 @@ L.Control.TimeDimension = L.Control.extend({
         timeZones: ['UTC', 'Local']
     },
 
+    /**
+     * UI controller constructor
+     * @param {object} options Object with controller settings
+     * @returns Instance of timedimension controller
+     */
     initialize: function(options) {
         L.setOptions(options);
         L.Control.prototype.initialize.call(this, options);
@@ -142,6 +213,10 @@ L.Control.TimeDimension = L.Control.extend({
         this._timeDimension = this.options.timeDimension || null;
     },
 
+    /**
+     * Method called when adding this controller to a map
+     * @param {L.Map} map Leaflet map
+     */
     onAdd: function(map) {
         var container;
         this._map = map;
@@ -188,6 +263,10 @@ L.Control.TimeDimension = L.Control.extend({
 
         return container;
     },
+
+    /**
+     * Method called after the component was added to the DOM
+     */
     addTo: function() {
         //To be notified AFTER the component was added to the DOM
         L.Control.prototype.addTo.apply(this, arguments);
@@ -196,6 +275,10 @@ L.Control.TimeDimension = L.Control.extend({
         this._update();
         return this;
     },
+
+    /**
+     * Method called when the this controller is removed from the map
+     */
     onRemove: function() {
         this._player.off('play stop running loopchange speedchange', this._onPlayerStateChange, this);
         this._player.off('waiting', this._onPlayerWaiting, this);
@@ -207,6 +290,9 @@ L.Control.TimeDimension = L.Control.extend({
         this._timeDimension.off('limitschanged availabletimeschanged', this._onTimeLimitsChanged, this);
     },
 
+    /**
+     * Method called to initiate the player
+     */
     _initPlayer: function() {
         if (!this._player){ // in case of remove/add
             if (this.options.player) {
@@ -223,6 +309,10 @@ L.Control.TimeDimension = L.Control.extend({
         this._onPlayerStateChange();
     },
 
+    /**
+     * Trigger called while waiting for data
+     * @param {object} data 
+     */
     _onTimeLoading : function(data) {
         if (data.time == this._timeDimension.getCurrentTime()) {
             if (this._displayDate) {
@@ -231,6 +321,9 @@ L.Control.TimeDimension = L.Control.extend({
         }
     },
 
+    /**
+     * Trigger called when time limits changes
+     */
     _onTimeLimitsChanged: function() {
         var lowerIndex = this._timeDimension.getLowerLimitIndex(),
             upperIndex = this._timeDimension.getUpperLimitIndex(),
@@ -248,6 +341,10 @@ L.Control.TimeDimension = L.Control.extend({
         }
     },
 
+    /**
+     * Method called to update the player instance while waiting for data
+     * @param {object} evt
+     */
     _onPlayerWaiting: function(evt) {
         if (this._buttonPlayPause && this._player.getSteps() > 0) {
             L.DomUtil.addClass(this._buttonPlayPause, 'loading');
@@ -258,6 +355,10 @@ L.Control.TimeDimension = L.Control.extend({
             this._buttonPlayReversePause.innerHTML = this._getDisplayLoadingText(evt.available, evt.buffer);
         }
     },
+
+    /**
+     * Method called whent the user updates the player instance
+     */
     _onPlayerStateChange: function() {
         if (this._buttonPlayPause) {
             if (this._player.isPlaying() && this._player.getSteps() > 0) {
@@ -301,6 +402,9 @@ L.Control.TimeDimension = L.Control.extend({
         }
     },
 
+    /**
+     * Method called to update the controller instance
+     */
     _update: function() {
         if (!this._timeDimension) {
             return;
@@ -321,6 +425,12 @@ L.Control.TimeDimension = L.Control.extend({
         }
     },
 
+    /**
+     * Method called to create a new button into the DOM
+     * @param {string} title title of the button
+     * @param {DOM} container DOM value of the button 
+     * @returns new button
+     */
     _createButton: function(title, container) {
         var link = L.DomUtil.create('a', this.options.styleNS + ' timecontrol-' + title.toLowerCase(), container);
         link.href = '#';
@@ -334,6 +444,12 @@ L.Control.TimeDimension = L.Control.extend({
         return link;
     },
 
+    /**
+     * Method called to create a new slider into the DOM
+     * @param {string} className html class name properties
+     * @param {DOM} container DOM value of the slider 
+     * @returns new slider
+     */
     _createSliderTime: function(className, container) {
         var sliderContainer,
             sliderbar,
@@ -410,7 +526,11 @@ L.Control.TimeDimension = L.Control.extend({
         return knob;
     },
 
-
+    /**
+     * Method called to create a new knob into the DOM
+     * @param {DOM} slidebar DOM value of the slider 
+     * @returns new knob
+     */
     _createLimitKnobs: function(sliderbar) {
         L.DomUtil.addClass(sliderbar, 'has-limits');
         var max = this._timeDimension.getAvailableTimes().length - 1;
@@ -478,7 +598,12 @@ L.Control.TimeDimension = L.Control.extend({
         return [lknob, uknob];
     },
 
-
+    /**
+     * Method called to create a new slider speed into the DOM
+     * @param {string} className html class name properties
+     * @param {DOM} container DOM value of the slider speed
+     * @returns new slider speed
+     */
     _createSliderSpeed: function(className, container) {
         var sliderContainer = L.DomUtil.create('div', className, container);
         /* L.DomEvent
@@ -523,17 +648,30 @@ L.Control.TimeDimension = L.Control.extend({
         return knob;
     },
 
+    /**
+     * Set time when backward button is clicked
+     */
     _buttonBackwardClicked: function() {
         this._timeDimension.previousTime(this._steps);
     },
 
+    /**
+     * Set time when foward button is clicked
+     */
     _buttonForwardClicked: function() {
         this._timeDimension.nextTime(this._steps);
     },
+
+    /**
+     * Set loop value when loop button is clicked
+     */
     _buttonLoopClicked: function() {
         this._player.setLooped(!this._player.isLooped());
     },
 
+    /**
+     * Starts and stops the data requests when play button is clicked
+     */
     _buttonPlayClicked: function() {
         if (this._player.isPlaying()) {
             this._player.stop();
@@ -542,6 +680,9 @@ L.Control.TimeDimension = L.Control.extend({
         }
     },
 
+    /**
+     * Activate and deactivate the data flow inversion when reverse button is clicked
+     */
     _buttonPlayReverseClicked: function() {
         if (this._player.isPlaying()) {
             this._player.stop();
@@ -550,27 +691,50 @@ L.Control.TimeDimension = L.Control.extend({
         }
     },
 
+    /**
+     * Change timezone when date button is clicked
+     */
     _buttonDateClicked: function(){
         this._switchTimeZone();
     },
 
+    /**
+     * Set new time value
+     * @param {number} newValue new time value
+     */
     _sliderTimeValueChanged: function(newValue) {
         this._timeDimension.setCurrentTimeIndex(newValue);
     },
 
+    /**
+     * Set new lower limit value
+     * @param {number} lowerLimit new lower limit value
+     * @param {number} upperLimit new upper limit value
+     */
     _sliderLimitsValueChanged: function(lowerLimit, upperLimit) {
         this._timeDimension.setLowerLimitIndex(lowerLimit);
         this._timeDimension.setUpperLimitIndex(upperLimit);
     },
 
+    /**
+     * Set new speed value
+     * @param {number} newValue new speed value
+     */
     _sliderSpeedValueChanged: function(newValue) {
         this._player.setTransitionTime(1000 / newValue);
     },
 
+    /**
+     * Get current timezone
+     * @returns actual timezone
+     */
     _getCurrentTimeZone: function() {
         return this.options.timeZones[this._timeZoneIndex];
     },
 
+    /**
+     * Method called while switching timezones
+     */
     _switchTimeZone: function() {
         if (this._getCurrentTimeZone().toLowerCase() == 'utc') {
             L.DomUtil.removeClass(this._displayDate, 'utc');
@@ -589,6 +753,11 @@ L.Control.TimeDimension = L.Control.extend({
         this._update();
     },
 
+    /**
+     * Get date format as string
+     * @param {Date} date 
+     * @returns date format as string
+     */
     _getDisplayDateFormat: function(date) {
         var timeZone = this._getCurrentTimeZone();
         if (timeZone.toLowerCase() == 'utc') {
@@ -599,17 +768,39 @@ L.Control.TimeDimension = L.Control.extend({
         }
         return date.toLocaleString([], {timeZone: timeZone, timeZoneName: "short"});
     },
+
+    /**
+     * Display speed
+     * @param {number} fps 
+     * @returns fps value as string
+     */
     _getDisplaySpeed: function(fps) {
         return fps + 'fps';
     },
+
+    /**
+     * Display loading text
+     * @param {number} available 
+     * @param {number} buffer 
+     * @returns loading text as string
+     */
     _getDisplayLoadingText: function(available, buffer) {
         return '<span>' + Math.floor(available / buffer * 100) + '%</span>';
     },
+
+    /**
+     * Display no time error
+     * @returns Error message
+     */
     _getDisplayNoTimeError: function() {
         return 'Time not available';
     }
 
 });
+
+/**
+ * Editing leaflet Map hooks
+ */
 
 L.Map.addInitHook(function() {
     if (this.options.timeDimensionControl) {
@@ -618,6 +809,11 @@ L.Map.addInitHook(function() {
     }
 });
 
+/**
+ * New leaflet controller instance
+ * @param {object} options controller options value
+ * @returns new instance
+ */
 L.control.timeDimension = function(options) {
     return new L.Control.TimeDimension(options);
 };
