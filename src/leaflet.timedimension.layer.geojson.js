@@ -131,6 +131,8 @@ L.TimeDimension.Layer.GeoJson = L.TimeDimension.Layer.extend({
                 feature.featureTimes = feature.properties.times;
             } else if (feature.properties.hasOwnProperty('linestringTimestamps')) {
                 feature.featureTimes = feature.properties.linestringTimestamps;
+            } else if (feature.properties.hasOwnProperty('datetimes')) {
+                feature.featureTimes = feature.properties.datetimes;
             } else if (feature.properties.hasOwnProperty('time')) {
                 feature.featureTimes = [feature.properties.time];
             } else {
