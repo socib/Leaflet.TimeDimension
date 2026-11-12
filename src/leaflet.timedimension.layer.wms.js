@@ -289,13 +289,14 @@ L.TimeDimension.Layer.WMS = L.TimeDimension.Layer.extend({
     },
 
     _parseTimeDimensionFromCapabilities: function(xml) {
-        var layers = xml.querySelectorAll('Layer[queryable="1"]');
+        var layers = xml.querySelectorAll('Layer');
         var layerName = this._baseLayer.wmsParams.layers;
         var layer = null;
         var times = null;
 
         layers.forEach(function(current) {
-            if (current.querySelector("Name").innerHTML === layerName) {
+            var name = current.querySelector("Name");
+            if (name && name.innerHTML === layerName) {
                 layer = current;
             }
         })
@@ -323,12 +324,13 @@ L.TimeDimension.Layer.WMS = L.TimeDimension.Layer.extend({
     },
 
     _getDefaultTimeFromCapabilities: function(xml) {
-        var layers = xml.querySelectorAll('Layer[queryable="1"]');
+        var layers = xml.querySelectorAll('Layer');
         var layerName = this._baseLayer.wmsParams.layers;
         var layer = null;
 
         layers.forEach(function(current) {
-            if (current.querySelector("Name").innerHTML === layerName) {
+            var name = current.querySelector("Name");
+            if (name && name.innerHTML === layerName) {
                 layer = current;
             }
         })
