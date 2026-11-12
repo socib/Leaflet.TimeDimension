@@ -78,9 +78,9 @@ var map = L.map('map', {
     timeDimensionControl: true,
 });
 
-var wmsUrl = "https://thredds.socib.es/thredds/wms/observational/hf_radar/hf_radar_ibiza-scb_codarssproc001_aggregation/dep0001_hf-radar-ibiza_scb-codarssproc001_L1_agg.nc"
+var wmsUrl = "https://thredds.socib.es/thredds/wms/observational/hf_radar/hf_radar_ibiza-scb_codarssproc001_L1_agg/hf_radar_ibiza-scb_codarssproc001_L1_agg_best.ncd"
 var wmsLayer = L.tileLayer.wms(wmsUrl, {
-    layers: 'sea_water_velocity',
+    layers: 'U:V-group',
     format: 'image/png',
     transparent: true,
     attribution: 'SOCIB HF RADAR | sea_water_velocity'

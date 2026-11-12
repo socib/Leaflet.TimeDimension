@@ -1,63 +1,62 @@
+var endDate = new Date();
+endDate.setUTCHours(0, 0, 0, 0);
+L.TimeDimension.Util.addTimeDuration(endDate, "P3D", true);
+
 var map = L.map('map', {
-    zoom: 5,
+    zoom: 6,
     fullscreenControl: true,
     timeDimension: true,
+    timeDimensionOptions: {
+        timeInterval: "P1M/" + endDate.toISOString(),
+        period: "P1D"
+    },
     timeDimensionControl: true,
-    center: [38.0, 15.0]
+    center: [39.0, 2.5]
 });
 
-var avisoWMS = "https://thredds.socib.es/thredds/wms/observational/satellite/altimetry/aviso/madt/sealevel_med_phy_nrt_L4_agg/sealevel_med_phy_nrt_L4_agg_best.ncd";
+var wmopWMS = "https://thredds.socib.es/thredds/wms/operational_models/oceanographical/hydrodynamics/model_run_aggregation/wmop_surface/wmop_surface_best.ncd";
 
-var heigthLayer = L.tileLayer.wms(avisoWMS, {
-    layers: 'adt',
+var heigthLayer = L.tileLayer.wms(wmopWMS, {
+    layers: 'zeta',
     format: 'image/png',
     transparent: true,
-    colorscalerange: '-0.4,0.4',
+    colorscalerange: '-0.7,-0.1',
     abovemaxcolor: "extend",
     belowmincolor: "extend",
     numcolorbands: 100,
-    styles: 'boxfill/rainbow'
+    styles: 'default-scalar/div-RdBu-inv'
 });
-var heigthContourLayer = L.tileLayer.wms(avisoWMS, {
-    layers: 'adt',
+var heigthContourLayer = L.tileLayer.wms(wmopWMS, {
+    layers: 'zeta',
     format: 'image/png',
     transparent: true,
-    colorscalerange: '-0.5,0.5',
+    colorscalerange: '-0.7,-0.1',
     numcontours: 11,
-    styles: 'contour/rainbow'
+    styles: 'contours'
 });
 
-var velocityLayer = L.nonTiledLayer.wms(avisoWMS, {
-    layers: 'surface_geostrophic_sea_water_velocity',
+var velocityLayer = L.nonTiledLayer.wms(wmopWMS, {
+    layers: 'u:v-group',
     format: 'image/png',
     transparent: true,
-    colorscalerange: '-20,100',
-    markerscale: 10,
-    markerspacing: 8,
-    abovemaxcolor: "extend",
-    belowmincolor: "extend",
-    numcolorbands: 100,
-    styles: 'prettyvec/greyscale'
+    colorscalerange: '0,1',
+    styles: 'sized_arrows'
 });
 
-var proxy = 'server/proxy.php';
 var heightTimeLayer = L.timeDimension.layer.wms(heigthLayer, {
-    proxy: proxy,
     updateTimeDimension: true,
 });
 var heightContourTimeLayer = L.timeDimension.layer.wms(heigthContourLayer, {
-    proxy: proxy,
     updateTimeDimension: false,
 });
 var velocityTimeLayer = L.timeDimension.layer.wms(velocityLayer, {
-    proxy: proxy,
     updateTimeDimension: false,
 });
 
 var overlayMaps = {
-    "AVISO - Sea surface height above geoid": heightTimeLayer,
-    "AVISO - Sea surface height above geoid (Contour)": heightContourTimeLayer,
-    "AVISO - Surface geostrophic sea water velocity": velocityTimeLayer
+    "WMOP - Sea surface height": heightTimeLayer,
+    "WMOP - Sea surface height (Contour)": heightContourTimeLayer,
+    "WMOP - Surface sea water velocity": velocityTimeLayer
 };
 
 // Legends
@@ -65,7 +64,7 @@ var heigthLegend = L.control({
     position: 'bottomright'
 });
 heigthLegend.onAdd = function(map) {
-    var src = avisoWMS + "?SERVICE=WMS&VERSION=1.1.1&REQUEST=GetLegendGraphic&LAYER=adt&colorscalerange=-0.4,0.4&PALETTE=rainbow&transparent=TRUE";
+    var src = wmopWMS + "?SERVICE=WMS&VERSION=1.1.1&REQUEST=GetLegendGraphic&LAYERS=zeta&STYLES=default-scalar/div-RdBu-inv&colorscalerange=-0.7,-0.1&numcolorbands=100&transparent=TRUE&FORMAT=image/png";
     var div = L.DomUtil.create('div', 'info legend');
     div.innerHTML +=
         '<img src="' + src + '" alt="legend">';
@@ -77,23 +76,23 @@ var velocityLegend = L.control({
 });
 velocityLegend.onAdd = function(map) {
     var div = L.DomUtil.create('div', 'info legend');
-    div.innerHTML += '<img src="img/black-arrow.png" /> Surface geostrophic<br/>sea water velocity';
+    div.innerHTML += '<img src="img/black-arrow.png" /> Surface<br/>sea water velocity';
     return div;
 };
 
 
 map.on('overlayadd', function(eventLayer) {
-    if (eventLayer.name == 'AVISO - Sea surface height above geoid') {
+    if (eventLayer.name == 'WMOP - Sea surface height') {
         heigthLegend.addTo(this);
-    } else if (eventLayer.name == 'AVISO - Surface geostrophic sea water velocity') {
+    } else if (eventLayer.name == 'WMOP - Surface sea water velocity') {
         velocityLegend.addTo(this);
     }
 });
 
 map.on('overlayremove', function(eventLayer) {
-    if (eventLayer.name == 'AVISO - Sea surface height above geoid') {
+    if (eventLayer.name == 'WMOP - Sea surface height') {
         map.removeControl(heigthLegend);
-    } else if (eventLayer.name == 'AVISO - Surface geostrophic sea water velocity') {
+    } else if (eventLayer.name == 'WMOP - Surface sea water velocity') {
         map.removeControl(velocityLegend);
     }
 });
