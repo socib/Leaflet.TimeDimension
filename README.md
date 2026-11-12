@@ -2,7 +2,7 @@
 
 Add time dimension capabilities on a [Leaflet](http://leafletjs.com/) map.
 
-![screenshot](https://raw.githubusercontent.com/socib/Leaflet.TimeDimension/master/examples/img/screenshot/screenshot-leaflet-timedimension.png "Screenshot of Leaflet.TimeDimension")
+![screenshot](https://raw.githubusercontent.com/socib/Leaflet.TimeDimension/main/examples/img/screenshot/screenshot-leaflet-timedimension.png "Screenshot of Leaflet.TimeDimension")
 
 - [Leaflet TimeDimension](#leaflet-timedimension)
   - [Examples and basic usage](#examples-and-basic-usage)
@@ -53,13 +53,13 @@ Basic usage:
     <head>
         <title>Leaflet TimeDimension Demo</title>
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.5.1/dist/leaflet.css" />
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet-timedimension@1.1.1/dist/leaflet.timedimension.control.min.css" />
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet-timedimension@1.2.0/dist/leaflet.timedimension.control.min.css" />
     </head>
     <body>
         <div id="map" style="height: 100%; width: 100%"></div>
         <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/leaflet@1.5.1/dist/leaflet.js"></script>
         <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/iso8601-js-period@0.2.1/iso8601.min.js"></script>
-        <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/leaflet-timedimension@1.1.1/dist/leaflet.timedimension.min.js"></script>
+        <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/leaflet-timedimension@1.2.0/dist/leaflet.timedimension.min.js"></script>
         <script type="text/javascript" src="example.js"></script>
     </body>
 </html>
@@ -78,9 +78,9 @@ var map = L.map('map', {
     timeDimensionControl: true,
 });
 
-var wmsUrl = "https://thredds.socib.es/thredds/wms/observational/hf_radar/hf_radar_ibiza-scb_codarssproc001_aggregation/dep0001_hf-radar-ibiza_scb-codarssproc001_L1_agg.nc"
+var wmsUrl = "https://thredds.socib.es/thredds/wms/observational/hf_radar/hf_radar_ibiza-scb_codarssproc001_L1_agg/hf_radar_ibiza-scb_codarssproc001_L1_agg_best.ncd"
 var wmsLayer = L.tileLayer.wms(wmsUrl, {
-    layers: 'sea_water_velocity',
+    layers: 'U:V-group',
     format: 'image/png',
     transparent: true,
     attribution: 'SOCIB HF RADAR | sea_water_velocity'
