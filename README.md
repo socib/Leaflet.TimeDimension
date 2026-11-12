@@ -2,7 +2,7 @@
 
 Add time dimension capabilities on a [Leaflet](http://leafletjs.com/) map.
 
-![screenshot](https://raw.githubusercontent.com/socib/Leaflet.TimeDimension/master/examples/img/screenshot/screenshot-leaflet-timedimension.png "Screenshot of Leaflet.TimeDimension")
+![screenshot](https://raw.githubusercontent.com/socib/Leaflet.TimeDimension/main/examples/img/screenshot/screenshot-leaflet-timedimension.png "Screenshot of Leaflet.TimeDimension")
 
 - [Leaflet TimeDimension](#leaflet-timedimension)
   - [Examples and basic usage](#examples-and-basic-usage)
