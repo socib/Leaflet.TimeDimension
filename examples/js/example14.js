@@ -27,9 +27,9 @@ L.tileLayer('https://{s}.tile.osm.org/{z}/{x}/{y}.png', {
     attribution: '&copy; <a href="https://osm.org/copyright">OpenStreetMap</a> contributors'
 }).addTo(map);
 
-var wmsUrl = "https://nowcoast.noaa.gov/arcgis/services/nowcoast/radar_meteo_imagery_nexrad_time/MapServer/WMSServer"
-var radarWMS = L.nonTiledLayer.wms(wmsUrl, {
-    layers: '1',
+var wmsUrl = "https://nowcoast.noaa.gov/geoserver/observations/weather_radar/ows";
+var radarWMS = L.tileLayer.wms(wmsUrl, {
+    layers: 'conus_base_reflectivity_mosaic',
     format: 'image/png',
     transparent: true,
     opacity: 0.8,
@@ -37,7 +37,8 @@ var radarWMS = L.nonTiledLayer.wms(wmsUrl, {
 });
 
 var testTimeLayer = L.timeDimension.layer.wms(radarWMS, {
-    updateTimeDimension: false,
+    updateTimeDimension: true,
+    updateTimeDimensionMode: 'replace',
     wmsVersion: '1.3.0'
 });
 testTimeLayer.addTo(map);
@@ -47,10 +48,8 @@ var theLegend = L.control({
 });
 
 theLegend.onAdd = function(map) {
-    var src = "https://nowcoast.noaa.gov/images/legends/radar.png";
+    var src = wmsUrl + "?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetLegendGraphic&LAYER=conus_base_reflectivity_mosaic&FORMAT=image/png";
     var div = L.DomUtil.create('div', 'info legend');
-    div.style.width = '270px';
-    div.style.height = '50px';
     div.innerHTML += '<b>Legend</b><br><img src="' + src + '" alt="legend">';
     return div;
 };
