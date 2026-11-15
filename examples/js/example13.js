@@ -11,6 +11,7 @@ var map = L.map('map', {
         position: 'bottomleft',
         playerOptions: {
             transitionTime: 1000,
+            buffer: 2
         }
     },
     timeDimension: true,
