@@ -29,9 +29,7 @@ var testLayer = L.tileLayer.wms(testWMS, {
     crs: L.CRS.EPSG4326,
     attribution: 'OGC MetOcean DWG Best Practice Example, IBL Software Engineering'
 });
-var proxy = 'server/proxy.php';
 var testTimeLayer = L.timeDimension.layer.wms(testLayer, {
-    proxy: proxy,
     updateTimeDimension: true,
 });
 testTimeLayer.addTo(map);
