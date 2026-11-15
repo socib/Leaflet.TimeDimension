@@ -208,8 +208,17 @@ var imageUrl = 'https://www.socib.es/users/mobims/imageArchive/clm/sirena/clm/c0
         [38.71, 1.1325]
     ];
 
+// Shown in place of the photo when the image for a time does not exist (404):
+// Leaflet swaps the failed image for errorOverlayUrl and fires 'load' for it,
+// so the time is marked as ready and the notice is displayed.
+var noImageUrl = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(
+    '<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600">' +
+    '<rect width="100%" height="100%" fill="#fff"/>' +
+    '<text x="50%" y="50%" font-family="sans-serif" font-size="40" font-weight="bold" ' +
+    'text-anchor="middle" fill="#333">No image available for this time</text></svg>');
 var imageLayer = L.imageOverlay(imageUrl, imageBounds, {
-    opacity: 0.5
+    opacity: 0.5,
+    errorOverlayUrl: noImageUrl
 });
 
 Date.prototype.format = function (mask, utc) {
