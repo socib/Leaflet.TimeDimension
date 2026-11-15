@@ -31,7 +31,7 @@ var wmopTemperatureLayer = L.tileLayer.wms(wmopWMS, {
     abovemaxcolor: "extend",
     belowmincolor: "extend",
     numcolorbands: 40,
-    styles: 'boxfill/sst_36',
+    styles: 'default-scalar/div-Spectral-inv',
     zIndex: 1,
 });
 
@@ -40,7 +40,7 @@ var wmopTemperatureContourLayer = L.tileLayer.wms(wmopWMS, {
     format: 'image/png',
     transparent: true,
     numcontours: 11,
-    styles: 'contour/sst_36',
+    styles: 'contours',
     zIndex: 10,
 });
 
@@ -51,7 +51,7 @@ var wmopSalinityLayer = L.tileLayer.wms(wmopWMS, {
     abovemaxcolor: "extend",
     belowmincolor: "extend",
     numcolorbands: 40,
-    styles: 'boxfill/mpl_rdbu_r'
+    styles: 'default-scalar/mpl_rdbu_r'
 });
 
 var wmopSalinityContourLayer = L.tileLayer.wms(wmopWMS, {
@@ -59,23 +59,18 @@ var wmopSalinityContourLayer = L.tileLayer.wms(wmopWMS, {
     format: 'image/png',
     transparent: true,
     numcontours: 11,
-    styles: 'contour/sst_36'
+    styles: 'contours'
 });
 
 var wmopVelocityLayer = L.nonTiledLayer.wms(wmopWMS, {
-    layers: 'sea_surface_velocity',
+    layers: 'u:v-group',
     format: 'image/png',
     transparent: true,
-    colorscalerange: '0,3',
-    abovemaxcolor: "extend",
-    belowmincolor: "extend",
-    markerscale: 10,
-    markerspacing: 8,
-    styles: 'prettyvec/greyscale'
+    colorscalerange: '0,1',
+    styles: 'sized_arrows'
 });
 
-var proxy = 'server/proxy.php';
-var wmopVelocityTimeLayer = L.timeDimension.layer.wms(wmopVelocityLayer, {proxy: proxy, updateTimeDimension: true});
+var wmopVelocityTimeLayer = L.timeDimension.layer.wms(wmopVelocityLayer, {updateTimeDimension: true});
 var overlayMaps = {
     "WMOP - Velocity": wmopVelocityTimeLayer
 };
@@ -94,7 +89,6 @@ var getLayerMinMax = function(layer, callback) {
     url = url + '&BBox=' + map.getBounds().toBBoxString();
     url = url + '&height=' + size.y;
     url = url + '&width=' + size.x;
-    url = proxy + '?url=' + encodeURIComponent(url);
 
     var oReq = new XMLHttpRequest();
     oReq.addEventListener("load", (function(xhr) {
@@ -114,7 +108,7 @@ var getLayerMinMax = function(layer, callback) {
 };
 
 var addTimeDimensionLayer = function(layer, name, addToMap){
-    var timeDimensionLayer = L.timeDimension.layer.wms(layer, {proxy: proxy});
+    var timeDimensionLayer = L.timeDimension.layer.wms(layer);
     layersControl.addOverlay(timeDimensionLayer, name);
     if (addToMap)
         timeDimensionLayer.addTo(map);
