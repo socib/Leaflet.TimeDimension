@@ -43,7 +43,8 @@ var sapoPeakDirectionLayer = L.nonTiledLayer.wms(sapoWMS, {
     layers: 'direction_of_the_peak_of_the_spectrum',
     format: 'image/png',
     transparent: true,
-    styles: 'meteorological_fat_arrows/greyscale'
+    styles: 'meteorological_arrows/greyscale',
+    opacity: 0.5
 });
 
 var sapoHeightTimeLayer = L.timeDimension.layer.wms(sapoHeightLayer, {
@@ -78,7 +79,7 @@ var sapoPeakDirectionLegend = L.control({
 });
 sapoPeakDirectionLegend.onAdd = function(map) {
     var div = L.DomUtil.create('div', 'info legend');
-    div.innerHTML += '<img src="img/black-arrow.png" /> peak direction (fat arrows)';
+    div.innerHTML += '<img src="img/grey-arrow.png" /> peak direction';
     return div;
 };
 
