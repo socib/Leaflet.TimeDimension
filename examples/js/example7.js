@@ -82,29 +82,46 @@ layersControl.addTo(map);
 wmopVelocityTimeLayer.addTo(map);
 
 var getLayerMinMax = function(layer, callback) {
-    var url = wmopWMS + '?service=WMS&version=1.1.1&request=GetMetadata&item=minmax';
-    url = url + '&layers=' + layer.options.layers;
-    url = url + '&srs=EPSG:4326';
-    var size = map.getSize();
-    url = url + '&BBox=' + map.getBounds().toBBoxString();
-    url = url + '&height=' + size.y;
-    url = url + '&width=' + size.x;
-
-    var oReq = new XMLHttpRequest();
-    oReq.addEventListener("load", (function(xhr) {
-        var response = xhr.currentTarget.response;
-        var data = JSON.parse(response);
-        var range = data.max - data.min;
-        var min = Math.floor(data.min) - 1;
-        var max = Math.floor(data.max + 2);
-        layer.options.colorscalerange = min + "," + max;
-        layer.wmsParams.colorscalerange = min + "," + max;
-        if (callback !== undefined) {
-            callback();
+    // Query the min/max at the first time of the period and at the server's
+    // default (latest) time, so the colour scale covers the whole animation.
+    var times = map.timeDimension.getAvailableTimes();
+    var queryTimes = [new Date(times[0]).toISOString(), null];
+    var min = Infinity;
+    var max = -Infinity;
+    var pending = queryTimes.length;
+    queryTimes.forEach(function(time) {
+        var url = wmopWMS + '?service=WMS&version=1.1.1&request=GetMetadata&item=minmax';
+        url = url + '&layers=' + layer.options.layers;
+        url = url + '&srs=EPSG:4326';
+        var size = map.getSize();
+        url = url + '&BBox=' + map.getBounds().toBBoxString();
+        url = url + '&height=' + size.y;
+        url = url + '&width=' + size.x;
+        if (time) {
+            url = url + '&time=' + time;
         }
-    }));
-    oReq.open("GET", url);
-    oReq.send();
+
+        var oReq = new XMLHttpRequest();
+        oReq.addEventListener("load", (function(xhr) {
+            var response = xhr.currentTarget.response;
+            var data = JSON.parse(response);
+            min = Math.min(min, data.min);
+            max = Math.max(max, data.max);
+            pending--;
+            if (pending > 0) {
+                return;
+            }
+            min = Math.floor(min) - 1;
+            max = Math.floor(max + 2);
+            layer.options.colorscalerange = min + "," + max;
+            layer.wmsParams.colorscalerange = min + "," + max;
+            if (callback !== undefined) {
+                callback();
+            }
+        }));
+        oReq.open("GET", url);
+        oReq.send();
+    });
 };
 
 var addTimeDimensionLayer = function(layer, name, addToMap){
