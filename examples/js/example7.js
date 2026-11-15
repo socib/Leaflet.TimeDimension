@@ -51,7 +51,8 @@ var wmopSalinityLayer = L.nonTiledLayer.wms(wmopWMS, {
     abovemaxcolor: "extend",
     belowmincolor: "extend",
     numcolorbands: 40,
-    styles: 'default-scalar/mpl_rdbu_r'
+    styles: 'default-scalar/mpl_rdbu_r',
+    zIndex: 1
 });
 
 var wmopSalinityContourLayer = L.nonTiledLayer.wms(wmopWMS, {
@@ -59,7 +60,8 @@ var wmopSalinityContourLayer = L.nonTiledLayer.wms(wmopWMS, {
     format: 'image/png',
     transparent: true,
     numcontours: 11,
-    styles: 'contours'
+    styles: 'contours',
+    zIndex: 10
 });
 
 var wmopVelocityLayer = L.nonTiledLayer.wms(wmopWMS, {
@@ -67,7 +69,8 @@ var wmopVelocityLayer = L.nonTiledLayer.wms(wmopWMS, {
     format: 'image/png',
     transparent: true,
     colorscalerange: '0,1',
-    styles: 'sized_arrows'
+    styles: 'sized_arrows',
+    zIndex: 20
 });
 
 var wmopVelocityTimeLayer = L.timeDimension.layer.wms(wmopVelocityLayer, {updateTimeDimension: true});
@@ -76,7 +79,7 @@ var overlayMaps = {
 };
 
 var baseLayers = getCommonBaseLayers(map); // see baselayers.js
-var layersControl = L.control.layers(baseLayers, overlayMaps);
+var layersControl = L.control.layers(baseLayers, overlayMaps, {autoZIndex: false});
 layersControl.addTo(map);
 
 wmopVelocityTimeLayer.addTo(map);
