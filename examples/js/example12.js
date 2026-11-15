@@ -133,7 +133,7 @@ var map = L.map('map', {
     fullscreenControl: true,
     timeDimension: true,
     timeDimensionOptions: {
-        timeInterval: "2010-01-01/" + currentTime.toISOString(),
+        timeInterval: "2020-01-01/" + currentTime.toISOString(),
         period: "P1M",
         currentTime: currentTime
     },
@@ -148,7 +148,7 @@ var testSODALayer = L.timeDimension.layer.sodaHeatMap({
     baseURL: 'https://data.cityofnewyork.us/resource/erm2-nwe9.json?$select=location,closed_date,complaint_type,street_name,created_date,status,unique_key,agency_name,due_date,descriptor,location_type,agency,incident_address&complaint_type=Noise - Commercial',
 });
 testSODALayer.addTo(map);
-map.attributionControl.addAttribution('<a href="https://nycopendata.socrata.com/Social-Services/311-Service-Requests-from-2010-to-Present/erm2-nwe9">NYC OpenData</a>');
+map.attributionControl.addAttribution('<a href="https://data.cityofnewyork.us/Social-Services/311-Service-Requests-from-2020-to-Present/erm2-nwe9">NYC OpenData</a>');
 
 L.Control.TimeDimensionCustom = L.Control.TimeDimension.extend({
     _getDisplayDateFormat: function(date){
