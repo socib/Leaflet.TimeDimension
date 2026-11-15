@@ -28,7 +28,7 @@ L.tileLayer('https://{s}.tile.osm.org/{z}/{x}/{y}.png', {
 }).addTo(map);
 
 var testWMS = "https://thredds.socib.es/thredds/wms/observational/hf_radar/hf_radar_ibiza-scb_codarssproc001_L1_agg/hf_radar_ibiza-scb_codarssproc001_L1_agg_best.ncd"
-var testLayer = L.tileLayer.wms(testWMS, {
+var testLayer = L.nonTiledLayer.wms(testWMS, {
     layers: 'U:V-group',
     version: '1.3.0',
     format: 'image/png',

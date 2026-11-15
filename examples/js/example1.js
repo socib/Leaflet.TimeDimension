@@ -16,7 +16,7 @@ var map = L.map('map', {
 
 var wmopWMS = "https://thredds.socib.es/thredds/wms/operational_models/oceanographical/hydrodynamics/model_run_aggregation/wmop_surface/wmop_surface_best.ncd";
 
-var heigthLayer = L.tileLayer.wms(wmopWMS, {
+var heigthLayer = L.nonTiledLayer.wms(wmopWMS, {
     layers: 'zeta',
     format: 'image/png',
     transparent: true,
@@ -26,7 +26,7 @@ var heigthLayer = L.tileLayer.wms(wmopWMS, {
     numcolorbands: 100,
     styles: 'default-scalar/div-RdBu-inv'
 });
-var heigthContourLayer = L.tileLayer.wms(wmopWMS, {
+var heigthContourLayer = L.nonTiledLayer.wms(wmopWMS, {
     layers: 'zeta',
     format: 'image/png',
     transparent: true,

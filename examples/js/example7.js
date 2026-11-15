@@ -18,13 +18,13 @@ var map = L.map('map', {
         playerOptions: {
             loop: true,
             transitionTime: 1500,
-            buffer: 10
+            buffer: 5
         }
     }
 });
 
 var wmopWMS = "https://thredds.socib.es/thredds/wms/operational_models/oceanographical/hydrodynamics/model_run_aggregation/wmop_surface/wmop_surface_best.ncd";
-var wmopTemperatureLayer = L.tileLayer.wms(wmopWMS, {
+var wmopTemperatureLayer = L.nonTiledLayer.wms(wmopWMS, {
     layers: 'temp',
     format: 'image/png',
     transparent: true,
@@ -35,7 +35,7 @@ var wmopTemperatureLayer = L.tileLayer.wms(wmopWMS, {
     zIndex: 1,
 });
 
-var wmopTemperatureContourLayer = L.tileLayer.wms(wmopWMS, {
+var wmopTemperatureContourLayer = L.nonTiledLayer.wms(wmopWMS, {
     layers: 'temp',
     format: 'image/png',
     transparent: true,
@@ -44,7 +44,7 @@ var wmopTemperatureContourLayer = L.tileLayer.wms(wmopWMS, {
     zIndex: 10,
 });
 
-var wmopSalinityLayer = L.tileLayer.wms(wmopWMS, {
+var wmopSalinityLayer = L.nonTiledLayer.wms(wmopWMS, {
     layers: 'salt',
     format: 'image/png',
     transparent: true,
@@ -54,7 +54,7 @@ var wmopSalinityLayer = L.tileLayer.wms(wmopWMS, {
     styles: 'default-scalar/mpl_rdbu_r'
 });
 
-var wmopSalinityContourLayer = L.tileLayer.wms(wmopWMS, {
+var wmopSalinityContourLayer = L.nonTiledLayer.wms(wmopWMS, {
     layers: 'salt',
     format: 'image/png',
     transparent: true,
