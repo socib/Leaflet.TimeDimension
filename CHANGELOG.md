@@ -5,6 +5,19 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Changed
+- Examples: the SOCIB THREDDS examples (3, 6, 7, 13) use ncWMS2 style and layer
+  names and no longer need a proxy; example 18 reads the HF radar currents from
+  THREDDS through OPeNDAP instead of the SOCIB Data API; examples 4, 11, 12 and 14
+  point to the current KNMI, NCEI, OpenStreetMap and nowCOAST services; Highstock
+  is loaded from jsDelivr (10, 13). The `wms.timeseries` extra of example 13 uses
+  ncWMS2 `GetTimeseries`. Every example works straight from the repository.
+- Examples 5 (climate projections) and 8 (HF radar with surface drifters) are
+  retired, together with the PHP proxies in `examples/server/`: their services
+  are gone or only reachable through a server-side proxy.
+
 ## [1.2.0] - 2026-11-12
 
 ### Added
@@ -37,4 +50,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 Releases up to 1.1.1 are listed in the [GitHub tags](https://github.com/socib/Leaflet.TimeDimension/tags).
 
+[Unreleased]: https://github.com/socib/Leaflet.TimeDimension/compare/v1.2.0...HEAD
 [1.2.0]: https://github.com/socib/Leaflet.TimeDimension/compare/v1.1.1...v1.2.0
