@@ -1,5 +1,7 @@
 var startDate = new Date();
 startDate.setUTCHours(0, 0, 0, 0);
+var endDate = new Date(startDate.getTime());
+L.TimeDimension.Util.addTimeDuration(endDate, "P3D", true);
 
 var map = L.map('map', {
     zoom: 8,
@@ -12,6 +14,13 @@ var map = L.map('map', {
         }
     },
     timeDimension: true,
+    // Seven days of hindcast plus the forecast; the layer's GetCapabilities
+    // (updateTimeDimension) intersects this range with the available times.
+    timeDimensionOptions: {
+        timeInterval: "P10D/" + endDate.toISOString(),
+        period: "PT1H",
+        currentTime: startDate.getTime()
+    },
     center: [39.3, 2.9]
 });
 
@@ -20,7 +29,7 @@ var sapoHeightLayer = L.nonTiledLayer.wms(sapoWMS, {
     layers: 'significant_wave_height',
     format: 'image/png',
     transparent: true,
-    colorscalerange: '0,3',
+    colorscalerange: '0,5',
     abovemaxcolor: "extend",
     belowmincolor: "extend",
     numcolorbands: 253,
@@ -86,7 +95,7 @@ var sapoLegend = L.control({
     position: 'bottomright'
 });
 sapoLegend.onAdd = function(map) {
-    var src = sapoWMS + "?SERVICE=WMS&VERSION=1.1.1&REQUEST=GetLegendGraphic&LAYERS=significant_wave_height&STYLES=default-scalar/scb_bugnylorrd&COLORSCALERANGE=0,3&NUMCOLORBANDS=253&FORMAT=image/png";
+    var src = sapoWMS + "?SERVICE=WMS&VERSION=1.1.1&REQUEST=GetLegendGraphic&LAYERS=significant_wave_height&STYLES=default-scalar/scb_bugnylorrd&COLORSCALERANGE=0,5&NUMCOLORBANDS=253&FORMAT=image/png";
     var div = L.DomUtil.create('div', 'info legend');
     div.innerHTML +=
         '<img src="' + src + '" alt="legend" style="height: 280px">';
