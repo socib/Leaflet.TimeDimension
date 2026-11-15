@@ -14,6 +14,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   point to the current KNMI, NCEI, OpenStreetMap and nowCOAST services; Highstock
   is loaded from jsDelivr (10, 13). The `wms.timeseries` extra of example 13 uses
   ncWMS2 `GetTimeseries`. Every example works straight from the repository.
+- Examples refined after review: example 7 keeps the currents above the
+  temperature and salinity fills (now mutually exclusive) and fits its colour
+  scale to the whole period; example 10 shows a notice when a SIRENA image is
+  missing; example 12 starts in 2020, the earliest data NYC OpenData still
+  serves; example 13 covers the last week plus the forecast.
 - Examples 5 (climate projections) and 8 (HF radar with surface drifters) are
   retired, together with the PHP proxies in `examples/server/`: their services
   are gone or only reachable through a server-side proxy.
