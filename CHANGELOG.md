@@ -19,6 +19,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   scale to the whole period; example 10 shows a notice when a SIRENA image is
   missing; example 12 starts in 2020, the earliest data NYC OpenData still
   serves; example 13 covers the last week plus the forecast.
+- The npm package only ships `dist/`, `src/` and this changelog (`files` in
+  `package.json`): the examples and their sample data, 10 MB of the 11 MB
+  package, stay in the repository.
 - Examples 5 (climate projections) and 8 (HF radar with surface drifters) are
   retired, together with the PHP proxies in `examples/server/`: their services
   are gone or only reachable through a server-side proxy.
