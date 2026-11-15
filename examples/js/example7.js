@@ -127,22 +127,50 @@ var getLayerMinMax = function(layer, callback) {
     });
 };
 
-var addTimeDimensionLayer = function(layer, name, addToMap){
+// Temperature and salinity are mutually exclusive: switching on a layer of
+// one group (fill or contours) switches off both layers of the other group.
+var exclusiveGroups = {
+    temperature: [],
+    salinity: []
+};
+map.on('overlayadd', function(ev) {
+    var other = null;
+    if (exclusiveGroups.temperature.indexOf(ev.layer) >= 0) {
+        other = exclusiveGroups.salinity;
+    } else if (exclusiveGroups.salinity.indexOf(ev.layer) >= 0) {
+        other = exclusiveGroups.temperature;
+    }
+    if (!other) {
+        return;
+    }
+    // Deferred: the layers control only refreshes its checkboxes for changes
+    // made outside its own click handler.
+    setTimeout(function() {
+        other.forEach(function(layer) {
+            if (map.hasLayer(layer)) {
+                map.removeLayer(layer);
+            }
+        });
+    }, 0);
+});
+
+var addTimeDimensionLayer = function(layer, name, group, addToMap){
     var timeDimensionLayer = L.timeDimension.layer.wms(layer);
+    exclusiveGroups[group].push(timeDimensionLayer);
     layersControl.addOverlay(timeDimensionLayer, name);
     if (addToMap)
         timeDimensionLayer.addTo(map);
 }
 
 getLayerMinMax(wmopTemperatureLayer, function(){
-    addTimeDimensionLayer(wmopTemperatureLayer, 'WMOP - Temperature', true);
+    addTimeDimensionLayer(wmopTemperatureLayer, 'WMOP - Temperature', 'temperature', true);
     wmopTemperatureContourLayer.wmsParams.colorscalerange = wmopTemperatureLayer.wmsParams.colorscalerange;
     wmopTemperatureContourLayer.options.colorscalerange = wmopTemperatureLayer.wmsParams.colorscalerange;
-    addTimeDimensionLayer(wmopTemperatureContourLayer, 'WMOP - Temperature (Contour)', true);
+    addTimeDimensionLayer(wmopTemperatureContourLayer, 'WMOP - Temperature (Contour)', 'temperature', true);
 });
 getLayerMinMax(wmopSalinityLayer, function(){
-    addTimeDimensionLayer(wmopSalinityLayer, 'WMOP - Salinity', false);
+    addTimeDimensionLayer(wmopSalinityLayer, 'WMOP - Salinity', 'salinity', false);
     wmopSalinityContourLayer.wmsParams.colorscalerange = wmopSalinityLayer.wmsParams.colorscalerange;
     wmopSalinityContourLayer.options.colorscalerange = wmopSalinityLayer.wmsParams.colorscalerange;
-    addTimeDimensionLayer(wmopSalinityContourLayer, 'WMOP - Salinity (Contour)', false);
+    addTimeDimensionLayer(wmopSalinityContourLayer, 'WMOP - Salinity (Contour)', 'salinity', false);
 });
