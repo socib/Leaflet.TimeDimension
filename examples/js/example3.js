@@ -48,7 +48,7 @@ var testLegend = L.control({
     position: 'topright'
 });
 testLegend.onAdd = function(map) {
-    var src = testWMS + "?SERVICE=WMS&VERSION=1.1.1&REQUEST=GetLegendGraphic&LAYERS=U:V-group&STYLES=colored_sized_arrows/rainbow&COLORSCALERANGE=0,0.4&FORMAT=image/png";
+    var src = testWMS + "?SERVICE=WMS&VERSION=1.1.1&REQUEST=GetLegendGraphic&LAYERS=U:V-mag&STYLES=default-scalar/rainbow&COLORSCALERANGE=0,0.4&FORMAT=image/png";
     var div = L.DomUtil.create('div', 'info legend');
     div.innerHTML +=
         '<img src="' + src + '" alt="legend">';
