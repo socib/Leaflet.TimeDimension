@@ -3,167 +3,194 @@ var endDate = new Date();
 endDate.setUTCHours(endDate.getUTCHours() - 1);
 endDate.setUTCMinutes(0, 0, 0);
 
+/*
+ * HF radar surface currents read from a THREDDS dataset through OPeNDAP:
+ * one small ASCII subset of U and V per time step.
+ */
 L.TimeDimension.Layer.VelocityLayer.Radar = L.TimeDimension.Layer.VelocityLayer.extend({
 
     initialize: function(options) {
         L.TimeDimension.Layer.VelocityLayer.prototype.initialize.call(this, options);
-        this._socibDataSource = this.options.socibDataSource || null;
-        this._apiKey = this.options.apiKey || null;
-        this._proxy = this.options.proxy || null;
-
-        // Update availableTimes from datasource metadata
+        this._uVariable = this.options.uVariable || 'U';
+        this._vVariable = this.options.vVariable || 'V';
+        this._maxTimes = this.options.maxTimes || 744; // last 31 days of hourly data
         this._updateTimeDimension = this.options.updateTimeDimension || false;
         this._updateTimeDimensionMode = this.options.updateTimeDimensionMode || 'intersect'; // 'union' or 'replace'
-        this._period = this.options.period || 'PT1H';
         this._setDefaultTime = this.options.setDefaultTime || false;
-        this._endTime = this.options.endTime || null;
-        this._metadataRequested = false;
-        if (this._updateTimeDimension) {
-            this._requestDataSourceMetadata();
-        }
-    },    
-
-    onAdd: function(map) {
-        L.TimeDimension.Layer.VelocityLayer.prototype.onAdd.call(this, map);
-        if (this._updateTimeDimension) {
-            if (this._endTime === null) {
-                this._requestDataSourceMetadata();
-            } else {
-                this._updateTimeDimensionAvailableTimes();
-            }
-        }
+        this._grid = null; // {lat: [], lon: [], times: [ms], firstIndex: int}
+        this._pendingTime = null;
+        this._requestGrid();
     },
 
-    _constructQuery: function(time) {
-        var startDate = new Date(time);
-        var endDate = new Date(startDate.getTime());
-        L.TimeDimension.Util.addTimeDuration(endDate, "PT30M", false);
-        var timeParams =
-            "&initial_datetime=" +
-            startDate.toISOString().substring(0, 19) +
-            "&end_datetime=" +
-            endDate.toISOString().substring(0, 19);
-        var url = this._baseURL + this._socibDataSource +
-                    "/data/?max_qc_value=3&standard_name=northward_sea_water_velocity&standard_name=eastward_sea_water_velocity&processing_level=L1&format=json" + 
-                    timeParams;
-        if (this._apiKey) {
-            url = url + "&api_key=" + this._apiKey;
+    _getDataForTime: function(time) {
+        if (!this._map) {
+            return;
         }
-        if (this._proxy) {
-            url = this._proxy + "?url=" + encodeURIComponent(url);
+        if (!this._grid) {
+            this._pendingTime = time;
+            return;
         }
-        return url;
+        var index = this._grid.times.indexOf(time);
+        if (index === -1) {
+            this._setDataForTime(time, []);
+            return;
+        }
+        index = index + this._grid.firstIndex;
+        var subset = '[' + index + '][0:1:' + (this._grid.lat.length - 1) + '][0:1:' + (this._grid.lon.length - 1) + ']';
+        var url = this._baseURL + '.ascii?' + this._encodeConstraint(this._uVariable + subset + ',' + this._vVariable + subset);
+        this._request(url, (function(text) {
+            var data = this._parseOpendapAscii(text);
+            this._setDataForTime(time, this._buildVelocityData(data[this._uVariable], data[this._vVariable], time));
+        }).bind(this));
     },
 
-    _processLoadedData: function(data) {
-        if (data.length === 0) {
-            return [];
+    _setDataForTime: function(time, data) {
+        this._currentTimeData = data;
+        this._currentLoadedTime = time;
+        if (this._timeDimension && time == this._timeDimension.getCurrentTime() && !this._timeDimension.isLoading()) {
+            this._update();
         }
-        findVariable = function(standard_name, variable) {
-            return variable.standard_name === standard_name;
-        };
-        var u = data[0].variables.find(findVariable.bind(this, "eastward_sea_water_velocity"));
-        var v = data[0].variables.find(findVariable.bind(this, "northward_sea_water_velocity"));
-        var lat = data[0].coordinates.latitude;
-        var lon = data[0].coordinates.longitude;
-        var time = data[0].coordinates.time.data;
-
-        var u_header = {
-            parameterUnit: u.units,
-            parameterNumberName: u.standard_name,
-            parameterNumber: 2,
-            parameterCategory: 2,
-            la1: lat.data[0],
-            la2: lat.data[lat.data.length - 1],
-            lo1: lon.data[0],
-            lo2: lon.data[lon.data.length - 1],
-            nx: lon.data.length,
-            ny: lat.data.length,
-            refTime: time
-        };
-        u_header["dx"] = (u_header["lo2"] - u_header["lo1"]) / u_header["nx"];
-        u_header["dy"] = (u_header["la1"] - u_header["la2"]) / u_header["ny"];
-
-        var v_header = {
-            parameterUnit: v.units,
-            parameterNumberName: v.standard_name,
-            parameterNumber: 3, // northward-v
-            parameterCategory: 2,
-            la1: lat.data[0],
-            la2: lat.data[lat.data.length - 1],
-            lo1: lon.data[0],
-            lo2: lon.data[lon.data.length - 1],
-            nx: lon.data.length,
-            ny: lat.data.length,
-            refTime: time
-        };
-        v_header["dx"] = (v_header["lo2"] - v_header["lo1"]) / v_header["nx"];
-        v_header["dy"] = (v_header["la1"] - v_header["la2"]) / v_header["ny"];
-
-        return [
-            {
-                header: u_header,
-                data: _.flatten(u.data[0])
-            },
-            {
-                header: v_header,
-                data: _.flatten(v.data[0])
-            }
-        ];
+        this.fire('timeload', {
+            time: time
+        });
     },
 
-    _setEndTime: function(endTime) {
-        this._endTime = endTime;        
-    },
-
-    _getDefaultTime: function() {
-        return this._endTime;
+    // Grid: the size of the time axis (DDS), its units (DAS), then LAT, LON and the last times (ASCII)
+    _requestGrid: function() {
+        this._request(this._baseURL + '.dds', (function(dds) {
+            var size = parseInt(dds.match(/time\[time = (\d+)\]/)[1], 10);
+            this._request(this._baseURL + '.das', (function(das) {
+                var units = das.match(/time \{[^}]*units "hours since ([^"]+)"/)[1]; // e.g. 2012-06-01 00:00:00.000 UTC
+                var origin = Date.parse(units.replace(' ', 'T').replace(' UTC', 'Z'));
+                var first = Math.max(0, size - this._maxTimes);
+                var url = this._baseURL + '.ascii?' + this._encodeConstraint('LAT,LON,time[' + first + ':1:' + (size - 1) + ']');
+                this._request(url, (function(text) {
+                    var data = this._parseOpendapAscii(text);
+                    var times = [];
+                    for (var i = 0, l = data.time.length; i < l; i++) {
+                        times.push(origin + data.time[i] * 3600000);
+                    }
+                    this._grid = {
+                        lat: data.LAT,
+                        lon: data.LON,
+                        times: times,
+                        firstIndex: first
+                    };
+                    this._updateTimeDimensionAvailableTimes();
+                    if (this._pendingTime !== null) {
+                        this._getDataForTime(this._pendingTime);
+                        this._pendingTime = null;
+                    }
+                }).bind(this));
+            }).bind(this));
+        }).bind(this));
     },
 
     _updateTimeDimensionAvailableTimes: function() {
         if (this._timeDimension && this._updateTimeDimension) {
-            var startTime = new Date(this._timeDimension.getAvailableTimes()[0]);
-            var times = L.TimeDimension.Util.explodeTimeRange(startTime, this._endTime, this._period);
-            this._timeDimension.setAvailableTimes(times, this._updateTimeDimensionMode);
+            this._timeDimension.setAvailableTimes(this._grid.times, this._updateTimeDimensionMode);
             if (this._setDefaultTime) {
-                var defaultTime = this._getDefaultTime();
-                if (defaultTime !== this._timeDimension.getCurrentTime()){
-                    this._timeDimension.setCurrentTime(this._getDefaultTime());
-                }
+                var times = this._timeDimension.getAvailableTimes();
+                this._timeDimension.setCurrentTime(times[times.length - 1]);
             }
         }
     },
 
-    _requestDataSourceMetadata: function() {
-        if (this._metadataRequested) {
-            return;
-        }
-        this._metadataRequested = true;
-        var url = this._baseURL + this._socibDataSource + "/?";
-        if (this._apiKey) {
-            url = url + "&api_key=" + this._apiKey;
-        }
-        if (this._proxy) {
-            url = this._proxy + "?url=" + encodeURIComponent(url);
-        }
+    // Tomcat rejects raw brackets in the query string
+    _encodeConstraint: function(constraint) {
+        return constraint.replace(/\[/g, '%5B').replace(/\]/g, '%5D');
+    },
+
+    _request: function(url, callback) {
         var oReq = new XMLHttpRequest();
-        oReq.addEventListener("load", (function(xhr) {
-            var data = null;
-            try {
-                var response = xhr.currentTarget.response;
-                data = JSON.parse(response);
-            } catch(e) {
-                console.log("Error parsing API response", e);
-            }
-            if (data !== null){
-                var end_datetime = new Date(Date.parse(data['end_datetime']));
-                this._setEndTime(end_datetime);
-                this._updateTimeDimensionAvailableTimes();
-            }
-        }).bind(this));        
+        oReq.addEventListener("load", function(xhr) {
+            callback(xhr.currentTarget.response);
+        });
         oReq.open("GET", url);
         oReq.send();
-    },     
+    },
+
+    // OPeNDAP ASCII response to {variable: [values]}; NaN becomes null, rows are flattened in order
+    _parseOpendapAscii: function(text) {
+        var result = {};
+        var lines = text.split('\n');
+        var i = 0;
+        while (i < lines.length && lines[i].indexOf('-----') !== 0) {
+            i++;
+        }
+        var current = null;
+        for (i = i + 1; i < lines.length; i++) {
+            var line = lines[i].trim();
+            if (line === '') {
+                current = null;
+                continue;
+            }
+            var header = line.match(/^(\w+)\[/);
+            if (header && line.indexOf(',') === -1) {
+                current = header[1];
+                result[current] = [];
+                continue;
+            }
+            if (!current) {
+                continue;
+            }
+            var values = line.split(',');
+            if (values[0].charAt(0) === '[') {
+                values.shift(); // row index, e.g. [0][12]
+            }
+            for (var j = 0, l = values.length; j < l; j++) {
+                var value = parseFloat(values[j]);
+                result[current].push(isNaN(value) ? null : value);
+            }
+        }
+        return result;
+    },
+
+    // leaflet-velocity expects the rows ordered from north to south
+    _buildVelocityData: function(u, v, time) {
+        var lat = this._grid.lat;
+        var lon = this._grid.lon;
+        var ny = lat.length;
+        var nx = lon.length;
+        if (lat[0] < lat[ny - 1]) {
+            u = this._flipRows(u, nx, ny);
+            v = this._flipRows(v, nx, ny);
+        }
+        var header = {
+            parameterCategory: 2,
+            parameterUnit: 'm s-1',
+            la1: Math.max(lat[0], lat[ny - 1]),
+            la2: Math.min(lat[0], lat[ny - 1]),
+            lo1: lon[0],
+            lo2: lon[nx - 1],
+            nx: nx,
+            ny: ny,
+            dx: Math.abs(lon[1] - lon[0]),
+            dy: Math.abs(lat[1] - lat[0]),
+            refTime: new Date(time).toISOString()
+        };
+        return [{
+            header: L.extend({
+                parameterNumber: 2,
+                parameterNumberName: 'eastward_sea_water_velocity'
+            }, header),
+            data: u
+        }, {
+            header: L.extend({
+                parameterNumber: 3,
+                parameterNumberName: 'northward_sea_water_velocity'
+            }, header),
+            data: v
+        }];
+    },
+
+    _flipRows: function(values, nx, ny) {
+        var flipped = [];
+        for (var row = ny - 1; row >= 0; row--) {
+            flipped = flipped.concat(values.slice(row * nx, (row + 1) * nx));
+        }
+        return flipped;
+    }
 
 });
 
@@ -209,12 +236,10 @@ L.control.layers(baseLayers, {}).addTo(map);
 GSHHS_h_L1.addTo(map);
 
 var testVelocityRadarLayer = L.timeDimension.layer.velocityLayer.radar({
-    baseURL: "https://api.socib.es/data-sources/",
-    socibDataSource: "f8e2429729",    
+    baseURL: "https://thredds.socib.es/thredds/dodsC/observational/hf_radar/hf_radar_ibiza-scb_codarssproc001_L1_agg/hf_radar_ibiza-scb_codarssproc001_L1_agg_best.ncd",
     updateTimeDimension: true,
     updateTimeDimensionMode: 'intersect',
     setDefaultTime: true,
-    proxy: "server/proxy-api.php",    
     velocityLayerOptions: {
         particleAge: 30
     }

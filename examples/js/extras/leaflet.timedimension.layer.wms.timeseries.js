@@ -115,15 +115,16 @@ L.TimeDimension.Layer.WMS.TimeSeries = L.TimeDimension.Layer.WMS.extend({
         var min = new Date(this._getNearestTime(this._currentDateRange.min.getTime()));
         var max = new Date(this._getNearestTime(this._currentDateRange.max.getTime()));
 
+        // ncWMS2 GetTimeseries: the time series of the layer at a pixel, as CoverageJSON
         var point = this._map.latLngToContainerPoint(latlng);
-        var url = this._baseLayer.getURL() + '?SERVICE=WMS&VERSION=1.1.1&REQUEST=GetFeatureInfo&SRS=EPSG:4326';
-        url = url + '&LAYER=' + this._baseLayer.options.layers;
+        var url = this._baseLayer.getURL() + '?SERVICE=WMS&VERSION=1.1.1&REQUEST=GetTimeseries&SRS=EPSG:4326';
+        url = url + '&LAYERS=' + this._baseLayer.options.layers;
         url = url + '&QUERY_LAYERS=' + this._baseLayer.options.layers;
         url = url + '&X=' + point.x + '&Y=' + point.y + '&I=' + point.x + '&J=' + point.y;
         var size = this._map.getSize();
         url = url + '&BBox=' + this._map.getBounds().toBBoxString();
         url = url + '&WIDTH=' + size.x + '&HEIGHT=' + size.y;
-        url = url + '&INFO_FORMAT=text/xml';
+        url = url + '&INFO_FORMAT=text/json';
         var url_without_time = url;
         url = url + '&TIME=' + min.toISOString() + '/' + max.toISOString();
 
@@ -131,7 +132,8 @@ L.TimeDimension.Layer.WMS.TimeSeries = L.TimeDimension.Layer.WMS.extend({
 
         var oReq = new XMLHttpRequest();
         oReq.addEventListener("load", (function(xhr) {
-            var data = xhr.currentTarget.responseXML;
+            var data = JSON.parse(xhr.currentTarget.response);
+            var series = this._parseTimeseries(data);
             var result = {
                 time: [],
                 values: []
@@ -141,41 +143,38 @@ L.TimeDimension.Layer.WMS.TimeSeries = L.TimeDimension.Layer.WMS.extend({
                 result.time.push(this._dateRange.min);
                 result.values.push(null);
             }
-            data.querySelectorAll('FeatureInfo').forEach(function(fi) {
-                var this_time = fi.querySelector('time').textContent;
-                var this_data = fi.querySelector('value').textContent;
-                try {
-                    this_data = parseFloat(this_data);
-                } catch (e) {
-                    this_data = null;
-                }
-                result.time.push(this_time);
-                result.values.push(this_data);
-            });
+            result.time = result.time.concat(series.time);
+            result.values = result.values.concat(series.values);
 
             if (this._currentDateRange.max < this._dateRange.max) {
                 result.time.push(this._dateRange.max);
                 result.values.push(null);
             }
 
-            result.longitude = data.querySelector('longitude').textContent;
-            try {
-                result.longitude = parseFloat(result.longitude).toFixed(4);
-            } catch (e) {}
-            result.latitude = data.querySelector('latitude').textContent;
-            try {
-                result.latitude = parseFloat(result.latitude).toFixed(4);
-            } catch (e) {}
-
+            result.longitude = data.domain.axes.x.values[0].toFixed(4);
+            result.latitude = data.domain.axes.y.values[0].toFixed(4);
             result.url = url_without_time;
 
             if (callback !== undefined) {
                 callback(result);
             }
         }).bind(this));
-        oReq.overrideMimeType('application/xml');
         oReq.open("GET", url);
         oReq.send();
+    },
+
+    // CoverageJSON (domainType PointSeries) to {time: [], values: []}
+    _parseTimeseries: function(coverage) {
+        var layerName = this._baseLayer.options.layers;
+        var values = coverage.ranges[layerName].values;
+        var result = {
+            time: coverage.domain.axes.t.values,
+            values: []
+        };
+        for (var i = 0, l = values.length; i < l; i++) {
+            result.values.push(values[i] === null ? null : parseFloat(values[i]));
+        }
+        return result;
     },
 
     _checkLoadNewData: function(min, max) {
@@ -556,22 +555,8 @@ L.TimeDimension.Layer.WMS.TimeSeries = L.TimeDimension.Layer.WMS.extend({
 
         var oReq = new XMLHttpRequest();
         oReq.addEventListener("load", (function(xhr) {
-            var data = xhr.currentTarget.responseXML;
-            var result = {
-                time: [],
-                values: []
-            };
-            data.querySelectorAll('FeatureInfo').forEach(function(fi) {
-                var this_time = fi.querySelector('time').textContent;
-                var this_data = fi.querySelector('value').textContent;
-                try {
-                    this_data = parseFloat(this_data);
-                } catch (e) {
-                    this_data = null;
-                }
-                result.time.push(this_time);
-                result.values.push(this_data);
-            });
+            var data = JSON.parse(xhr.currentTarget.response);
+            var result = this._parseTimeseries(data);
             if (callback !== undefined) {
                 callback(result);
             }
@@ -585,7 +570,6 @@ L.TimeDimension.Layer.WMS.TimeSeries = L.TimeDimension.Layer.WMS.extend({
                 callback(result);
             }
         }).bind(this));
-        oReq.overrideMimeType('application/xml');
         oReq.open("GET", url);
         oReq.send();
     },

@@ -21,65 +21,47 @@ var map = L.map('map', {
 });
 
 var sapoWMS = "https://thredds.socib.es/thredds/wms/operational_models/oceanographical/wave/model_run_aggregation/sapo_ib/sapo_ib_best.ncd";
-var sapoHeightLayer = L.tileLayer.wms(sapoWMS, {
+var sapoHeightLayer = L.nonTiledLayer.wms(sapoWMS, {
     layers: 'significant_wave_height',
     format: 'image/png',
     transparent: true,
-    colorscalerange: '0,3',
+    colorscalerange: '0,5',
     abovemaxcolor: "extend",
     belowmincolor: "extend",
-    numcolorbands: 100,
-    styles: 'areafill/scb_bugnylorrd'
-        // styles: 'areafill/scb_greens'
+    numcolorbands: 253,
+    styles: 'default-scalar/scb_bugnylorrd'
 });
 
 var sapoMeanDirectionLayer = L.nonTiledLayer.wms(sapoWMS, {
     layers: 'average_wave_direction',
     format: 'image/png',
     transparent: true,
-    colorscalerange: '1,1',
-    abovemaxcolor: "extend",
-    belowmincolor: "extend",
-    markerscale: 15,
-    markerspacing: 12,
-    markerclipping: true,
-    styles: 'prettyvec/greyscale'
+    styles: 'meteorological_arrows/greyscale'
 });
 
 var sapoPeakDirectionLayer = L.nonTiledLayer.wms(sapoWMS, {
     layers: 'direction_of_the_peak_of_the_spectrum',
     format: 'image/png',
     transparent: true,
-    colorscalerange: '0,2',
-    abovemaxcolor: "extend",
-    belowmincolor: "extend",
-    markerscale: 15,
-    markerspacing: 12,
-    markerclipping: true,
-    styles: 'prettyvec/greyscale'
+    styles: 'meteorological_arrows/greyscale',
+    opacity: 0.5
 });
 
-var proxy = 'server/proxy.php';
 var sapoHeightTimeLayer = L.timeDimension.layer.wms(sapoHeightLayer, {
-    proxy: proxy,
     updateTimeDimension: false
 });
 
-var sapoMeanDirectionTimeLayer = L.timeDimension.layer.wms(sapoMeanDirectionLayer, {
-    proxy: proxy
-});
-var sapoPeakDirectionTimeLayer = L.timeDimension.layer.wms(sapoPeakDirectionLayer, {
-    proxy: proxy
-});
+var sapoMeanDirectionTimeLayer = L.timeDimension.layer.wms(sapoMeanDirectionLayer);
+var sapoPeakDirectionTimeLayer = L.timeDimension.layer.wms(sapoPeakDirectionLayer);
 
 var sapoLegend = L.control({
     position: 'bottomright'
 });
 sapoLegend.onAdd = function(map) {
-    var src = sapoWMS + "?SERVICE=WMS&VERSION=1.1.1&REQUEST=GetLegendGraphic&LAYER=significant_wave_height&colorscalerange=0,3&PALETTE=scb_bugnylorrd&numcolorbands=100&transparent=TRUE";
+    var src = sapoWMS + "?SERVICE=WMS&VERSION=1.1.1&REQUEST=GetLegendGraphic&LAYERS=significant_wave_height&STYLES=default-scalar/scb_bugnylorrd&COLORSCALERANGE=0,5&NUMCOLORBANDS=253&FORMAT=image/png";
     var div = L.DomUtil.create('div', 'info legend');
     div.innerHTML +=
-        '<img src="' + src + '" alt="legend">';
+        '<img src="' + src + '" alt="legend" style="height: 280px">';
     return div;
 };
 

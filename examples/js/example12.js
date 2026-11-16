@@ -75,10 +75,10 @@ L.TimeDimension.Layer.SODAHeatMap = L.TimeDimension.Layer.extend({
             this._currentTimeData.data = [];
             for (var i = 0; i < data.length; i++) {
                 var marker = data[i];
-                if (marker.location) {
+                if (marker.location && marker.location.coordinates) {
                     this._currentTimeData.data.push({
-                        lat: marker.location.latitude,
-                        lng: marker.location.longitude,
+                        lat: marker.location.coordinates[1],
+                        lng: marker.location.coordinates[0],
                         count: 1
                     });
                 }
@@ -133,21 +133,22 @@ var map = L.map('map', {
     fullscreenControl: true,
     timeDimension: true,
     timeDimensionOptions: {
-        timeInterval: "2010-01-01/" + currentTime.toISOString(),
+        timeInterval: "2020-01-01/" + currentTime.toISOString(),
         period: "P1M",
         currentTime: currentTime
     },
     center: [40.74, -73.9],
 });
 
-var layer = new L.StamenTileLayer("toner-lite");
-map.addLayer(layer);
+L.tileLayer('https://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; <a href="https://osm.org/copyright">OpenStreetMap</a> contributors'
+}).addTo(map);
 
 var testSODALayer = L.timeDimension.layer.sodaHeatMap({
     baseURL: 'https://data.cityofnewyork.us/resource/erm2-nwe9.json?$select=location,closed_date,complaint_type,street_name,created_date,status,unique_key,agency_name,due_date,descriptor,location_type,agency,incident_address&complaint_type=Noise - Commercial',
 });
 testSODALayer.addTo(map);
-map.attributionControl.addAttribution('<a href="https://nycopendata.socrata.com/Social-Services/311-Service-Requests-from-2010-to-Present/erm2-nwe9">NYC OpenData</a>');
+map.attributionControl.addAttribution('<a href="https://data.cityofnewyork.us/Social-Services/311-Service-Requests-from-2020-to-Present/erm2-nwe9">NYC OpenData</a>');
 
 L.Control.TimeDimensionCustom = L.Control.TimeDimension.extend({
     _getDisplayDateFormat: function(date){

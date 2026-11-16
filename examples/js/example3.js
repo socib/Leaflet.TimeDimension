@@ -28,22 +28,18 @@ L.tileLayer('https://{s}.tile.osm.org/{z}/{x}/{y}.png', {
 }).addTo(map);
 
 var testWMS = "https://thredds.socib.es/thredds/wms/observational/hf_radar/hf_radar_ibiza-scb_codarssproc001_L1_agg/hf_radar_ibiza-scb_codarssproc001_L1_agg_best.ncd"
-var testLayer = L.tileLayer.wms(testWMS, {
-    layers: 'sea_water_velocity',
+var testLayer = L.nonTiledLayer.wms(testWMS, {
+    layers: 'U:V-group',
     version: '1.3.0',
     format: 'image/png',
     transparent: true,
-    styles: 'prettyvec/rainbow',
-    markerscale: 15,
-    markerspacing: 10,
+    styles: 'colored_sized_arrows/rainbow',
     abovemaxcolor: "extend",
     belowmincolor: "extend",
     colorscalerange: "0,0.4",
-    attribution: 'SOCIB HF RADAR | sea_water_velocity'
+    attribution: 'SOCIB HF Radar'
 });
-var proxy = 'server/proxy.php';
 var testTimeLayer = L.timeDimension.layer.wms(testLayer, {
-    proxy: proxy,
     updateTimeDimension: true
 });
 testTimeLayer.addTo(map);
@@ -52,7 +48,7 @@ var testLegend = L.control({
     position: 'topright'
 });
 testLegend.onAdd = function(map) {
-    var src = testWMS + "?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetLegendGraphic&LAYER=sea_water_velocity&PALETTE=rainbow&colorscalerange=0,0.4";
+    var src = testWMS + "?SERVICE=WMS&VERSION=1.1.1&REQUEST=GetLegendGraphic&LAYERS=U:V-mag&STYLES=default-scalar/rainbow&COLORSCALERANGE=0,0.4&FORMAT=image/png";
     var div = L.DomUtil.create('div', 'info legend');
     div.innerHTML +=
         '<img src="' + src + '" alt="legend">';
